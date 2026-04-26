@@ -109,6 +109,15 @@
   background: #fff;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 44px;
+}
+
+@media (max-width: 480px) {
+  .pp-search {
+    min-height: 48px;
+    padding: 0.85rem 2.5rem;
+    font-size: 16px;
+  }
 }
 
 .pp-search:focus {
@@ -149,6 +158,12 @@
   grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 25vw, 220px), 1fr));
   gap: clamp(0.85rem, 2vw, 1.25rem);
   width: 100%;
+}
+
+@media (max-width: 480px) {
+  .pp-grid {
+    gap: clamp(0.8rem, 3vw, 1rem);
+  }
 }
 
 .pp-empty {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { Check, Bell, AlertCircle, Loader, Store, Lock } from "lucide-react";
+import { Check, Bell, AlertCircle, Loader, Store, Lock, Eye, EyeOff, Key } from "lucide-react";
 import { fetchStoreSettings, updateStoreSettings } from "../../lib/dashboard.js";
 import { invalidateStoreSettings } from "../../utils/storeSettingsCache.js";
+import { supabase } from "../../lib/supabase.js";
 import { toast } from "react-toastify";
 import "./AdminPages.css";
 
@@ -26,6 +27,9 @@ export default function Settings() {
   });
 
   const [password, setPassword] = useState({ current:"", next:"", confirm:"" });
+  const [showPasswords, setShowPasswords] = useState({ current: false, next: false, confirm: false });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -89,6 +93,90 @@ export default function Settings() {
       setSaving(false);
     }
   };
+
+  const handleUpdatePassword = async () => {
+    // Reset error
+    setPasswordError("");
+
+    // Validation
+    if (!password.current || !password.next || !password.confirm) {
+      setPasswordError("All fields are required");
+      return;
+    }
+
+    if (password.next.length < 6) {
+      setPasswordError("New password must be at least 6 characters");
+      return;
+    }
+
+    if (password.next !== password.confirm) {
+      setPasswordError("New passwords don't match");
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+
+      // Update password in Supabase
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password.next
+      });
+
+      if (updateError) {
+        setPasswordError(updateError.message || "Failed to update password");
+        toast.error(updateError.message || "Failed to update password");
+      } else {
+        setPassword({ current: "", next: "", confirm: "" });
+        toast.success("Password updated successfully!");
+      }
+    } catch (err) {
+      console.error('Password update error:', err);
+      setPasswordError("An error occurred while updating password");
+      toast.error("An error occurred while updating password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const PasswordInput = ({ label, field }) => (
+    <div className="ap-field">
+      <label className="ap-label">{label}</label>
+      <div style={{ position: 'relative' }}>
+        <input 
+          className="ap-input" 
+          type={showPasswords[field] ? "text" : "password"}
+          value={password[field] || ""}
+          onChange={e => setPassword({...password, [field]: e.target.value})}
+          onKeyDown={e => e.stopPropagation()}
+          placeholder="••••••••"
+          style={{ paddingRight: '2.5rem', width: '100%' }}
+        />
+        <button
+          type="button"
+          tabIndex="-1"
+          onMouseDown={e => e.preventDefault()}
+          onClick={() => setShowPasswords({...showPasswords, [field]: !showPasswords[field]})}
+          style={{
+            position: 'absolute',
+            right: '0.75rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#999',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0,
+            pointerEvents: 'auto',
+          }}
+        >
+          {showPasswords[field] ? <Eye size={18} /> : <EyeOff size={18} />}
+        </button>
+      </div>
+    </div>
+  );
 
   const Toggle = ({ checked, onChange }) => (
     <button className={`ap-toggle ${checked?"on":""}`} onClick={()=>onChange(!checked)}>
@@ -167,26 +255,146 @@ export default function Settings() {
             <Lock size={24} className="ap-settings-icon" />
             <h3>Security</h3>
           </div>
-          {[
-            { label:"Current Password", key:"current", type:"password" },
-            { label:"New Password",     key:"next",    type:"password" },
-            { label:"Confirm Password", key:"confirm", type:"password" },
-          ].map(f=>(
-            <div key={f.key} className="ap-field">
-              <label className="ap-label">{f.label}</label>
-              <input className="ap-input" type={f.type}
-                value={password[f.key]}
-                onChange={e=>setPassword({...password,[f.key]:e.target.value})}
+          <div className="ap-field">
+            <label className="ap-label">Current Password</label>
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="ap-input" 
+                type={showPasswords.current ? "text" : "password"}
+                value={password.current || ""}
+                onChange={e => setPassword({...password, current: e.target.value})}
                 placeholder="••••••••"
+                style={{ paddingRight: '2.5rem', width: '100%' }}
               />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#999',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  pointerEvents: 'auto',
+                }}
+              >
+                {showPasswords.current ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
             </div>
-          ))}
-          <button className="ap-primary-btn" style={{marginTop:"0.5rem"}}
-            onClick={()=>{
-              setPassword({current:"",next:"",confirm:""});
-              toast.success("Password changed successfully");
+          </div>
+          
+          <div className="ap-field">
+            <label className="ap-label">New Password</label>
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="ap-input" 
+                type={showPasswords.next ? "text" : "password"}
+                value={password.next || ""}
+                onChange={e => setPassword({...password, next: e.target.value})}
+                placeholder="••••••••"
+                style={{ paddingRight: '2.5rem', width: '100%' }}
+              />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, next: !showPasswords.next})}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#999',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  pointerEvents: 'auto',
+                }}
+              >
+                {showPasswords.next ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="ap-field">
+            <label className="ap-label">Confirm Password</label>
+            <div style={{ position: 'relative' }}>
+              <input 
+                className="ap-input" 
+                type={showPasswords.confirm ? "text" : "password"}
+                value={password.confirm || ""}
+                onChange={e => setPassword({...password, confirm: e.target.value})}
+                placeholder="••••••••"
+                style={{ paddingRight: '2.5rem', width: '100%' }}
+              />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#999',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  pointerEvents: 'auto',
+                }}
+              >
+                {showPasswords.confirm ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+          
+          {passwordError && (
+            <div style={{
+              backgroundColor: '#fee2e2',
+              border: '1px solid #fca5a5',
+              borderRadius: '6px',
+              padding: '0.75rem',
+              marginBottom: '0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              color: '#dc2626',
+              fontSize: '0.875rem'
             }}>
-            Update Password
+              <AlertCircle size={16} />
+              <span>{passwordError}</span>
+            </div>
+          )}
+
+          <button 
+            className="ap-primary-btn" 
+            style={{marginTop:"0.5rem"}}
+            onClick={handleUpdatePassword}
+            disabled={passwordLoading}
+          >
+            {passwordLoading ? (
+              <><Loader size={14} style={{display:'inline', marginRight: 6, animation: 'spin 1s linear infinite'}} /> Updating...</>
+            ) : (
+              <><Key size={14} style={{display:'inline', marginRight: 6}} /> Update Password</>
+            )}
           </button>
 
           <div className="ap-danger-zone">

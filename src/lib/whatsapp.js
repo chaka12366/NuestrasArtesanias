@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * Normalizes a phone number for the WhatsApp API.
  * Removes spaces, dashes, and special characters.
@@ -72,4 +74,80 @@ export const getWhatsAppLink = (phone, message) => {
   if (!validatePhone(phone)) return null;
   const normalized = normalizePhone(phone);
   return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+};
+
+/**
+ * Sends a message automatically via WhatsApp Business API (Meta Official)
+ * Requires: WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_ACCESS_TOKEN environment variables
+ * 
+ * @param {string} recipientPhone - Customer's phone number (with or without country code)
+ * @param {string} message - Message content
+ * @returns {Promise<object>} - API response or error
+ */
+export const sendWhatsAppMessage = async (recipientPhone, message) => {
+  try {
+    // Get credentials from environment variables
+    const phoneNumberId = process.env.VITE_WHATSAPP_PHONE_NUMBER_ID;
+    const accessToken = process.env.VITE_WHATSAPP_ACCESS_TOKEN;
+
+    if (!phoneNumberId || !accessToken) {
+      console.error('WhatsApp API credentials not configured');
+      return {
+        success: false,
+        error: 'WhatsApp credentials missing. Configure VITE_WHATSAPP_PHONE_NUMBER_ID and VITE_WHATSAPP_ACCESS_TOKEN'
+      };
+    }
+
+    if (!validatePhone(recipientPhone)) {
+      return {
+        success: false,
+        error: 'Invalid phone number format'
+      };
+    }
+
+    const normalized = normalizePhone(recipientPhone);
+
+    // Meta WhatsApp Business API endpoint
+    const url = `https://graph.instagram.com/v18.0/${phoneNumberId}/messages`;
+
+    const response = await axios.post(
+      url,
+      {
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
+        to: normalized,
+        type: 'text',
+        text: {
+          preview_url: false,
+          body: message
+        }
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    return {
+      success: true,
+      messageId: response.data.messages[0].id,
+      timestamp: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('WhatsApp API Error:', error.response?.data || error.message);
+    return {
+      success: false,
+      error: error.response?.data?.error?.message || error.message
+    };
+  }
+};
+
+/**
+ * Sends an order update automatically via WhatsApp (no manual input needed)
+ */
+export const sendOrderUpdateWhatsApp = async (customerPhone, customerName, orderId, status, itemsStr, total) => {
+  const message = generateOrderMessage(customerName, orderId, status, itemsStr, total);
+  return await sendWhatsAppMessage(customerPhone, message);
 };

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import "./AdminPages.css";
 import OrderStatus from "./OrderStatus.jsx";
+import EmptyState from "../../components/EmptyState.jsx";
 import { fetchAllOrders, updateOrderStatus, cancelOrder } from "../../lib/dashboard.js";
 import { updatePaymentStatus } from "../../lib/orders.js";
 import { sendCustomerStatusEmail } from "../../lib/emailNotification.js";
@@ -255,7 +256,7 @@ export default function Orders() {
                 <span className="ap-status-badge" style={{ "--sc": o.paymentStatus === 'paid' ? '#27ae60' : '#c0392b' }}>
                   {o.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
                 </span>
-                <span className="ap-status-badge" style={{ "--sc": statusColor[o.status] }}>
+                <span className={`ap-status-badge status-${o.status}`} style={{ "--sc": statusColor[o.status] }}>
                   {getStatusIcon(o.status)} <span style={{textTransform: 'capitalize'}}>{o.status}</span>
                 </span>
               </div>
@@ -363,7 +364,16 @@ export default function Orders() {
             )}
           </div>
         ))}
-        {!loading && filtered.length === 0 && <p className="ap-empty">No orders match your filter.</p>}
+        {!loading && filtered.length === 0 && (
+          <EmptyState
+            title="No Orders"
+            description={statusFilter === "all" && search === ""
+              ? "No orders yet. Orders will appear here once customers start placing them."
+              : "No orders match your search or filter. Try adjusting your search criteria."}
+            type="orders"
+            compact={true}
+          />
+        )}
       </div>
 
       {/* ── CANCEL CONFIRMATION MODAL ── */}

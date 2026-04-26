@@ -94,6 +94,17 @@
   flex-shrink: 0;
   order: -1;
   z-index: 1001;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 480px) {
+  .hamburger {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 10px;
+  }
 }
 
 .hamburger:hover { background: rgba(0,0,0,0.05); }
@@ -461,6 +472,14 @@
   flex-shrink: 0;
   color: var(--charcoal);
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 480px) {
+  .auth-icon-btn {
+    width: 48px;
+    height: 48px;
+  }
 }
 
 .auth-icon-btn:hover { background: var(--primary-lighter); border-color: var(--primary-mid); transform: scale(1.05); }

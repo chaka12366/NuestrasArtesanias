@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { X, Image, Trash2, Edit } from "lucide-react";
 import { fetchAllProducts, createProduct, updateProduct, deleteProduct, uploadProductImage, fetchCategories, addProductImage, syncProductImages, fetchProductImages } from "../../lib/products.js";
 import { toast } from "react-toastify";
+import EmptyState from "../../components/EmptyState.jsx";
 import "./AdminPages.css";
 
 const STATUS_LABELS = { active:"Active", low:"Low Stock", out:"Out of Stock" };
@@ -286,21 +287,21 @@ export default function Products() {
       </div>
 
       <div className="ap-card ap-table-card">
-        <table className="ap-table">
-          <thead>
-            <tr>
-              <th style={{width:52}}>IMG</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              showLoading ? (
+        {loading ? (
+          <table className="ap-table">
+            <thead>
+              <tr>
+                <th style={{width:52}}>IMG</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {showLoading ? (
                 [1, 2, 3, 4].map(i => (
                   <tr key={`skel-${i}`}>
                     <td colSpan="7">
@@ -310,11 +311,41 @@ export default function Products() {
                 ))
               ) : (
                 <tr><td colSpan="7" style={{ height: "200px" }}></td></tr>
-              )
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan="7" style={{textAlign:"center", padding:"40px"}}>No products match your filter.</td></tr>
-            ) : (
-              filtered.map((p,i)=>(
+              )}
+            </tbody>
+          </table>
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            title="No Products Yet"
+            description={catFilter === "All" && search === ""
+              ? "You haven't added any products yet. Create your first handcrafted artesanía product to get started!"
+              : "No products match your filters. Try adjusting your search or category selection."}
+            buttonText={catFilter === "All" && search === "" ? "Add Product" : "Clear Filters"}
+            onClick={() => {
+              if (catFilter === "All" && search === "") {
+                setShowAdd(true);
+              } else {
+                setCatFilter("All");
+                setSearch("");
+              }
+            }}
+            type="products"
+          />
+        ) : (
+          <table className="ap-table">
+            <thead>
+              <tr>
+                <th style={{width:52}}>IMG</th>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((p,i)=>(
                 <tr key={p.id} style={{"--i":i}}>
                   <td>
                     <div className="ap-thumb-cell"
@@ -377,10 +408,10 @@ export default function Products() {
                     </div>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
 
       {/* ADD MODAL */}

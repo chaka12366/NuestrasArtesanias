@@ -1,0 +1,369 @@
+/* ═══════════════════════════════════════════════════════════════ */
+/* CHECKOUT PROGRESS INDICATOR - Styling                           */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.checkout-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0;
+  animation: fade-in 0.4s 0.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ─── Step Counter ─── */
+.checkout-progress-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary, var(--br));
+  letter-spacing: 0.02em;
+}
+
+.counter-current {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary-dark, var(--br-dk));
+}
+
+.counter-separator {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, var(--muted));
+}
+
+.counter-total {
+  font-weight: 600;
+  color: var(--text-tertiary, var(--muted));
+}
+
+/* ─── Progress Bar ─── */
+.checkout-progress-bar-container {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--border, rgba(107, 68, 35, 0.15));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-progress-bar-track {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  z-index: 0;
+}
+
+.checkout-progress-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--primary-light, var(--br-lt)) 0%,
+    var(--primary-dark, var(--br)) 50%,
+    var(--primary-darkest, var(--br-dk)) 100%
+  );
+  background-size: 200% 200%;
+  border-radius: 20px;
+  box-shadow: 0 0 12px rgba(107, 68, 35, 0.3);
+  z-index: 1;
+}
+
+/* ─── Step Indicators ─── */
+.checkout-progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0;
+  position: relative;
+}
+
+.checkout-progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Dot Indicators ─── */
+.checkout-progress-dot {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid var(--border, rgba(107, 68, 35, 0.15));
+  background: var(--white, #fffdf9);
+  color: var(--text-tertiary, var(--muted));
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.dot-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ─── Active Step ─── */
+.checkout-progress-step.active .checkout-progress-dot {
+  background: linear-gradient(135deg, var(--primary-light, var(--br-lt)), var(--primary-dark, var(--br)));
+  border-color: var(--primary-dark, var(--br));
+  color: white;
+  box-shadow: 0 0 0 6px rgba(107, 68, 35, 0.12), 0 4px 16px rgba(107, 68, 35, 0.25);
+}
+
+.checkout-progress-step.active .checkout-progress-label {
+  color: var(--primary-dark, var(--br-dk));
+  font-weight: 700;
+}
+
+/* ─── Completed Step ─── */
+.checkout-progress-step.completed .checkout-progress-dot {
+  background: var(--primary-dark, var(--br));
+  border-color: var(--primary-dark, var(--br));
+  color: white;
+  box-shadow: 0 2px 8px rgba(107, 68, 35, 0.2);
+}
+
+.checkout-progress-step.completed .checkout-progress-label {
+  color: var(--primary-dark, var(--br));
+  font-weight: 600;
+}
+
+/* ─── Labels ─── */
+.checkout-progress-label-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+}
+
+.checkout-progress-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-tertiary, var(--muted));
+  letter-spacing: 0.02em;
+  transition: color 0.25s ease, font-weight 0.25s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkout-progress-description {
+  font-size: 11px;
+  color: var(--text-light, #b8a89c);
+  line-height: 1.3;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── Connector Lines ─── */
+.checkout-progress-connector-wrap {
+  flex: 0 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 2px;
+  flex-grow: 1;
+  margin: 0 -12px;
+  z-index: 1;
+}
+
+.checkout-progress-connector-base {
+  width: 100%;
+  height: 2px;
+  background: var(--border, rgba(107, 68, 35, 0.15));
+  border-radius: 2px;
+  position: absolute;
+}
+
+.checkout-progress-connector-fill {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--primary-light, var(--br-lt)) 0%,
+    var(--primary-dark, var(--br)) 100%
+  );
+  border-radius: 2px;
+  transform-origin: left center;
+  box-shadow: 0 0 8px rgba(107, 68, 35, 0.2);
+}
+
+/* ─── Mobile Summary ─── */
+.checkout-progress-mobile-summary {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: center;
+  padding: 0.75rem 0;
+}
+
+.mobile-summary-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary, var(--muted));
+  letter-spacing: 0.02em;
+}
+
+.mobile-summary-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-dark, var(--br));
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ANIMATIONS                                                       */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* RESPONSIVE DESIGN                                                */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Tablet (768px) */
+@media (max-width: 768px) {
+  .checkout-progress {
+    gap: 1.25rem;
+  }
+
+  .checkout-progress-label {
+    font-size: 12px;
+  }
+
+  .checkout-progress-description {
+    display: none;
+  }
+
+  .checkout-progress-dot {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .checkout-progress-connector-wrap {
+    margin: 0 -8px;
+  }
+}
+
+/* Mobile (480px) */
+@media (max-width: 480px) {
+  .checkout-progress {
+    gap: 1rem;
+  }
+
+  /* Hide step indicators on very small screens, show only mobile summary */
+  .checkout-progress-steps {
+    display: none;
+  }
+
+  .checkout-progress-mobile-summary {
+    display: flex;
+  }
+
+  .checkout-progress-bar-container {
+    height: 5px;
+    border-radius: 15px;
+  }
+
+  .checkout-progress-counter {
+    font-size: 0.85rem;
+  }
+
+  .counter-current {
+    font-size: 1rem;
+  }
+}
+
+/* Small Mobile (360px) */
+@media (max-width: 360px) {
+  .checkout-progress {
+    gap: 0.75rem;
+  }
+
+  .checkout-progress-counter {
+    gap: 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  .mobile-summary-text {
+    font-size: 11px;
+  }
+
+  .mobile-summary-label {
+    font-size: 13px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* DARK MODE SUPPORT (Optional - if theme switches to dark)         */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-color-scheme: dark) {
+  .checkout-progress-dot {
+    background: var(--bg-primary, #fafaf9);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .checkout-progress-bar-fill {
+    box-shadow: 0 0 12px rgba(107, 68, 35, 0.4);
+  }
+
+  .checkout-progress-connector-fill {
+    box-shadow: 0 0 8px rgba(107, 68, 35, 0.3);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* ACCESSIBILITY                                                    */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Focus visible for keyboard navigation */
+.checkout-progress-step:focus-visible .checkout-progress-dot {
+  outline: 2px solid var(--primary-dark, var(--br));
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .checkout-progress,
+  .checkout-progress-dot,
+  .checkout-progress-label,
+  .checkout-progress-bar-fill,
+  .checkout-progress-connector-fill {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { fetchMyOrders } from "../lib/orders.js";
 import { supabase } from "../lib/supabase.js";
 import Sidebar from "../components/Sidebar.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import {
   LayoutDashboard, ShoppingBag, History,
   CheckCircle2, Circle,
   Search, Package, Filter, Star, AlertCircle,
-  TrendingUp, Clock, ChevronRight, Sparkles, X, User,
+  TrendingUp, Clock, ChevronRight, Sparkles, X, User, Eye, EyeOff, Key, Loader,
 } from "lucide-react";
 
 /* ─── CONSTANTS ─────────────────────────────────────────────── */
@@ -311,10 +312,14 @@ function MyOrders({ orders, onViewOrder }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "52px 20px", color: T.muted }}>
-          <Package size={34} color={T.goldLight} style={{ marginBottom: 12 }} />
-          <p style={{ fontSize: 14, fontFamily: T.sans }}>No orders match your search.</p>
-        </div>
+        <EmptyState
+          title="No Orders Yet"
+          description="You haven't placed any orders yet. Start exploring our handcrafted artesanías collection and make your first purchase!"
+          buttonText="Start Shopping"
+          onClick={() => navigate("/products")}
+          type="orders"
+          compact={true}
+        />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {filtered.map((o) => (
@@ -402,10 +407,14 @@ function OrderHistory({ orders }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "52px 20px", color: T.muted }}>
-          <History size={34} color={T.goldLight} style={{ marginBottom: 12 }} />
-          <p style={{ fontSize: 14, fontFamily: T.sans }}>No completed orders found.</p>
-        </div>
+        <EmptyState
+          title="No Order History"
+          description="Your completed orders will appear here once you place your first order."
+          buttonText="Start Shopping"
+          onClick={() => navigate("/products")}
+          type="orders"
+          compact={true}
+        />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {filtered.map((o) => (
@@ -456,10 +465,15 @@ function MyProfile({ user }) {
     phone: "",
     address: ""
   });
+  const [password, setPassword] = useState({ current: "", next: "", confirm: "" });
+  const [showPasswords, setShowPasswords] = useState({ current: false, next: false, confirm: false });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [successPasswordMsg, setSuccessPasswordMsg] = useState("");
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -544,6 +558,49 @@ function MyProfile({ user }) {
     }
   };
 
+  const handleUpdatePassword = async () => {
+    // Reset error
+    setPasswordError("");
+
+    // Validation
+    if (!password.current || !password.next || !password.confirm) {
+      setPasswordError("All fields are required");
+      return;
+    }
+
+    if (password.next.length < 6) {
+      setPasswordError("New password must be at least 6 characters");
+      return;
+    }
+
+    if (password.next !== password.confirm) {
+      setPasswordError("New passwords don't match");
+      return;
+    }
+
+    try {
+      setPasswordLoading(true);
+
+      // Update password in Supabase
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: password.next
+      });
+
+      if (updateError) {
+        setPasswordError(updateError.message || "Failed to update password");
+      } else {
+        setPassword({ current: "", next: "", confirm: "" });
+        setSuccessPasswordMsg("Password updated successfully!");
+        setTimeout(() => setSuccessPasswordMsg(""), 4000);
+      }
+    } catch (err) {
+      console.error('Password update error:', err);
+      setPasswordError("An error occurred while updating password");
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   const inp = { width: "100%", padding: "12px 14px", borderRadius: 10, fontSize: 14, border: "1px solid rgba(201,149,106,0.25)", background: "#fff", color: T.text, outline: "none", fontFamily: T.sans, boxSizing: "border-box", transition: "border-color 0.2s" };
   const labelStyle = { display: "block", fontSize: 12, fontWeight: 600, color: T.gold, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 6, fontFamily: T.sans };
 
@@ -611,6 +668,160 @@ function MyProfile({ user }) {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Password Change Section */}
+      {!loading && (
+        <div className="cd-password-card" style={{ background: "#fff", border: "1px solid rgba(201,149,106,0.15)", borderRadius: 16, padding: "28px", boxShadow: "0 4px 20px rgba(124, 61, 38, 0.05)", marginTop: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: T.blush, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Key size={20} color={T.brown} />
+            </div>
+            <div>
+              <h3 style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>Change Password</h3>
+              <p style={{ fontSize: 13, color: T.muted, margin: "4px 0 0", fontFamily: T.sans }}>Update your account password</p>
+            </div>
+          </div>
+
+          {successPasswordMsg && (
+            <div style={{ background: "#d1fae5", border: "1px solid #6ee7b7", color: "#065f46", padding: "12px 16px", borderRadius: 10, marginBottom: 20, fontSize: 14, fontFamily: T.sans, display: "flex", alignItems: "center", gap: 8 }}>
+              <CheckCircle2 size={16} />
+              {successPasswordMsg}
+            </div>
+          )}
+
+          {passwordError && (
+            <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 20, fontSize: 14, fontFamily: T.sans, display: "flex", alignItems: "center", gap: 8 }}>
+              <AlertCircle size={16} />
+              {passwordError}
+            </div>
+          )}
+
+          {/* Current Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>Current Password</label>
+            <div style={{ position: "relative" }}>
+              <input 
+                type={showPasswords.current ? "text" : "password"}
+                value={password.current || ""}
+                onChange={e => setPassword({...password, current: e.target.value})}
+                placeholder="••••••••"
+                style={{...inp, paddingRight: "2.5rem"}}
+              />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#999",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  pointerEvents: "auto",
+                }}
+              >
+                {showPasswords.current ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {/* New Password */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>New Password</label>
+            <div style={{ position: "relative" }}>
+              <input 
+                type={showPasswords.next ? "text" : "password"}
+                value={password.next || ""}
+                onChange={e => setPassword({...password, next: e.target.value})}
+                placeholder="••••••••"
+                style={{...inp, paddingRight: "2.5rem"}}
+              />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, next: !showPasswords.next})}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#999",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  pointerEvents: "auto",
+                }}
+              >
+                {showPasswords.next ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirm Password */}
+          <div style={{ marginBottom: 28 }}>
+            <label style={labelStyle}>Confirm Password</label>
+            <div style={{ position: "relative" }}>
+              <input 
+                type={showPasswords.confirm ? "text" : "password"}
+                value={password.confirm || ""}
+                onChange={e => setPassword({...password, confirm: e.target.value})}
+                placeholder="••••••••"
+                style={{...inp, paddingRight: "2.5rem"}}
+              />
+              <button
+                type="button"
+                tabIndex="-1"
+                onMouseDown={e => e.preventDefault()}
+                onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#999",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: 0,
+                  pointerEvents: "auto",
+                }}
+              >
+                {showPasswords.confirm ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid rgba(201,149,106,0.15)", paddingTop: 20 }}>
+            <button 
+              onClick={handleUpdatePassword}
+              disabled={passwordLoading}
+              style={{ background: T.brown, color: "#fff", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 15, fontWeight: 600, fontFamily: T.sans, cursor: passwordLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8, opacity: passwordLoading ? 0.7 : 1, transition: "all 0.2s" }}
+            >
+              {passwordLoading ? (
+                <><Loader size={14} style={{display:'inline', animation: 'spin 1s linear infinite'}} /> Updating...</>
+              ) : (
+                <><Key size={14} /> Update Password</>
+              )}
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -1,13 +1,24 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
 import { useAuth } from "../contexts/auth.js";
 import { supabase } from "../lib/supabase.js";
 import { placeOrder } from "../lib/orders.js";
-import { Check, User, Package, ReceiptText, Lock, Gift, Zap, ShoppingBag } from "lucide-react";
+import { Check, User, Package, ReceiptText, Lock, Gift, Zap, ShoppingBag, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  validateName,
+  validateEmail as validateEmailUtil,
+  validatePassword as validatePasswordUtil,
+  validatePhone,
+  calculatePasswordStrength,
+  getPasswordStrengthLabel,
+  getPasswordStrengthColor,
+  validateTerms,
+} from "../utils/validation.js";
 import TermsAndPrivacyModal from "./TermsAndPrivacyModal";
+import CheckoutProgress from "../components/CheckoutProgress.jsx";
 import "./CheckoutForm.css";
 
 const SHIPS = [
@@ -62,13 +73,7 @@ const CITIES_BY_DISTRICT = {
 };
 
 function pwStrength(val) {
-  let s = 0;
-  if (val.length >= 8) s++;
-  if (val.length >= 12) s++;
-  if (/[A-Z]/.test(val)) s++;
-  if (/[0-9]/.test(val)) s++;
-  if (/[^A-Za-z0-9]/.test(val)) s++;
-  return s;
+  return calculatePasswordStrength(val);
 }
 const PW_COLORS = ["#e74c3c", "#e67e22", "#f1c40f", "#27ae60", "#1e8449"];
 const PW_LABELS = ["Too short", "Weak", "Fair", "Strong", "Very strong"];
@@ -93,6 +98,7 @@ function StepAccount({ onNext, onGuest, user }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({ fn: "", ln: "", email: "", phone: "", pw: "" });
   const [errors, setE] = useState({});
+  const [touched, setTouched] = useState({});
   const [pwVis, setPwVis] = useState(false);
   const [strength, setStr] = useState(-1);
   const [terms, setTerms] = useState(false);
@@ -102,6 +108,41 @@ function StepAccount({ onNext, onGuest, user }) {
   const [termsAndPrivacyModalOpen, setTermsAndPrivacyModalOpen] = useState(false);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  // Real-time validation
+  const validateField = (fieldName, value) => {
+    switch (fieldName) {
+      case "fn":
+        return validateName(value, "First name");
+      case "ln":
+        return validateName(value, "Last name");
+      case "email":
+        return validateEmailUtil(value);
+      case "phone":
+        return validatePhone(value);
+      case "pw":
+        return validatePasswordUtil(value, 8);
+      default:
+        return null;
+    }
+  };
+
+  const handleChange = (fieldName, value) => {
+    set(fieldName, value);
+    setTouched(t => ({ ...t, [fieldName]: true }));
+    
+    const error = validateField(fieldName, value);
+    setE(err => ({ ...err, [fieldName]: error || null }));
+    
+    // Update password strength
+    if (fieldName === "pw") {
+      setStr(value.length ? pwStrength(value) : -1);
+    }
+  };
+
+  const handleBlur = (fieldName) => {
+    setTouched(t => ({ ...t, [fieldName]: true }));
+  };
 
   const validate = () => {
     const e = {};
@@ -133,9 +174,14 @@ function StepAccount({ onNext, onGuest, user }) {
   }
 
   const handleNext = async () => {
-    const e = validate(); setE(e);
+    // Mark all fields as touched
+    setTouched({ fn: true, ln: true, email: true, phone: true, pw: true, terms: true });
+    
+    const e = validate();
+    setE(e);
+    
     if (Object.keys(e).length) {
-      toast.warning("Please fill in all required fields");
+      toast.error("Please correct the highlighted fields");
       return;
     }
 
@@ -217,75 +263,173 @@ function StepAccount({ onNext, onGuest, user }) {
 
       <div className="cp-row2">
         <Field label="First name" required error={errors.fn}>
-          <input className={errors.fn ? "err" : ""} placeholder="Maria"
-            value={form.fn} onChange={e => set("fn", e.target.value)} autoComplete="given-name" disabled={signingUp}
-            onBlur={e => { if (e.target.value.trim() && e.target.value.trim().length >= 2) setE(prev => ({...prev, fn: undefined})); }} />
+          <input
+            className={`form-input ${
+              touched.fn && form.fn ? (errors.fn ? "error" : "valid") : ""
+            }`}
+            placeholder="Maria"
+            value={form.fn}
+            onChange={e => handleChange("fn", e.target.value)}
+            onBlur={() => handleBlur("fn")}
+            disabled={signingUp}
+            autoComplete="given-name"
+          />
+          {touched.fn && form.fn && !errors.fn && (
+            <span className="form-valid-feedback" />
+          )}
         </Field>
         <Field label="Last name" required error={errors.ln}>
-          <input className={errors.ln ? "err" : ""} placeholder="Reyes"
-            value={form.ln} onChange={e => set("ln", e.target.value)} autoComplete="family-name" disabled={signingUp}
-            onBlur={e => { if (e.target.value.trim() && e.target.value.trim().length >= 2) setE(prev => ({...prev, ln: undefined})); }} />
+          <input
+            className={`form-input ${
+              touched.ln && form.ln ? (errors.ln ? "error" : "valid") : ""
+            }`}
+            placeholder="Reyes"
+            value={form.ln}
+            onChange={e => handleChange("ln", e.target.value)}
+            onBlur={() => handleBlur("ln")}
+            disabled={signingUp}
+            autoComplete="family-name"
+          />
+          {touched.ln && form.ln && !errors.ln && (
+            <span className="form-valid-feedback" />
+          )}
         </Field>
       </div>
 
       <Field label="Email address" required error={errors.email}>
-        <input type="email" className={errors.email ? "err" : ""} placeholder="maria@example.com"
-          value={form.email} onChange={e => set("email", e.target.value)} autoComplete="email" disabled={signingUp}
-          onBlur={e => { if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.target.value)) setE(prev => ({...prev, email: undefined})); }} />
+        <input
+          type="email"
+          className={`form-input ${
+            touched.email && form.email ? (errors.email ? "error" : "valid") : ""
+          }`}
+          placeholder="maria@example.com"
+          value={form.email}
+          onChange={e => handleChange("email", e.target.value)}
+          onBlur={() => handleBlur("email")}
+          disabled={signingUp}
+          autoComplete="email"
+        />
+        {touched.email && form.email && !errors.email && (
+          <span className="form-valid-feedback" />
+        )}
       </Field>
 
       <Field label="Phone number" required error={errors.phone}>
-        <input type="tel" className={errors.phone ? "err" : ""} placeholder="+501 600-0000"
-          value={form.phone} onChange={e => set("phone", e.target.value)} autoComplete="tel" disabled={signingUp}
-          onBlur={e => { if (/^\+?[\d\s()-]{7,15}$/.test(e.target.value.trim())) setE(prev => ({...prev, phone: undefined})); }} />
+        <input
+          type="tel"
+          className={`form-input ${
+            touched.phone && form.phone ? (errors.phone ? "error" : "valid") : ""
+          }`}
+          placeholder="+501 600-0000"
+          value={form.phone}
+          onChange={e => handleChange("phone", e.target.value)}
+          onBlur={() => handleBlur("phone")}
+          disabled={signingUp}
+          autoComplete="tel"
+        />
+        {touched.phone && form.phone && !errors.phone && (
+          <span className="form-valid-feedback" />
+        )}
       </Field>
 
       <Field label="Password" required error={errors.pw}>
         <div className="cp-pw-wrap">
-          <input type={pwVis ? "text" : "password"} className={errors.pw ? "err" : ""}
+          <input
+            type={pwVis ? "text" : "password"}
+            className={`form-input ${
+              touched.pw && form.pw ? (errors.pw ? "error" : "valid") : ""
+            }`}
             placeholder="At least 8 characters"
             value={form.pw}
-            onChange={e => { set("pw", e.target.value); setStr(e.target.value.length ? pwStrength(e.target.value) : -1); }}
-            autoComplete="new-password" disabled={signingUp} />
-          <button type="button" className="cp-pw-eye" onClick={() => setPwVis(v => !v)} aria-label={pwVis ? "Hide password" : "Show password"}>
+            onChange={e => handleChange("pw", e.target.value)}
+            onBlur={() => handleBlur("pw")}
+            disabled={signingUp}
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            className="cp-pw-eye"
+            onClick={() => setPwVis(v => !v)}
+            aria-label={pwVis ? "Hide password" : "Show password"}
+            disabled={signingUp}
+          >
             {pwVis ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+              <EyeOff size={18} />
             ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+              <Eye size={18} />
             )}
           </button>
         </div>
         {strength >= 0 && (
           <div className="cp-pw-meter">
             <div className="cp-pw-track">
-              <div className="cp-pw-fill" style={{ width: `${Math.max(20, (strength / 5) * 100)}%`, background: PW_COLORS[Math.min(strength, 4)] }} />
+              <div
+                className="cp-pw-fill"
+                style={{
+                  width: `${Math.max(20, (strength / 5) * 100)}%`,
+                  background: PW_COLORS[Math.min(strength, 4)]
+                }}
+              />
             </div>
             <span className="cp-pw-label">{PW_LABELS[Math.min(strength, 4)]}</span>
           </div>
+        )}
+        {touched.pw && form.pw && !errors.pw && (
+          <span className="form-valid-feedback" />
         )}
       </Field>
 
       <div className="cp-checks">
         <label className="cp-check-row">
-          <input type="checkbox" checked={terms} onChange={e => setTerms(e.target.checked)} disabled={signingUp} />
+          <input
+            type="checkbox"
+            checked={terms}
+            onChange={e => {
+              setTerms(e.target.checked);
+              setTouched(t => ({ ...t, terms: true }));
+              setE(err => ({
+                ...err,
+                terms: e.target.checked ? null : "You must agree to continue"
+              }));
+            }}
+            disabled={signingUp}
+          />
           <span>I agree to the <button type="button" className="cp-link-btn" onClick={() => setTermsAndPrivacyModalOpen(true)}>Terms of Service and Privacy Policy</button></span>
         </label>
-        {errors.terms && <p className="cp-err" style={{ marginTop: "-4px" }}>{errors.terms}</p>}
+        {errors.terms && <p className="form-error" style={{ marginTop: "4px" }}>{errors.terms}</p>}
       </div>
 
       {signupError && (
-        <p className="cp-err" style={{ textAlign: "center", marginBottom: "0.5rem" }}>
-          ⚠ {signupError}
-        </p>
+        <div style={{
+          background: "rgba(231, 76, 60, 0.08)",
+          border: "1px solid #e74c3c",
+          borderRadius: "8px",
+          padding: "12px",
+          marginBottom: "16px",
+          display: "flex",
+          gap: "8px",
+          color: "#e74c3c",
+          fontSize: "0.9rem"
+        }}>
+          <AlertCircle size={18} style={{ flexShrink: 0 }} />
+          <span>{signupError}</span>
+        </div>
       )}
 
       <button
         className="cp-btn-primary"
         onClick={handleNext}
-        disabled={signingUp}
-        style={signingUp ? { opacity: 0.7, cursor: "not-allowed" } : {}}
+        disabled={signingUp || Object.values(errors).some(e => e)}
+        style={signingUp || Object.values(errors).some(e => e) ? { opacity: 0.6, cursor: "not-allowed" } : {}}
       >
-        {signingUp ? "Creating account…" : "Continue →"}
+        {signingUp ? (
+          <>
+            <Loader2 size={18} className="form-spinner" />
+            Creating account…
+          </>
+        ) : (
+          "Continue →"
+        )}
       </button>
 
       <div className="cp-divider"><span>or</span></div>
@@ -306,9 +450,42 @@ function StepDelivery({ onNext, onBack, user }) {
     notes: ""
   }));
   const [errors, setE] = useState({});
+  const [touched, setTouched] = useState({});
   const [ship, setShip] = useState("s1");
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const validateField = (fieldName, value) => {
+    switch (fieldName) {
+      case "name":
+        return validateName(value, "Full name");
+      case "district":
+        return !value ? "District is required" : null;
+      case "city":
+        return !value ? "City is required" : null;
+      default:
+        return null;
+    }
+  };
+
+  const handleChange = (fieldName, value) => {
+    set(fieldName, value);
+    setTouched(t => ({ ...t, [fieldName]: true }));
+    
+    const error = validateField(fieldName, value);
+    setE(err => ({ ...err, [fieldName]: error || null }));
+    
+    // Reset city if district changes
+    if (fieldName === "district") {
+      set("city", "");
+      setTouched(t => ({ ...t, city: false }));
+      setE(err => ({ ...err, city: null }));
+    }
+  };
+
+  const handleBlur = (fieldName) => {
+    setTouched(t => ({ ...t, [fieldName]: true }));
+  };
 
   const validate = () => {
     const e = {};
@@ -319,11 +496,13 @@ function StepDelivery({ onNext, onBack, user }) {
   };
 
   const handleNext = () => {
-    const e = validate(); setE(e);
+    setTouched({ name: true, district: true, city: true });
+    const e = validate();
+    setE(e);
     if (!Object.keys(e).length) {
       onNext({ ...form, ship: SHIPS.find(s => s.id === ship) });
     } else {
-      toast.warning("Please fill in all required fields");
+      toast.error("Please correct the highlighted fields");
     }
   };
 
@@ -334,37 +513,68 @@ function StepDelivery({ onNext, onBack, user }) {
       <p className="cp-card-sub">Where should we send your order?</p>
 
       <Field label="Full name" required error={errors.name}>
-        <input className={errors.name ? "err" : ""} placeholder="Maria Reyes"
-          value={form.name} onChange={e => set("name", e.target.value)} autoComplete="name"
-          onBlur={e => { if (e.target.value.trim() && e.target.value.trim().length >= 2) setE(prev => ({...prev, name: undefined})); }} />
+        <input
+          className={`form-input ${
+            touched.name && form.name ? (errors.name ? "error" : "valid") : ""
+          }`}
+          placeholder="Maria Reyes"
+          value={form.name}
+          onChange={e => handleChange("name", e.target.value)}
+          onBlur={() => handleBlur("name")}
+          autoComplete="name"
+        />
+        {touched.name && form.name && !errors.name && (
+          <span className="form-valid-feedback" />
+        )}
       </Field>
-
-
 
       <div className="cp-row2">
         <Field label="District" required error={errors.district}>
-          <select className={errors.district ? "err" : ""} value={form.district}
-            onChange={e => { set("district", e.target.value); set("city", ""); }}>
+          <select
+            className={`form-input ${
+              touched.district && form.district ? (errors.district ? "error" : "valid") : ""
+            }`}
+            value={form.district}
+            onChange={e => handleChange("district", e.target.value)}
+            onBlur={() => handleBlur("district")}
+          >
             <option value="">Select…</option>
             {DISTRICTS.map(d => <option key={d}>{d}</option>)}
           </select>
+          {touched.district && form.district && !errors.district && (
+            <span className="form-valid-feedback" />
+          )}
         </Field>
         <Field label="City / Town" required error={errors.city}>
-          <select className={errors.city ? "err" : ""} value={form.city}
-            onChange={e => set("city", e.target.value)} disabled={!form.district}>
+          <select
+            className={`form-input ${
+              touched.city && form.city ? (errors.city ? "error" : "valid") : ""
+            }`}
+            value={form.city}
+            onChange={e => handleChange("city", e.target.value)}
+            onBlur={() => handleBlur("city")}
+            disabled={!form.district}
+          >
             <option value="">Select…</option>
             {form.district && CITIES_BY_DISTRICT[form.district]?.map(c => <option key={c}>{c}</option>)}
           </select>
+          {touched.city && form.city && !errors.city && (
+            <span className="form-valid-feedback" />
+          )}
         </Field>
       </div>
 
       <Field label="Country">
-        <input value="Belize" readOnly className="cp-readonly" />
+        <input value="Belize" readOnly className="cp-readonly form-input" />
       </Field>
 
       <Field label="Delivery notes (Optional)">
-        <input placeholder="Gate code, landmark, special instructions…"
-          value={form.notes} onChange={e => set("notes", e.target.value)} />
+        <input
+          className="form-input"
+          placeholder="Gate code, landmark, special instructions…"
+          value={form.notes}
+          onChange={e => set("notes", e.target.value)}
+        />
       </Field>
 
       {/* Shipping options */}
@@ -385,7 +595,14 @@ function StepDelivery({ onNext, onBack, user }) {
         ))}
       </div>
 
-      <button className="cp-btn-primary" onClick={handleNext}>Review order →</button>
+      <button
+        className="cp-btn-primary"
+        onClick={handleNext}
+        disabled={Object.values(errors).some(e => e)}
+        style={Object.values(errors).some(e => e) ? { opacity: 0.6, cursor: "not-allowed" } : {}}
+      >
+        Review order →
+      </button>
       <button className="cp-btn-ghost" onClick={onBack}>← Back</button>
     </div>
   );
@@ -537,47 +754,6 @@ function StepSuccess({ orderId, onShopMore }) {
   );
 }
 
-/* ── Progress dots ── */
-function Progress({ step }) {
-  const steps = ["Account", "Delivery", "Review"];
-  return (
-    <div className="cp-progress">
-      {steps.map((label, i) => {
-        const n = i + 1;
-        const done = step > n;
-        const active = step === n;
-        return (
-          <Fragment key={n}>
-            <div className="cp-prog-item">
-              <motion.div
-                className={`cp-prog-dot${done ? " done" : active ? " active" : ""}`}
-                animate={active ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-              >
-                {done ? <Check size={16} /> : n}
-              </motion.div>
-              <span className={`cp-prog-label${active ? " active" : ""}`}>{label}</span>
-            </div>
-            {i < 2 && (
-              <div className="cp-prog-line-wrap">
-                <div className={`cp-prog-line${step > n ? " done" : ""}`} />
-                {step > n && (
-                  <motion.div
-                    className="cp-prog-line-fill"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: 1 }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  />
-                )}
-              </div>
-            )}
-          </Fragment>
-        );
-      })}
-    </div>
-  );
-}
-
 /* ── ROOT PAGE ── */
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -708,7 +884,11 @@ export default function CheckoutPage() {
               {step === 2 && "Enter your delivery details"}
               {step === 3 && "Review and place your order"}
             </p>
-            <Progress step={step} />
+            <CheckoutProgress 
+              currentStep={step} 
+              totalSteps={3} 
+              steps={["Account", "Delivery", "Review"]}
+            />
           </div>
         )}
 

@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/auth.js";
 import { supabase } from "../lib/supabase.js";
 import { toast } from "react-toastify";
+import { validateEmail as validateEmailUtil, validatePassword as validatePasswordUtil } from "../utils/validation.js";
 import "./login.css";
 import logo from "../assets/logo.png";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,41 +41,72 @@ export default function Login() {
   const [showPassword, setShowPassword]   = useState(false);
   const [emailError, setEmailError]       = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [emailTouched, setEmailTouched]   = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const [submitting, setSubmitting]       = useState(false);
 
-  const validateEmail = (val) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(val)) {
-      setEmailError("Please enter a valid email address.");
+  // Real-time email validation
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    setEmailTouched(true);
+    
+    if (value.trim()) {
+      const error = validateEmailUtil(value);
+      setEmailError(error || "");
     } else {
       setEmailError("");
     }
   };
 
-  const validatePassword = (val) => {
-    if (val.length < 8) {
-      setPasswordError("Password must be at least 8 characters.");
+  // Real-time password validation
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    setPasswordTouched(true);
+    
+    if (value.trim()) {
+      const error = validatePasswordUtil(value, 8);
+      setPasswordError(error || "");
     } else {
       setPasswordError("");
+    }
+  };
+
+  // On blur - mark as touched even if empty
+  const handleEmailBlur = () => {
+    setEmailTouched(true);
+    if (email.trim()) {
+      const error = validateEmailUtil(email);
+      setEmailError(error || "");
+    }
+  };
+
+  const handlePasswordBlur = () => {
+    setPasswordTouched(true);
+    if (password.trim()) {
+      const error = validatePasswordUtil(password, 8);
+      setPasswordError(error || "");
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Clear previous errors
-    setEmailError("");
-    setPasswordError("");
-
-    // Validate inline (not async state updates)
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const isEmailValid = emailRegex.test(email);
-    const isPasswordValid = password.length >= 8;
+    // Mark all fields as touched
+    setEmailTouched(true);
+    setPasswordTouched(true);
     
-    if (!isEmailValid || !isPasswordValid) {
-      if (!isEmailValid) setEmailError("Please enter a valid email address.");
-      if (!isPasswordValid) setPasswordError("Password must be at least 8 characters.");
-      toast.warning("Please fill in all required fields");
+    // Validate both fields
+    const emailErr = validateEmailUtil(email);
+    const passwordErr = validatePasswordUtil(password, 8);
+    
+    setEmailError(emailErr || "");
+    setPasswordError(passwordErr || "");
+    
+    // If any errors, don't submit
+    if (emailErr || passwordErr) {
+      toast.error("Please correct the highlighted fields");
       return;
     }
 
@@ -139,57 +172,61 @@ export default function Login() {
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div className="login-field">
-              <div className="login-input-wrapper">
+              <label className="form-field-label">Email <span className="form-field-required">*</span></label>
+              <div className="form-input-wrapper">
                 <input
                   type="email"
-                  className={`login-input ${emailError ? "input-error" : ""}`}
-                  placeholder="Email"
+                  className={`login-input form-input ${
+                    emailTouched && email ? (emailError ? "error" : "valid") : ""
+                  }`}
+                  placeholder="your.email@example.com"
                   value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailError) validateEmail(e.target.value);
-                  }}
-                  onBlur={(e) => { if (e.target.value.trim()) validateEmail(e.target.value); }}
+                  onChange={handleEmailChange}
+                  onBlur={handleEmailBlur}
+                  disabled={submitting}
+                  aria-invalid={emailTouched && !!emailError}
                 />
+                {emailTouched && email && !emailError && (
+                  <span className="form-input-icon valid">✓</span>
+                )}
+                {emailTouched && emailError && (
+                  <span className="form-input-icon error">✕</span>
+                )}
               </div>
-              {emailError && <span className="login-error">{emailError}</span>}
+              {emailTouched && emailError && (
+                <span className="form-error">{emailError}</span>
+              )}
             </div>
 
             {/* Password */}
             <div className="login-field">
+              <label className="form-field-label">Password <span className="form-field-required">*</span></label>
               <div className="login-input-wrapper">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`login-input ${passwordError ? "input-error" : ""}`}
-                  placeholder="Password"
+                  className={`login-input form-input ${
+                    passwordTouched && password ? (passwordError ? "error" : "valid") : ""
+                  }`}
+                  placeholder="Enter your password"
                   value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (passwordError) validatePassword(e.target.value);
-                  }}
-                  onBlur={(e) => { if (e.target.value.trim()) validatePassword(e.target.value); }}
+                  onChange={handlePasswordChange}
+                  onBlur={handlePasswordBlur}
+                  disabled={submitting}
+                  aria-invalid={passwordTouched && !!passwordError}
                 />
                 <button
                   type="button"
                   className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  disabled={submitting}
                 >
-                  {showPassword ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                      <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                      <line x1="1" y1="1" x2="23" y2="23" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                  )}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {passwordError && <span className="login-error">{passwordError}</span>}
+              {passwordTouched && passwordError && (
+                <span className="form-error">{passwordError}</span>
+              )}
             </div>
 
             {/* Remember Me & Forgot Password */}
@@ -199,26 +236,41 @@ export default function Login() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={submitting}
                 />
                 <span>Remember me</span>
               </label>
-              <a href="#" className="login-forgot-password" onClick={(e) => { 
-                e.preventDefault(); 
-                if (!email) {
-                  setEmailError("Please enter your email first to reset your password.");
-                  return;
-                }
-                toast.info(`Password reset link sent to ${email}`); 
-              }}>Forgot password?</a>
+              <button 
+                type="button"
+                className="login-forgot-password"
+                onClick={(e) => { 
+                  e.preventDefault(); 
+                  if (!email) {
+                    toast.warning("Please enter your email to reset password");
+                    return;
+                  }
+                  toast.info(`Password reset link sent to ${email}`); 
+                }}
+                disabled={submitting}
+              >
+                Forgot password?
+              </button>
             </div>
 
             {/* Login Button */}
             <button
               type="submit"
-              className="login-submit-btn"
-              disabled={submitting}
+              className="login-submit-btn form-submit-btn"
+              disabled={submitting || emailError || passwordError}
             >
-              {submitting ? "Signing in…" : "Login"}
+              {submitting ? (
+                <>
+                  <Loader2 size={18} className="form-spinner" />
+                  Signing in…
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
           </form>
 

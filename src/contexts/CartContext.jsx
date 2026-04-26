@@ -45,29 +45,37 @@ export function CartProvider({ children }) {
       return;
     }
 
-    // Block adding products that are out of stock
+    // Treat undefined/null stock as out of stock (fallback safety)
     const stock = product.stock ?? 0;
     if (stock <= 0) {
       toast.error("This item is currently out of stock");
       return;
     }
+
+    // Cap quantity at available stock
+    const cappedQty = Math.min(qty, stock);
+    if (qty > stock) {
+      toast.warning(`Only ${stock} item${stock !== 1 ? 's' : ''} available in stock`);
+    }
     
     setItems(prev => {
       const key = `${product.category || 'unknown'}-${product.id}`;
       const existing = prev.find(i => i.key === key);
+      
       if (existing) {
-        const newQty = existing.qty + qty;
-        // Cap at available stock
+        const newQty = existing.qty + cappedQty;
+        // Cap total quantity at available stock
         if (newQty > stock) {
-          toast.warning(`Only ${stock} of "${product.name}" available — cart updated to maximum`, { toastId: `cap-${key}` });
-          return prev.map(i => i.key === key ? { ...i, qty: stock } : i);
+          toast.warning(`Only ${stock} of "${product.name}" available in total`, { toastId: `cap-${key}` });
+          return prev.map(i => i.key === key ? { ...i, qty: stock, stock } : i);
         }
-        return prev.map(i => i.key === key ? { ...i, qty: newQty } : i);
+        return prev.map(i => i.key === key ? { ...i, qty: newQty, stock } : i);
       }
-      // Cap initial add at available stock
-      const cappedQty = Math.min(qty, stock);
+      
+      // New item - add with capped quantity
       return [...prev, { ...product, key, qty: cappedQty, stock }];
     });
+    
     toast.success(`${product.name} added to cart`, { toastId: `add-${product.id}` });
   }, []);
 
@@ -91,12 +99,22 @@ export function CartProvider({ children }) {
     setItems(prev => {
       const item = prev.find(i => i.key === key);
       if (!item) return prev;
-      // Cap at available stock (fallback to 99 if stock is unknown)
-      const maxQty = item.stock ?? 99;
-      const clampedQty = Math.min(Math.max(qty, 1), maxQty);
-      if (qty > maxQty) {
-        toast.warning(`Only ${maxQty} available`, { toastId: `max-${key}` });
+      
+      // Cap at available stock (fallback to 99 if stock is unknown, treat undefined as 0)
+      const maxQty = item.stock ?? 0;
+      
+      // If stock is 0 (out of stock), remove the item
+      if (maxQty <= 0) {
+        toast.warning(`"${item.name}" is now out of stock and has been removed from your cart`);
+        return prev.filter(i => i.key !== key);
       }
+      
+      const clampedQty = Math.min(Math.max(qty, 1), maxQty);
+      
+      if (qty > maxQty) {
+        toast.warning(`Only ${maxQty} item${maxQty !== 1 ? 's' : ''} available`, { toastId: `max-${key}` });
+      }
+      
       return prev.map(i => i.key === key ? { ...i, qty: clampedQty } : i);
     });
   }, [removeFromCart]);

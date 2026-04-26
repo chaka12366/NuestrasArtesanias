@@ -1,0 +1,223 @@
+/* ═══════════════════════════════════════════════════════════════ */
+/* EMPTY STATE COMPONENT - PROFESSIONAL UI */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 60px 32px;
+  text-align: center;
+  background: linear-gradient(
+    135deg,
+    var(--bg-secondary, #faf5f0) 0%,
+    var(--bg-tertiary, #f5f0eb) 100%
+  );
+  border-radius: var(--radius, 12px);
+}
+
+/* ─ Compact mode ─ */
+.empty-state--compact {
+  min-height: 200px;
+  padding: 40px 24px;
+}
+
+/* ─ Content wrapper ─ */
+.empty-state__content {
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ─ Icon ─ */
+.empty-state__icon {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    rgba(201, 149, 106, 0.12) 0%,
+    rgba(169, 82, 45, 0.08) 100%
+  );
+  color: var(--primary-lighter, #d4a574);
+  animation: empty-state-float 3s ease-in-out infinite;
+}
+
+@keyframes empty-state-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.empty-state__icon svg {
+  opacity: 0.8;
+  filter: drop-shadow(0 2px 4px rgba(107, 68, 35, 0.1));
+}
+
+/* ─ Title ─ */
+.empty-state__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--charcoal, #2d1a0e);
+  margin: 0;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+/* ─ Description ─ */
+.empty-state__description {
+  font-size: 0.95rem;
+  color: var(--gray, #888888);
+  margin: 0;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* ─ Button ─ */
+.empty-state__button {
+  margin-top: 12px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, #c9956a 0%, #b5804f 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(107, 68, 35, 0.18);
+  font-family: inherit;
+}
+
+.empty-state__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(107, 68, 35, 0.25);
+  background: linear-gradient(135deg, #d4a574 0%, #c9956a 100%);
+}
+
+.empty-state__button:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(107, 68, 35, 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* RESPONSIVE DESIGN */
+/* ═══════════════════════════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .empty-state {
+    min-height: 250px;
+    padding: 48px 24px;
+  }
+
+  .empty-state--compact {
+    min-height: 150px;
+    padding: 32px 16px;
+  }
+
+  .empty-state__icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .empty-state__icon svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .empty-state__title {
+    font-size: 1.25rem;
+  }
+
+  .empty-state__description {
+    font-size: 0.9rem;
+  }
+
+  .empty-state__button {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .empty-state {
+    min-height: 200px;
+    padding: 40px 16px;
+    border-radius: 8px;
+  }
+
+  .empty-state--compact {
+    min-height: 120px;
+    padding: 24px 12px;
+  }
+
+  .empty-state__content {
+    gap: 16px;
+  }
+
+  .empty-state__icon {
+    width: 70px;
+    height: 70px;
+  }
+
+  .empty-state__icon svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .empty-state__title {
+    font-size: 1.1rem;
+  }
+
+  .empty-state__description {
+    font-size: 0.85rem;
+  }
+
+  .empty-state__button {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* THEME VARIATIONS */
+/* ═══════════════════════════════════════════════════════════════ */
+
+[data-theme="earth"] .empty-state {
+  background: linear-gradient(135deg, #f4f1ea 0%, #efe9e0 100%);
+}
+
+[data-theme="earth"] .empty-state__icon {
+  background: linear-gradient(
+    135deg,
+    rgba(92, 64, 51, 0.12) 0%,
+    rgba(92, 64, 51, 0.08) 100%
+  );
+  color: #8b6f47;
+}
+
+[data-theme="forest"] .empty-state {
+  background: linear-gradient(135deg, #f1f8f1 0%, #e8f4e8 100%);
+}
+
+[data-theme="forest"] .empty-state__icon {
+  background: linear-gradient(
+    135deg,
+    rgba(45, 90, 39, 0.12) 0%,
+    rgba(45, 90, 39, 0.08) 100%
+  );
+  color: #4c8c4a;
+}

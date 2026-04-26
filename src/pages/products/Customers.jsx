@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase.js";
 import "./AdminPages.css";
-import { Search, Mail, Phone, ShoppingBag, DollarSign, ChevronDown, ChevronUp, Key, Copy } from "lucide-react";
+import EmptyState from "../../components/EmptyState.jsx";
+import { Search, Mail, Phone, ShoppingBag, DollarSign, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import { toast } from "react-toastify";
 import { useDebounce } from "../../utils/useDebounce.js";
 
@@ -11,9 +12,6 @@ export default function Customers() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
   const [sortBy, setSortBy] = useState("orders"); // "orders" or "spent"
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetting, setResetting] = useState(false);
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -34,33 +32,46 @@ export default function Customers() {
 
       if (profilesError) throw profilesError;
 
-      // Get all orders to aggregate stats per customer
+      // Get all orders to aggregate stats per customer and get address info
       const { data: orders, error: ordersError } = await supabase
         .from("orders")
-        .select("id, total, customer_id");
+        .select("id, total, customer_id, city, district");
 
       if (ordersError) throw ordersError;
 
-      // Aggregate order stats by customer ID
+      // Create maps for quick lookup
       const orderStats = {};
+      const customerLocation = {};
       (orders || []).forEach((order) => {
         const customerId = order.customer_id;
         if (!customerId) return;
+        
         if (!orderStats[customerId]) {
           orderStats[customerId] = { count: 0, total: 0 };
         }
         orderStats[customerId].count += 1;
         orderStats[customerId].total += Number(order.total) || 0;
+        
+        // Store the location from the most recent order
+        if (!customerLocation[customerId]) {
+          customerLocation[customerId] = {
+            city: order.city,
+            district: order.district,
+          };
+        }
       });
 
-      // Combine customer data with order stats
+      // Combine customer data with order stats and location info
       const enrichedCustomers = (profiles || []).map((profile) => {
         const stats = orderStats[profile.id] || { count: 0, total: 0 };
+        const location = customerLocation[profile.id];
         return {
           id: profile.id,
           email: profile.email,
           name: `${profile.first_name || ""} ${profile.last_name || ""}`.trim() || "Unknown",
           phone: profile.phone || "—",
+          village: location?.city || "—",
+          district: location?.district || "—",
           orders: stats.count,
           spent: stats.total,
           joinedDate: new Date(profile.created_at).toLocaleDateString("en-US", {
@@ -94,29 +105,7 @@ export default function Customers() {
     return b.orders - a.orders;
   });
 
-  // Handle password reset email
-  const handleSendResetLink = async () => {
-    if (!resetEmail.trim()) {
-      toast.error("Please enter a valid email");
-      return;
-    }
 
-    setResetting(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetEmail);
-
-      if (error) throw error;
-
-      toast.success(`Password reset link sent to ${resetEmail}`);
-      setResetEmail("");
-      setShowResetModal(false);
-    } catch (error) {
-      console.error("Error sending reset link:", error);
-      toast.error(error.message || "Failed to send reset link");
-    } finally {
-      setResetting(false);
-    }
-  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -150,14 +139,7 @@ export default function Customers() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button
-          className="ap-btn ap-btn-primary"
-          onClick={() => setShowResetModal(true)}
-          title="Send password reset link"
-        >
-          <Key size={18} />
-          Reset Password
-        </button>
+
       </div>
 
       {/* Sort buttons */}
@@ -179,10 +161,12 @@ export default function Customers() {
       {/* Customers List */}
       <div className="ap-customers-list">
         {sortedCustomers.length === 0 ? (
-          <div className="ap-empty-state">
-            <ShoppingBag size={48} opacity={0.3} />
-            <p>No customers found</p>
-          </div>
+          <EmptyState
+            title="No Customers Yet"
+            description="Your customers will appear here once they start placing orders."
+            type="orders"
+            compact={true}
+          />
         ) : (
           sortedCustomers.map((customer) => (
             <div key={customer.id} className="ap-customer-card">
@@ -257,6 +241,16 @@ export default function Customers() {
                   </div>
 
                   <div className="ap-detail-row">
+                    <span className="ap-detail-label">Village:</span>
+                    <span className="ap-detail-value">{customer.village}</span>
+                  </div>
+
+                  <div className="ap-detail-row">
+                    <span className="ap-detail-label">District:</span>
+                    <span className="ap-detail-value">{customer.district}</span>
+                  </div>
+
+                  <div className="ap-detail-row">
                     <span className="ap-detail-label">Joined:</span>
                     <span className="ap-detail-value">{customer.joinedDate}</span>
                   </div>
@@ -273,18 +267,7 @@ export default function Customers() {
                     </span>
                   </div>
 
-                  <div className="ap-detail-actions">
-                    <button
-                      className="ap-detail-btn ap-detail-btn-reset"
-                      onClick={() => {
-                        setResetEmail(customer.email);
-                        setShowResetModal(true);
-                      }}
-                    >
-                      <Key size={16} />
-                      Send Password Reset
-                    </button>
-                  </div>
+
                 </div>
               )}
             </div>
@@ -292,43 +275,7 @@ export default function Customers() {
         )}
       </div>
 
-      {/* Password Reset Modal */}
-      {showResetModal && (
-        <div className="ap-modal-overlay" onClick={() => setShowResetModal(false)}>
-          <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
-            <h2>Send Password Reset Link</h2>
-            <p className="ap-modal-desc">
-              Enter the customer email address to send them a password reset link.
-            </p>
 
-            <input
-              type="email"
-              className="ap-input"
-              placeholder="customer@example.com"
-              value={resetEmail}
-              onChange={(e) => setResetEmail(e.target.value)}
-              disabled={resetting}
-            />
-
-            <div className="ap-modal-actions">
-              <button
-                className="ap-btn ap-btn-secondary"
-                onClick={() => setShowResetModal(false)}
-                disabled={resetting}
-              >
-                Cancel
-              </button>
-              <button
-                className="ap-btn ap-btn-primary"
-                onClick={handleSendResetLink}
-                disabled={resetting}
-              >
-                {resetting ? "Sending..." : "Send Reset Link"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import ProductCard from "../../components/ProductCard.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import { useDebounce } from "../utils/useDebounce.js";
 import "./ProductPage.css";
 import { HelpCircle, X } from "lucide-react";
@@ -105,10 +106,13 @@ export default function ProductPage({ title, subtitle, products, category, loadi
             <div className="pp-grid" style={{ minHeight: "50vh" }}></div>
           )
         ) : filtered.length === 0 ? (
-          <div className="pp-empty pp-fade-in">
-            <HelpCircle size={48} color="var(--primary-lighter)" style={{ marginBottom: 16 }} />
-            <p>No results for "<strong>{search}</strong>"</p>
-          </div>
+          <EmptyState
+            title="No Results Found"
+            description={`We couldn't find any artesanías matching "${search}". Try a different keyword or clear your search.`}
+            buttonText="Clear Search"
+            onClick={() => setSearch("")}
+            type="search"
+          />
         ) : (
           <div className="pp-grid pp-fade-in">
             {filtered.map(p => (

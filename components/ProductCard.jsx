@@ -4,9 +4,23 @@ import "./ProductCard.css";
 import { Truck, AlertTriangle } from "lucide-react";
 
 const ProductCard = memo(function ProductCard({ product, category }) {
-  const stock = product.stock ?? 99;
+  const stock = product.stock ?? 0;
   const isOutOfStock = stock <= 0;
-  const isLowStock = stock > 0 && stock <= 4;
+  const isLowStock = stock > 0 && stock <= 5;
+  const isInStock = stock > 5;
+
+  // Determine stock status badge
+  const getStockStatus = () => {
+    if (isOutOfStock) return "Out of Stock";
+    if (isLowStock) return `Low Stock (${stock})`;
+    return "In Stock";
+  };
+
+  const getStockBadgeClass = () => {
+    if (isOutOfStock) return "pcard-stock-badge out";
+    if (isLowStock) return "pcard-stock-badge low";
+    return "pcard-stock-badge in";
+  };
 
   // Use first image from product_images if available, otherwise use single image
   const displayImage = product.images && product.images.length > 0
@@ -17,12 +31,19 @@ const ProductCard = memo(function ProductCard({ product, category }) {
     <Link to={`/product/${category}/${product.id}`} className="pcard-link">
       <div className={`pcard${isOutOfStock ? " pcard-oos" : ""}`}>
         {product.tag && <span className="pcard-tag">{product.tag}</span>}
+        
+        {/* Stock Status Badge */}
+        <span className={getStockBadgeClass()}>
+          {getStockStatus()}
+        </span>
+
         {isOutOfStock && (
           <div className="pcard-oos-overlay">
             <AlertTriangle size={20} />
             <span>Out of Stock</span>
           </div>
         )}
+        
         <div className="pcard-img-wrap">
           <img
             src={(displayImage?.startsWith('data:') || displayImage?.startsWith('http')) ? displayImage : `/${displayImage}`}
@@ -34,16 +55,17 @@ const ProductCard = memo(function ProductCard({ product, category }) {
             <span className="pcard-img-badge">{product.images.length} images</span>
           )}
         </div>
+        
         <div className="pcard-body">
           <h3 className="pcard-name">{product.name}</h3>
           {isLowStock && (
-            <p className="pcard-stock-warn">Only {stock} left — order soon!</p>
+            <p className="pcard-stock-warn">Only {stock} left in stock — order soon!</p>
           )}
           <p className="pcard-ship"><Truck size={14} style={{ display: "inline", marginRight: 4 }} /> Shipping Countrywide</p>
           <div className="pcard-footer">
             <span className="pcard-price">${product.price.toFixed(2)}</span>
             <button className="pcard-btn" onClick={e => e.preventDefault()}>
-              {isOutOfStock ? "View Details" : "View Details"}
+              View Details
             </button>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Truck, Lock, RotateCcw, Al
 import { useState, useEffect, useRef } from "react";
 import { fetchProductImagesBatch } from "../lib/products.js";
 import { motion, AnimatePresence } from "framer-motion";
+import EmptyState from "../components/EmptyState.jsx";
 import "./CartPage.css";
 
 /* ── Swipeable Image Gallery ── */
@@ -160,16 +161,18 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="cart-page-empty">
-        <div className="cart-empty-container">
-          <ShoppingBag size={80} strokeWidth={1} />
-          <h1>Your Cart is Empty</h1>
-          <p>Looks like you haven't added anything to your cart yet</p>
-          <button className="cart-empty-cta" onClick={() => navigate("/")}>
-            <ArrowLeft size={18} />
-            Continue Shopping
-          </button>
+      <div className="cart-page-root">
+        <div className="cart-page-header">
+          <h1>Shopping Cart</h1>
+          <p className="cart-page-subtitle">Your items</p>
         </div>
+        <EmptyState
+          title="Your Cart is Empty"
+          description="Looks like you haven't added anything to your cart yet. Explore our collection of handcrafted artesanías."
+          buttonText="Continue Shopping"
+          onClick={() => navigate("/products")}
+          type="cart"
+        />
       </div>
     );
   }

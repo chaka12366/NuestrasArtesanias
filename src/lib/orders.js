@@ -187,26 +187,64 @@ export async function placeOrder(orderData, cartItems) {
 /**
  * Fetch all orders for the currently logged-in customer.
  * RLS automatically scopes to their customer_id.
+ * Uses pagination and separate queries to avoid Content-Length errors.
  *
  * @returns {Promise<Array>}
  */
-export async function fetchMyOrders() {
+export async function fetchMyOrders(pageSize = 20) {
   const { data: authData, error: authError } = await supabase.auth.getUser()
   if (authError || !authData?.user) {
     return []
   }
 
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, order_items(*)')
-    .eq('customer_id', authData.user.id)
-    .order('created_at', { ascending: false })
+  try {
+    // Fetch orders with pagination to avoid large response bodies
+    const { data: orders, error: ordersError } = await supabase
+      .from('orders')
+      .select('id, customer_id, guest_name, guest_email, guest_phone, delivery_name, address_line1, address_line2, city, district, country, delivery_notes, shipping_method, shipping_cost, subtotal, total, payment_method, payment_status, status, created_at, updated_at')
+      .eq('customer_id', authData.user.id)
+      .order('created_at', { ascending: false })
+      .limit(pageSize)
 
-  if (error) {
-    console.error('Error fetching orders:', error)
+    if (ordersError) {
+      console.error('Error fetching orders:', ordersError)
+      return []
+    }
+
+    if (!orders || orders.length === 0) {
+      return []
+    }
+
+    // Fetch order items in a separate query to avoid Content-Length issues
+    const orderIds = orders.map(o => o.id)
+    const { data: allItems, error: itemsError } = await supabase
+      .from('order_items')
+      .select('*')
+      .in('order_id', orderIds)
+
+    if (itemsError) {
+      console.warn('Error fetching order items:', itemsError)
+      // Return orders without items rather than failing completely
+      return orders
+    }
+
+    // Map items back to their orders
+    const itemsMap = new Map()
+    allItems.forEach(item => {
+      if (!itemsMap.has(item.order_id)) {
+        itemsMap.set(item.order_id, [])
+      }
+      itemsMap.get(item.order_id).push(item)
+    })
+
+    return orders.map(order => ({
+      ...order,
+      order_items: itemsMap.get(order.id) || []
+    }))
+  } catch (err) {
+    console.error('Unexpected error fetching orders:', err)
     return []
   }
-  return data || []
 }
 
 /**
@@ -215,17 +253,43 @@ export async function fetchMyOrders() {
  * @returns {Promise<Object|null>}
  */
 export async function fetchOrderById(orderId) {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, order_items(*)')
-    .eq('id', orderId)
-    .single()
+  try {
+    // Fetch order without nested items to avoid Content-Length errors
+    const { data: order, error: orderError } = await supabase
+      .from('orders')
+      .select('id, customer_id, guest_name, guest_email, guest_phone, delivery_name, address_line1, address_line2, city, district, country, delivery_notes, shipping_method, shipping_cost, subtotal, total, payment_method, payment_status, status, created_at, updated_at')
+      .eq('id', orderId)
+      .single()
 
-  if (error) {
-    console.error('Error fetching order:', error)
+    if (orderError) {
+      console.error('Error fetching order:', orderError)
+      return null
+    }
+
+    if (!order) {
+      return null
+    }
+
+    // Fetch order items separately
+    const { data: items, error: itemsError } = await supabase
+      .from('order_items')
+      .select('*')
+      .eq('order_id', orderId)
+
+    if (itemsError) {
+      console.warn('Error fetching order items:', itemsError)
+      // Return order without items rather than failing completely
+      return order
+    }
+
+    return {
+      ...order,
+      order_items: items || []
+    }
+  } catch (err) {
+    console.error('Unexpected error fetching order:', err)
     return null
   }
-  return data
 }
 
 /**

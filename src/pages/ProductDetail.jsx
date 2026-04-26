@@ -172,6 +172,7 @@ export default function ProductDetail() {
   /* Derived values */
   const stock        = product.stock ?? 0;
   const isOutOfStock = stock <= 0;
+  const isLowStock   = stock > 0 && stock <= 5;
   const reviewCount  = seededNum(product.id, 7, 42, 284);
   const ratingStars  = seededNum(product.id, 3, 4, 5);       // 4 or 5 stars
   const ratingDecimal= (ratingStars - 0.1 + (product.id % 3) * 0.1).toFixed(1);
@@ -226,7 +227,19 @@ export default function ProductDetail() {
 
   /* Handlers */
   function handleAddToCart() {
-    if (isOutOfStock) return;
+    if (isOutOfStock) {
+      toast.error("This item is out of stock");
+      return;
+    }
+
+    // Re-check stock (safety check for race conditions)
+    if (qty > stock) {
+      const maxPossible = Math.max(1, stock);
+      toast.error(`Only ${maxPossible} item${maxPossible !== 1 ? 's' : ''} available in stock`);
+      setQty(maxPossible);
+      return;
+    }
+
     addToCart({ ...product, category }, qty);
     setAdded(true);
     // Clear any previous timeout before setting a new one
@@ -236,11 +249,21 @@ export default function ProductDetail() {
     setDrawerOpen(true);
   }
 
-  function handleBuyNow() {
-    if (isOutOfStock) return;
-    addToCart({ ...product, category }, qty);
-    navigate("/checkout");
+  function handleContinueShopping() {
+    navigate(`/${category}`);
   }
+
+  // Handle quantity increment with stock cap
+  const handleQuantityIncrease = () => {
+    if (isOutOfStock || qty >= stock) return;
+    setQty(q => Math.min(stock, q + 1));
+  };
+
+  // Handle quantity decrement with minimum floor
+  const handleQuantityDecrease = () => {
+    if (qty <= 1) return;
+    setQty(q => Math.max(1, q - 1));
+  };
 
   return (
     <main className="pd-root">
@@ -456,7 +479,7 @@ export default function ProductDetail() {
               <div className="pd-qty-ctrl">
                 <button
                   className="pd-qty-btn"
-                  onClick={() => setQty(q => Math.max(1, q - 1))}
+                  onClick={handleQuantityDecrease}
                   disabled={isOutOfStock || qty <= 1}
                   aria-label="Decrease quantity"
                   title="Decrease quantity"
@@ -466,10 +489,10 @@ export default function ProductDetail() {
                 <span id="qty-input" className="pd-qty-num" role="status" aria-live="polite">{isOutOfStock ? 0 : qty}</span>
                 <button
                   className="pd-qty-btn"
-                  onClick={() => setQty(q => Math.min(stock, q + 1))}
+                  onClick={handleQuantityIncrease}
                   disabled={isOutOfStock || qty >= stock}
                   aria-label="Increase quantity"
-                  title="Increase quantity"
+                  title={isOutOfStock ? "Out of stock" : qty >= stock ? `Maximum ${stock} available` : "Increase quantity"}
                 >
                   <Plus size={14} />
                 </button>
@@ -491,10 +514,10 @@ export default function ProductDetail() {
 
             <button
               className={`pd-buy-now-btn${isOutOfStock ? " disabled" : ""}`}
-              onClick={handleBuyNow}
+              onClick={handleContinueShopping}
               disabled={isOutOfStock}
             >
-              {isOutOfStock ? "Unavailable" : "Buy Now"}
+              {isOutOfStock ? "Unavailable" : "Continue Shopping"}
             </button>
 
             {/* Payment info */}

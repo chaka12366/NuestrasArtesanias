@@ -4,6 +4,12 @@
   margin: 0 auto;
   padding: 24px 20px 60px;
 }
+
+@media (max-width: 720px) {
+  .pd-root {
+    padding: 24px 16px 280px;
+  }
+}
 .pd-error {
   text-align: center;
   padding: 80px 20px;
@@ -387,30 +393,6 @@
 
 .pd-buy-divider { border: none; border-top: 1px solid #ede8e2; margin: 12px 0; }
 
-/* Disabled button states */
-.pd-add-btn.disabled,
-.pd-add-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-.pd-add-btn.disabled:hover,
-.pd-add-btn:disabled:hover {
-  background: #ccc;
-  transform: none;
-}
-.pd-buy-now-btn.disabled,
-.pd-buy-now-btn:disabled {
-  background: #999;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-.pd-buy-now-btn.disabled:hover,
-.pd-buy-now-btn:disabled:hover {
-  background: #999;
-  transform: none;
-}
-
 /* Qty */
 .pd-qty-row {
   display: flex;
@@ -430,15 +412,32 @@
 .pd-qty-btn {
   background: #f5f0ea;
   border: none;
-  padding: 7px 12px;
+  padding: 8px 14px;
   cursor: pointer;
   color: #444;
   display: flex;
   align-items: center;
-  transition: background 0.15s;
+  justify-content: center;
+  transition: background 0.15s, opacity 0.2s;
+  min-width: 36px;
+  min-height: 36px;
+  -webkit-tap-highlight-color: transparent;
 }
-.pd-qty-btn:hover:not(:disabled) { background: #e8dfd5; }
-.pd-qty-btn:disabled { opacity: 0.4; cursor: default; }
+
+@media (max-width: 480px) {
+  .pd-qty-btn {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+}
+.pd-qty-btn:hover:not(:disabled) { 
+  background: #e8dfd5; 
+}
+.pd-qty-btn:disabled { 
+  opacity: 0.4; 
+  cursor: not-allowed; 
+}
 .pd-qty-num {
   padding: 7px 14px;
   font-size: 0.9rem;
@@ -464,12 +463,36 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
   margin-bottom: 10px;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
 }
-.pd-add-btn:hover { background: #b5804f; transform: translateY(-1px); }
-.pd-add-btn:active { transform: translateY(0); }
-.pd-add-btn.added { background: #2a9d5c; }
+
+@media (max-width: 480px) {
+  .pd-add-btn {
+    min-height: 52px;
+    padding: 14px;
+    font-size: 1rem;
+  }
+}
+.pd-add-btn:hover:not(:disabled) { 
+  background: #b5804f; 
+  transform: translateY(-1px);
+}
+.pd-add-btn:active:not(:disabled) { 
+  transform: translateY(0); 
+}
+.pd-add-btn.added { 
+  background: #2a9d5c; 
+}
+.pd-add-btn.disabled,
+.pd-add-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
 
 .pd-buy-now-btn {
   width: 100%;
@@ -481,11 +504,37 @@
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
   margin-bottom: 12px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
-.pd-buy-now-btn:hover { background: #3a2518; transform: translateY(-1px); }
-.pd-buy-now-btn:active { transform: translateY(0); }
+
+@media (max-width: 480px) {
+  .pd-buy-now-btn {
+    min-height: 52px;
+    padding: 14px;
+    font-size: 1rem;
+  }
+}
+
+.pd-buy-now-btn:hover:not(:disabled) { 
+  background: #3a2518; 
+  transform: translateY(-1px);
+}
+.pd-buy-now-btn:active:not(:disabled) { 
+  transform: translateY(0); 
+}
+.pd-buy-now-btn.disabled,
+.pd-buy-now-btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
 
 /* Contact CTA */
 .pd-contact-cta {
@@ -594,10 +643,27 @@
   }
   .pd-img-col { position: static; }
   .pd-info-col { order: 2; }
-  .pd-buy-col  { order: 3; }
+  .pd-buy-col {
+    order: 3;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    z-index: 100;
+    width: 100%;
+    max-width: 100%;
+  }
   .pd-name { font-size: 1.25rem; }
   .pd-price { font-size: 1.6rem; }
-  .pd-buy-box { max-width: 100%; }
+  .pd-buy-box {
+    max-width: 100%;
+    margin: 0;
+    padding: 16px;
+    border-radius: 20px 20px 0 0;
+    border: 1px solid #ddd;
+    border-bottom: none;
+  }
   .pd-badges { flex-direction: column; }
 
   /* Gallery: hide vertical strip, show horizontal mobile strip */
