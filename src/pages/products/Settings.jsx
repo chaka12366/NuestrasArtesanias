@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, Bell, AlertCircle, Loader, Store, Palette, Lock } from "lucide-react";
+import { Check, Bell, AlertCircle, Loader, Store, Lock } from "lucide-react";
 import { fetchStoreSettings, updateStoreSettings } from "../../lib/dashboard.js";
 import { invalidateStoreSettings } from "../../utils/storeSettingsCache.js";
 import { toast } from "react-toastify";
@@ -25,13 +25,6 @@ export default function Settings() {
     dailyReport: true,
   });
 
-  const [appearance, setAppearance] = useState({
-    theme: "warm",
-    showTopbar: true,
-    showRatings: true,
-    cardStyle: "rounded",
-  });
-
   const [password, setPassword] = useState({ current:"", next:"", confirm:"" });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -47,12 +40,6 @@ export default function Settings() {
         const settings = await fetchStoreSettings();
         if (settings) {
           setStore(settings);
-          setAppearance({
-            theme: settings.theme || "warm",
-            cardStyle: settings.cardStyle || "rounded",
-            showTopbar: settings.showTopbar === 'true',
-            showRatings: settings.showRatings === 'true',
-          });
           // Also save to localStorage as backup
           localStorage.setItem("storeSettings", JSON.stringify(settings));
         }
@@ -79,27 +66,15 @@ export default function Settings() {
 
       const result = await updateStoreSettings({
         ...store,
-        theme: appearance.theme,
-        cardStyle: appearance.cardStyle,
-        showTopbar: appearance.showTopbar.toString(),
-        showRatings: appearance.showRatings.toString(),
       });
 
       if (result.success) {
         const fullSettings = {
           ...store,
-          theme: appearance.theme,
-          cardStyle: appearance.cardStyle,
-          showTopbar: appearance.showTopbar.toString(),
-          showRatings: appearance.showRatings.toString(),
         };
         // Also save to localStorage as backup
         localStorage.setItem("storeSettings", JSON.stringify(fullSettings));
         invalidateStoreSettings(); // Refresh global cache
-        
-        // Apply instantly
-        document.documentElement.setAttribute('data-theme', appearance.theme);
-        document.documentElement.setAttribute('data-style', appearance.cardStyle);
 
         setSaved(true);
         toast.success("Profile updated successfully");
@@ -184,51 +159,6 @@ export default function Settings() {
             </div>
           ))}
 
-        </div>
-
-        {/* Appearance */}
-        <div className="ap-card ap-settings-card">
-          <div className="ap-settings-card-header">
-            <Palette size={24} className="ap-settings-icon" />
-            <h3>Appearance</h3>
-          </div>
-
-          <div className="ap-field">
-            <label className="ap-label">Color Theme</label>
-            <div className="ap-theme-row">
-              {[
-                { key:"warm",   label:"Warm",   color:"#8b4513" },
-                { key:"earth",  label:"Earth",  color:"#5c4033" },
-                { key:"forest", label:"Forest", color:"#2d5a27" },
-              ].map(t=>(
-                <button key={t.key}
-                  className={`ap-theme-btn ${appearance.theme===t.key?"active":""}`}
-                  style={{"--tc":t.color}}
-                  onClick={() => {
-                    setAppearance({...appearance,theme:t.key});
-                    document.documentElement.setAttribute('data-theme', t.key);
-                  }}>
-                  <span className="ap-theme-swatch"/>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="ap-field" style={{ marginBottom: 0 }}>
-            <label className="ap-label">Card Style</label>
-            <div className="ap-cat-tabs">
-              {["rounded","sharp","pill"].map(s=>(
-                <button key={s} className={`ap-range-tab ${appearance.cardStyle===s?"active":""}`}
-                  onClick={() => {
-                    setAppearance({...appearance,cardStyle:s});
-                    document.documentElement.setAttribute('data-style', s);
-                  }}>
-                  {s.charAt(0).toUpperCase()+s.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Security */}
