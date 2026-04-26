@@ -1,0 +1,692 @@
+/* Unified Sidebar Component - Reusable for Customer & Admin */
+
+:root {
+  /* Dark variant (Customer) */
+  --sidebar-brown: #7c3d26;
+  --sidebar-brown-light: #a0522d;
+  --sidebar-gold: #c9956a;
+  --sidebar-gold-light: #e8c49a;
+  --sidebar-cream: #faf4ee;
+  --sidebar-cream-dark: #f5ece0;
+  --sidebar-text: #2d1a0e;
+  --sidebar-text-light: #9a7060;
+  
+  /* Light variant (Admin) */
+  --sidebar-light-bg: #ffffff;
+  --sidebar-light-border: rgba(123, 61, 38, 0.12);
+  --sidebar-light-text: #1a1a1a;
+  --sidebar-light-hover: #faf5f0;
+  
+  /* Shared */
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --sidebar-width-customer: 280px;
+  --sidebar-width-admin: 280px;
+}
+
+/* ════════════════════════════════════ */
+/* OVERLAY - Mobile backdrop           */
+/* ════════════════════════════════════ */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(45, 26, 14, 0.45);
+  z-index: 100;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.sidebar-overlay.visible {
+  display: block;
+  opacity: 1;
+}
+
+/* ════════════════════════════════════ */
+/* SIDEBAR - Base structure            */
+/* ════════════════════════════════════ */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 200;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform var(--transition);
+  box-sizing: border-box;
+  padding: 26px 0 0 0;
+}
+
+/* Customer variant width */
+.sidebar--customer {
+  width: var(--sidebar-width-customer);
+}
+
+/* Admin variant width */
+.sidebar--admin {
+  width: var(--sidebar-width-admin);
+}
+
+/* ════════════════════════════════════ */
+/* SIDEBAR CUSTOMER VARIANT            */
+/* ════════════════════════════════════ */
+.sidebar--customer {
+  background: linear-gradient(180deg, var(--sidebar-brown) 0%, #4a2415 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 8px 0 24px rgba(45, 26, 14, 0.15);
+}
+
+.sidebar--customer::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.1);
+  pointer-events: none;
+}
+
+.sidebar--customer::after {
+  content: "";
+  position: absolute;
+  bottom: 60px;
+  left: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.07);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════ */
+/* SIDEBAR ADMIN VARIANT               */
+/* ════════════════════════════════════ */
+.sidebar--admin {
+  background: linear-gradient(180deg, var(--sidebar-brown) 0%, #4a2415 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 8px 0 24px rgba(45, 26, 14, 0.15);
+}
+
+.sidebar--admin::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.1);
+  pointer-events: none;
+}
+
+.sidebar--admin::after {
+  content: "";
+  position: absolute;
+  bottom: 60px;
+  left: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.07);
+  pointer-events: none;
+}
+
+/* ════════════════════════════════════ */
+/* HEADER                              */
+/* ════════════════════════════════════ */
+.sidebar__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0 20px 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 0;
+  position: relative;
+  min-height: 60px;
+}
+
+.sidebar--admin .sidebar__header {
+  padding: 0 20px 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  min-height: 60px;
+}
+
+/* Title (Admin - hidden when branding shown) */
+.sidebar__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sidebar-light-text);
+  margin: 0;
+}
+
+.sidebar--admin .sidebar__title {
+  display: none;
+}
+
+/* Branding (Customer) */
+.sidebar__brand-subtitle {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--sidebar-gold);
+  letter-spacing: 0.06em;
+  margin: 0 0 1px 0;
+}
+
+.sidebar__brand-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.sidebar__brand-label {
+  font-family: "Jost", sans-serif;
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 4px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Close button */
+.sidebar__close {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4px 0;
+  transition: color var(--transition);
+}
+
+.sidebar--customer .sidebar__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__close:hover {
+  color: #fff;
+}
+
+.sidebar--admin .sidebar__close {
+  color: rgba(255, 255, 255, 0.6);
+  display: none;
+}
+
+.sidebar--admin .sidebar__close:hover {
+  color: #fff;
+}
+
+/* ════════════════════════════════════ */
+/* USER PROFILE                        */
+/* ════════════════════════════════════ */
+.sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar--admin .sidebar__profile {
+  display: flex;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sidebar-gold) 0%, var(--sidebar-gold-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sidebar-brown);
+  flex-shrink: 0;
+  font-family: "Jost", sans-serif;
+}
+
+.sidebar__user-info {
+  min-width: 0;
+}
+
+.sidebar__user-email {
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  font-family: "Jost", sans-serif;
+}
+
+.sidebar__user-role {
+  font-size: 9px;
+  color: rgba(255, 255, 255, 0.38);
+  margin-top: 1px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 1px 0 0 0;
+  font-family: "Jost", sans-serif;
+}
+
+/* ════════════════════════════════════ */
+/* NAVIGATION                          */
+/* ════════════════════════════════════ */
+.sidebar__nav {
+  flex: 1;
+  padding: 10px;
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "Jost", sans-serif;
+}
+
+/* Customer nav item hover/active */
+.sidebar--customer .sidebar__nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar--customer .sidebar__nav-item.active {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Admin nav item hover/active */
+.sidebar--admin .sidebar__nav-item {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sidebar--admin .sidebar__nav-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+  transform: none;
+}
+
+.sidebar--admin .sidebar__nav-item.active {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-weight: 500;
+  box-shadow: none;
+}
+
+.sidebar__nav-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Badge */
+.sidebar__badge {
+  margin-left: auto;
+  background: var(--sidebar-gold);
+  color: var(--sidebar-brown);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+/* ════════════════════════════════════ */
+/* FOOTER                              */
+/* ════════════════════════════════════ */
+.sidebar__footer {
+  padding: 12px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-top: auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar--admin .sidebar__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__continue-shopping {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  background: rgba(196, 181, 253, 0.1);
+  color: rgba(196, 181, 253, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+}
+
+.sidebar__continue-shopping:hover {
+  background: rgba(196, 181, 253, 0.2);
+  border-color: rgba(196, 181, 253, 0.5);
+  color: rgba(196, 181, 253, 1);
+}
+
+.sidebar--admin .sidebar__continue-shopping {
+  background: rgba(196, 181, 253, 0.1);
+  border: 1px solid rgba(196, 181, 253, 0.3);
+  color: rgba(196, 181, 253, 0.8);
+  font-weight: 500;
+}
+
+.sidebar--admin .sidebar__continue-shopping:hover {
+  background: rgba(196, 181, 253, 0.2);
+  border-color: rgba(196, 181, 253, 0.5);
+  color: rgba(196, 181, 253, 1);
+}
+
+.sidebar__view-store {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.1);
+  color: rgba(34, 197, 94, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+}
+
+.sidebar__view-store:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: rgba(34, 197, 94, 1);
+}
+
+.sidebar--admin .sidebar__view-store {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: rgba(34, 197, 94, 0.8);
+  font-weight: 500;
+}
+
+.sidebar--admin .sidebar__view-store:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: rgba(34, 197, 94, 0.5);
+  color: rgba(34, 197, 94, 1);
+}
+
+.sidebar__logout {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  font-family: "Jost", sans-serif;
+}
+
+.sidebar__logout:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.sidebar--admin .sidebar__logout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+}
+
+.sidebar--admin .sidebar__logout:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: none;
+  box-shadow: none;
+}
+
+/* ════════════════════════════════════ */
+/* MOBILE HAMBURGER TOGGLE BUTTON      */
+/* ════════════════════════════════════ */
+.sidebar__toggle {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: var(--sidebar-brown);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  z-index: 300;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 3px 12px rgba(45, 26, 14, 0.35);
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__toggle:hover {
+  background: rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar__toggle:active {
+  transform: scale(0.93);
+}
+
+/* ════════════════════════════════════ */
+/* RESPONSIVE                          */
+/* ════════════════════════════════════ */
+
+/* Tablet (769px – 1024px) — narrower, always visible */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .sidebar--customer,
+  .sidebar--admin {
+    width: 240px;
+  }
+
+  .sidebar {
+    padding: 20px 0 0 0;
+  }
+
+  .sidebar__header {
+    padding: 0 16px 16px 16px;
+  }
+
+  .sidebar__nav {
+    padding: 8px;
+    gap: 1px;
+  }
+
+  .sidebar__nav-item {
+    padding: 8px 10px;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .sidebar__logout {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+/* ── Mobile (max 768px) ── */
+@media (max-width: 768px) {
+  /* Sidebar: slides in from left, covers ~72% of screen */
+  .sidebar--customer,
+  .sidebar--admin {
+    width: 72vw;
+    max-width: 300px;
+    min-width: 220px;
+    transform: translateX(-100%);
+    box-shadow: 6px 0 20px rgba(45, 26, 14, 0.3);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Show overlay */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Show hamburger toggle */
+  .sidebar__toggle {
+    display: flex;
+  }
+
+  /* Show close button in header */
+  .sidebar__close,
+  .sidebar--admin .sidebar__close {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.7);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    transition: background var(--transition), color var(--transition);
+  }
+
+  .sidebar__close:hover,
+  .sidebar--admin .sidebar__close:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+
+  .sidebar__header {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 14px 16px 16px;
+  }
+
+  .sidebar__nav-item {
+    padding: 11px 12px;
+    font-size: 13px;
+  }
+
+  .sidebar__profile {
+    padding: 12px 16px;
+  }
+}
+
+/* ── Small phones (max 480px) ── */
+@media (max-width: 480px) {
+  /* HALF screen — not full screen */
+  .sidebar--customer,
+  .sidebar--admin {
+    width: 75vw;
+    max-width: 280px;
+    min-width: 200px;
+  }
+
+  .sidebar__nav-item {
+    font-size: 12px;
+    padding: 10px 11px;
+  }
+
+  .sidebar__brand-title {
+    font-size: 18px;
+  }
+
+  .sidebar__user-email {
+    font-size: 11px;
+  }
+}
+
+/* ── Landscape phones ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  .sidebar--customer,
+  .sidebar--admin {
+    width: 52vw;
+    max-width: 260px;
+  }
+
+  .sidebar {
+    padding: 12px 0 0 0;
+  }
+
+  .sidebar__header {
+    padding: 0 12px 10px 14px;
+    min-height: 44px;
+  }
+
+  .sidebar__brand-title {
+    font-size: 17px;
+  }
+
+  .sidebar__profile {
+    padding: 10px 14px;
+  }
+
+  .sidebar__nav {
+    padding: 6px 8px;
+  }
+
+  .sidebar__nav-item {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+}

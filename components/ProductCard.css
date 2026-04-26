@@ -1,0 +1,168 @@
+.pcard {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 149, 106, 0.15);
+  box-shadow: 0 2px 12px rgba(123,61,38,0.06);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  will-change: transform, box-shadow;
+  min-height: 320px;
+}
+
+
+.pcard-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--primary-mid, #8b4513);
+  color: #fff;
+  font-size: clamp(0.6rem, 1.5vw, 0.68rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: clamp(2px, 1vw, 3px) clamp(8px, 2vw, 10px);
+  border-radius: 20px;
+  z-index: 2;
+}
+
+.pcard-img-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--cream, #fcf4df);
+  position: relative;
+}
+
+.pcard-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.pcard:hover .pcard-img-wrap img {
+  transform: scale(1.06);
+}
+
+.pcard-img-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  z-index: 2;
+}
+
+.pcard-body {
+  padding: clamp(0.75rem, 2vw, 1rem);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: clamp(0.25rem, 1vw, 0.35rem);
+}
+
+.pcard-name {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  font-weight: 600;
+  color: #1f1f1f;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pcard-ship {
+  font-size: clamp(0.7rem, 1.5vw, 0.75rem);
+  color: #888;
+  margin: 0;
+}
+
+.pcard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: clamp(0.5rem, 1.5vw, 0.75rem);
+  gap: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+.pcard-price {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  font-weight: 700;
+  color: var(--primary-mid, #8b4513);
+}
+
+.pcard-btn {
+  background: var(--primary-lighter, #d4a574);
+  color: var(--primary-dark, #7c3d26);
+  border: none;
+  border-radius: 20px;
+  padding: clamp(0.3rem, 1.5vw, 0.4rem) clamp(0.7rem, 2vw, 0.85rem);
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.7rem, 1.5vw, 0.78rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pcard-btn:hover {
+  background: var(--primary-dark, #7c3d26);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* Out of stock overlay */
+.pcard-oos { opacity: 0.75; }
+.pcard-oos .pcard-img-wrap { filter: grayscale(40%); }
+
+.pcard-oos-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 3;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 16px;
+}
+
+/* Low stock warning */
+.pcard-stock-warn {
+  font-size: clamp(0.65rem, 1.4vw, 0.72rem);
+  color: #c9956a;
+  font-weight: 600;
+  margin: 0;
+  padding: 2px 8px;
+  background: #fff5e6;
+  border-radius: 10px;
+  display: inline-block;
+  width: fit-content;
+}
+
+/* Link reset */
+.pcard-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}

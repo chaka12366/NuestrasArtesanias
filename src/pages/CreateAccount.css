@@ -1,0 +1,493 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap");
+
+/* ── DESIGN TOKENS ── */
+:root {
+  --br:       #8b4513;
+  --br-dk:    #5c2d0e;
+  --br-lt:    #a0522d;
+  --br-pale:  #d4a574;
+  --cream:    #f5f0eb;
+  --cream-dk: #ede4d8;
+  --white:    #ffffff;
+  --ink:      #1c1008;
+  --muted:    #7a5c44;
+  --border:   rgba(139,69,19,0.14);
+  --shadow:   0 2px 24px rgba(92,45,14,0.08);
+  --r:        14px;
+  --r-sm:     9px;
+  --ease:     cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── PAGE ROOT ── */
+.ca-wrapper {
+  min-height: 100vh;
+  background: var(--cream);
+  font-family: "DM Sans", sans-serif;
+  color: var(--ink);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── AMBIENT ORBS (Background Decoration) ── */
+.ca-orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(70px);
+  animation: orb-drift 9s ease-in-out infinite;
+}
+.ca-orb-1 {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(139,69,19,0.13), transparent 70%);
+  top: -80px;
+  right: -60px;
+}
+.ca-orb-2 {
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(212,165,116,0.18), transparent 70%);
+  bottom: 5%;
+  left: -40px;
+  animation-delay: -4s;
+}
+
+@keyframes orb-drift {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-20px) scale(1.04); }
+}
+
+/* ── INNER WRAPPER ── */
+.ca-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ── HEADER ── */
+.ca-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  animation: fade-up 0.4s var(--ease) both;
+}
+
+.ca-back-home {
+  background: none;
+  border: none;
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  transition: color 0.18s, background 0.18s;
+}
+
+.ca-back-home:hover {
+  color: var(--br);
+  background: rgba(139,69,19,0.07);
+}
+
+.ca-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ca-brand-icon {
+  font-size: 1.3rem;
+  color: var(--br-dk);
+  flex-shrink: 0;
+}
+
+.ca-brand-name {
+  font-family: "Playfair Display", serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--br-dk);
+}
+
+/* ── TITLE AREA ── */
+.ca-title-area {
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: fade-up 0.45s 0.05s var(--ease) both;
+}
+
+.ca-page-title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  font-weight: 700;
+  color: var(--br-dk);
+  margin-bottom: 0.4rem;
+}
+
+.ca-page-sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+  line-height: 1.5;
+}
+
+/* ── ROLE TOGGLE ── */
+.ca-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--cream);
+  padding: 0.35rem;
+  border-radius: 50px;
+  border: 1px solid var(--border);
+}
+
+.toggle-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "DM Sans", sans-serif;
+}
+
+.toggle-btn.active {
+  background: var(--white);
+  color: var(--br);
+  box-shadow: 0 2px 8px rgba(139,69,19,0.12);
+}
+
+/* ── CARD ── */
+.ca-card {
+  background: var(--white);
+  border-radius: var(--r);
+  border: 0.5px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 2rem 1.75rem;
+  animation: fade-up 0.4s var(--ease) both;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ca-card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.6rem;
+  color: var(--br);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ca-card-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--br-dk);
+  margin-bottom: 0.3rem;
+}
+
+.ca-card-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.55;
+}
+
+/* ── FORM FIELDS ── */
+.ca-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 0.9rem;
+}
+
+.ca-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ca-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+}
+
+.ca-req {
+  color: var(--br);
+}
+
+input:not([type="checkbox"]),
+select {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: 1px solid rgba(139,69,19,0.18);
+  border-radius: var(--r-sm);
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "DM Sans", sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:not([type="checkbox"]):focus,
+select:focus {
+  border-color: var(--br);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(139,69,19,0.13);
+}
+
+input.err,
+select.err {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231,76,60,0.1);
+}
+
+.ca-err {
+  font-size: 11px;
+  color: #c0392b;
+}
+
+.ca-error-message {
+  background: rgba(231,76,60,0.1);
+  border-left: 3px solid #c0392b;
+  color: #c0392b;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 1rem;
+  animation: fade-up 0.3s var(--ease) both;
+}
+
+/* ── PASSWORD FIELD ── */
+.ca-pw-wrap {
+  position: relative;
+}
+
+.ca-pw-wrap input {
+  padding-right: 48px;
+}
+
+.ca-pw-eye {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  transition: color 0.15s;
+}
+
+.ca-pw-eye:hover {
+  color: var(--br);
+}
+
+.ca-pw-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ca-pw-track {
+  flex: 1;
+  height: 4px;
+  background: var(--cream-dk);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ca-pw-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.35s var(--ease), background 0.35s;
+}
+
+.ca-pw-label {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── CHECKBOXES ── */
+.ca-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+
+.ca-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.ca-check-row input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--br);
+  cursor: pointer;
+  border: none;
+  box-shadow: none;
+}
+
+.ca-check-row a {
+  color: var(--br);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.ca-check-row a:hover {
+  text-decoration: underline;
+}
+
+/* ── BUTTONS ── */
+.ca-btn-primary {
+  width: 100%;
+  height: 48px;
+  background: var(--br);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: background 0.2s, transform 0.12s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(139,69,19,0.28);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ca-btn-primary:hover {
+  background: var(--br-dk);
+  box-shadow: 0 6px 22px rgba(92,45,14,0.35);
+}
+
+.ca-btn-primary:active {
+  transform: scale(0.985);
+}
+
+.ca-btn-primary:disabled {
+  background: var(--muted);
+  cursor: not-allowed;
+  box-shadow: 0 4px 16px rgba(122,92,68,0.2);
+}
+
+/* ── LOGIN LINK ── */
+.ca-login-link {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.ca-login-link a {
+  color: var(--br);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ca-login-link a:hover {
+  text-decoration: underline;
+}
+
+/* ── FOOTER NOTE ── */
+.ca-footer-note {
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 1.5rem;
+  animation: fade-up 0.4s 0.3s var(--ease) both;
+}
+
+/* ── KEYFRAMES ── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 540px) {
+  .ca-inner {
+    padding: 1.5rem 1rem 3rem;
+  }
+  .ca-card {
+    padding: 1.5rem 1.25rem;
+  }
+  .ca-row2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .ca-page-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* ── LINK BUTTON (for Terms & Privacy) ── */
+.ca-link-btn {
+  background: none;
+  border: none;
+  color: var(--br);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  font-weight: 500;
+  padding: 0;
+  font: inherit;
+  transition: color 0.2s ease;
+}
+
+.ca-link-btn:hover {
+  color: var(--br-dk);
+}
+
+.ca-link-btn:active {
+  opacity: 0.8;
+}

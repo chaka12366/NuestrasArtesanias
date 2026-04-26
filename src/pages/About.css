@@ -1,0 +1,198 @@
+.about-root {
+  min-height: 100vh;
+  background: var(--off-white, #faf5f0);
+  font-family: "DM Sans", sans-serif;
+  padding-bottom: 4rem;
+  /* Do NOT set max-width here — hero needs to break out to full viewport */
+  overflow-x: hidden;
+}
+
+/* ── HERO — full-bleed across the page ── */
+.about-hero {
+  background: linear-gradient(135deg, var(--primary-dark, #6b4423) 0%, var(--primary-mid, #8b4513) 60%, var(--primary-light, #a0522d) 100%);
+  min-height: clamp(200px, 30vh, 300px);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 5vw, 2rem) clamp(2rem, 6vw, 3.5rem);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Full bleed — stretch edge to edge without the negative-margin trick */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.about-hero::before {
+  content: "";
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(252,170,215,0.1);
+}
+
+.about-hero-inner { position: relative; z-index: 1; }
+
+.about-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.95);
+  margin-bottom: 0.5rem;
+}
+
+.about-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.about-wave {
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%;
+}
+.about-wave svg { width: 100%; display: block; }
+
+/* ── BODY — centered card column ── */
+.about-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 0;
+}
+
+.about-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  border: 1px solid rgba(201, 149, 106, 0.15);
+  box-shadow: 0 4px 24px rgba(123,61,38,0.07);
+  text-align: center;
+}
+
+.about-badge {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.about-heading {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--primary-mid, #8b4513);
+  margin: 0 0 1.5rem;
+}
+
+.about-text {
+  font-size: 0.98rem;
+  color: #444;
+  line-height: 1.85;
+  margin: 0 0 1.1rem;
+  text-align: left;
+}
+
+.about-text strong { color: var(--primary-mid, #8b4513); }
+
+.about-highlight {
+  background: linear-gradient(135deg, var(--primary-mid, #8b4513), var(--primary-light, #a5613d));
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
+  margin: 1.5rem 0;
+}
+
+.about-highlight p {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.about-cta {
+  display: inline-block;
+  margin-top: 1rem;
+  background: #d4a574;
+  color: var(--primary-dark);
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.about-cta:hover {
+  background: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+/* ── STATS ── */
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.about-stat {
+  background: #fff;
+  border-radius: 16px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  border: 1px solid rgba(201, 149, 106, 0.15);
+  box-shadow: 0 2px 12px rgba(123,61,38,0.05);
+}
+
+.stat-num {
+  display: block;
+  font-family: "Cormorant Garamond", serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #8b4513;
+  line-height: 1;
+}
+
+.stat-lbl {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 480px) {
+  .about-card { padding: 1.75rem 1.25rem; }
+  .about-stats { grid-template-columns: repeat(3,1fr); gap: 0.65rem; }
+  .stat-num { font-size: 1.5rem; }
+}
+
+@media (max-width: 360px) {
+  .about-hero { padding: 2rem 1rem 2.5rem; }
+  .about-title { font-size: 1.8rem; }
+  .about-body { padding: 1.5rem 1rem 0; }
+  .about-card { padding: 1.5rem 1rem; }
+  .about-stats { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .stat-num { font-size: 1.3rem; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .about-hero { min-height: auto; padding: 1rem 1.5rem 2rem; }
+  .about-title { font-size: clamp(1.5rem, 3vw, 2rem); }
+  .about-body { padding: 1.5rem 1.5rem 0; }
+  .about-card { padding: 1.5rem 1.5rem; }
+  .about-heading { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  .about-text { font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.75rem; }
+  .about-highlight { padding: 1rem 1.5rem; margin: 0.75rem 0; }
+  .about-stats { gap: 0.75rem; margin-top: 1rem; }
+  .stat-num { font-size: 1.5rem; }
+}

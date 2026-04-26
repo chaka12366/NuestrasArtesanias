@@ -1,0 +1,194 @@
+.pp-root {
+  min-height: 100vh;
+  background: var(--off-white, #faf5f0);
+  padding-bottom: 4rem;
+}
+
+/* ── HERO ── */
+.pp-hero {
+  background: linear-gradient(135deg, var(--primary-dark, #6b4423) 0%, var(--primary-mid, #8b4513) 60%, var(--primary-light, #a0522d) 100%);
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 5vw, 1.5rem) clamp(2rem, 5vw, 4rem);
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+}
+
+.pp-hero::before {
+  content: "";
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.15);
+}
+
+.pp-hero::after {
+  content: "";
+  position: absolute;
+  bottom: 20px; left: -60px;
+  width: 250px; height: 250px;
+  border-radius: 50%;
+  background: rgba(201, 149, 106, 0.1);
+}
+
+.pp-hero-inner { position: relative; z-index: 1; }
+
+.pp-hero-eyebrow {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.7rem, 1.5vw, 0.75rem);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(212, 165, 116, 0.95);
+  margin-bottom: 0.5rem;
+}
+
+.pp-hero-title {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.8rem, 6vw, 3.5rem);
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.pp-hero-sub {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+  color: rgba(255,255,255,0.7);
+  margin: 0.75rem auto 0;
+  max-width: 480px;
+  font-weight: 300;
+}
+
+.pp-hero-wave {
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%;
+}
+
+.pp-hero-wave svg { width: 100%; display: block; }
+
+/* ── CONTROLS ── */
+.pp-controls {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 5vw, 1.5rem) 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1rem);
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pp-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: clamp(200px, 80vw, 420px);
+}
+
+.pp-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 17px; height: 17px;
+  color: #aaa;
+  pointer-events: none;
+}
+
+.pp-search {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem clamp(2.25rem, 5vw, 2.75rem);
+  border: 1.5px solid #e8dff0;
+  border-radius: 50px;
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.85rem, 2vw, 0.92rem);
+  color: #1f1f1f;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pp-search:focus {
+  border-color: var(--primary-mid, #8b4513);
+  box-shadow: 0 0 0 3px rgba(123,61,38,0.1);
+}
+
+.pp-clear {
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.pp-count {
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.8rem, 1.5vw, 0.85rem);
+  color: #888;
+  white-space: nowrap;
+}
+
+/* ── GRID ── */
+.pp-grid-wrap {
+  max-width: 1200px;
+  margin: clamp(1rem, 3vw, 1.5rem) auto 0;
+  padding: 0 clamp(1rem, 5vw, 1.5rem);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pp-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(clamp(150px, 25vw, 220px), 1fr));
+  gap: clamp(0.85rem, 2vw, 1.25rem);
+  width: 100%;
+}
+
+.pp-empty {
+  text-align: center;
+  padding: 4rem;
+  font-family: "DM Sans", sans-serif;
+  color: #888;
+}
+
+.pp-empty span { font-size: 2.5rem; display: block; margin-bottom: 1rem; }
+
+@media (max-width: 360px) {
+  .pp-grid { grid-template-columns: 1fr; }
+  .pp-search { padding: 0.6rem 2rem 0.6rem 2rem; }
+}
+
+@media (max-width: 480px) {
+  .pp-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(0.75rem, 2vw, 1rem);
+  }
+  .pp-grid-wrap { padding: 0 clamp(0.75rem, 3vw, 1rem); }
+  .pp-controls { padding: clamp(0.75rem, 2vw, 1rem) clamp(0.75rem, 3vw, 1rem) 0; }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .pp-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .pp-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1440px) {
+  .pp-grid { grid-template-columns: repeat(5, 1fr); }
+  .pp-grid-wrap { max-width: 1600px; }
+}
+
+/* Landscape orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+  .pp-hero { padding: 1rem 2rem; }
+  .pp-controls { padding: 0.75rem 1.5rem 0; }
+}

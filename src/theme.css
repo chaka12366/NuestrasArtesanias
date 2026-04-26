@@ -1,0 +1,252 @@
+/* ───────────────────────────────────────────────────────────── */
+/* NUESTRAS ARTESANIAS - UNIFIED THEME & COLOR SYSTEM            */
+/* ───────────────────────────────────────────────────────────── */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* ── PRIMARY PALETTE (Extracted from Nuestras Artesanías Logo) ── */
+  --primary-darkest: #5c2d0e;    /* Deep chocolate brown */
+  --primary-dark: #6b4423;       /* Main brand brown (logo text) */
+  --primary-mid: #8b4513;        /* Rich saddle brown */
+  --primary-light: #a0522d;      /* Warm sienna */
+  --primary-lighter: #c9956a;    /* Light tan */
+  --primary-lightest: #d4a574;   /* Pale tan */
+  
+  /* ── BACKGROUNDS (From Logo Palette) ── */
+  --bg-canvas: #e8d5c4;          /* Warm sand (logo background) */
+  --bg-primary: #fffdf9;         /* Parchment/cream (logo line art) */
+  --bg-secondary: #faf5f0;       /* Warm off-white */
+  --bg-tertiary: #f5f0eb;        /* Light cream */
+  --bg-hover: #f9f3ed;           /* Subtle hover state */
+  
+  /* ── TEXT COLORS ── */
+  --text-primary: #2d1a0e;       /* Near black - best readability */
+  --text-secondary: #6b4423;     /* Brown text */
+  --text-tertiary: #9a7060;      /* Muted brown */
+  --text-light: #b8a89c;         /* Light gray-brown */
+  --text-muted: #888888;         /* Gray */
+  --text-inverse: #fffdf9;       /* Text on dark backgrounds */
+  
+  /* ── LEGACY NAMES (For compatibility) ── */
+  --white: #fffdf9;
+  --off-white: #faf5f0;
+  --light-gray: #f8f9fa;
+  --gray: #888888;
+  --gray-dark: #6b6b6b;
+  --charcoal: #2d1a0e;
+  
+  /* ── SEMANTIC COLORS ── */
+  --error: #e74c3c;
+  --success: #27ae60;
+  --warning: #f39c12;
+  --info: #3498db;
+  
+  /* ── BORDERS & DIVIDERS ── */
+  --border: rgba(107, 68, 35, 0.15);
+  --border-light: rgba(107, 68, 35, 0.08);
+  --border-lighter: rgba(107, 68, 35, 0.04);
+  
+  /* ── TYPOGRAPHY ── */
+  --font-display: "Playfair Display", serif;
+  --font-body: "DM Sans", sans-serif;
+  
+  /* ── SPACING SYSTEM (Responsive) ── */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  
+  /* ── RESPONSIVE BREAKPOINTS ── */
+  --breakpoint-mobile: 320px;
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+  
+  /* ── NAV HEIGHT (used for fixed headers) ── */
+  --nav-total-height: 108px;    /* topbar 36px + nav 72px */
+  --topbar-h: 36px;
+  --nav-h: 72px;
+  
+  /* ── CONTAINER WIDTHS (Responsive) ── */
+  --container-mobile: calc(100% - var(--space-md));
+  --container-tablet: 95%;
+  --container-desktop: min(100% - var(--space-md), 1200px);
+  
+  /* ── SIDEBAR WIDTHS ── */
+  --sidebar-width-desktop: 280px;
+  --sidebar-width-tablet: 240px;
+  --sidebar-width-mobile: 0px; /* Hidden on mobile */
+  
+  /* ── TRANSITIONS ── */
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s ease-out;
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ── TOUCH TARGETS ── */
+  --touch-target-min: 44px;
+  --touch-target-spacing: 0.5rem;
+}
+
+/* ── DARK MODE (optional, for future use) ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --charcoal: #f5f5f5;
+    --white: #1a1a1a;
+    --off-white: #2a2a2a;
+    --light-gray: #3a3a3a;
+  }
+}
+
+/* ── RESET ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--off-white);
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── LINKS ── */
+a {
+  text-decoration: none;
+  color: var(--primary-mid);
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* ── BUTTONS - BASE STYLES ── */
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Primary Button */
+.btn-primary {
+  background-color: var(--primary-mid);
+  color: var(--white);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(123, 61, 38, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Ghost Button */
+.btn-ghost {
+  background-color: transparent;
+  color: var(--primary-mid);
+  border: 2px solid var(--primary-mid);
+  padding: 0.625rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.btn-ghost:hover {
+  background-color: var(--primary-light);
+  color: var(--white);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: var(--primary-lighter);
+  color: var(--primary-dark);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background-color: var(--primary-light);
+  color: var(--white);
+}
+
+/* ── HEADINGS ── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--charcoal);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+/* ── FORMS ── */
+input, textarea, select {
+  font-family: var(--font-body);
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-mid);
+  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+input:disabled, textarea:disabled, select:disabled {
+  background-color: var(--light-gray);
+  cursor: not-allowed;
+}
+
+/* ── UTILITIES ── */
+.text-primary { color: var(--primary-mid); }
+.text-muted { color: var(--gray); }
+.text-error { color: var(--error); }
+.text-success { color: var(--success); }
+
+.bg-primary { background-color: var(--primary-light); }
+.bg-light { background-color: var(--light-gray); }
+
+/* ── SPACING UTILITIES ── */
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mb-5 { margin-bottom: 2rem; }
+
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+.p-5 { padding: 2rem; }
