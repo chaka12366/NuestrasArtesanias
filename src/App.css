@@ -80,8 +80,6 @@ body {
 
 html {
   scroll-behavior: smooth;
-  /* Prevent elastic overscroll bounce that causes white gaps on iOS */
-  overscroll-behavior: none;
 }
 
 body {
@@ -93,9 +91,6 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  /* Prevent iOS rubber-band scroll from revealing white background */
-  overscroll-behavior: none;
-  overscroll-behavior-y: none;
 }
 
 #root {

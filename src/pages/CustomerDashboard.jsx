@@ -970,10 +970,14 @@ export default function CustomerDashboard() {
         html, body, #root { font-family: 'Jost', sans-serif; background: #faf4ee; }
         
         .cd-main { 
+          flex: 1;
           margin-left: 280px;
+          height: 100vh;
+          height: 100dvh;
           transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           overflow-y: auto;
           overflow-x: hidden;
+          -webkit-overflow-scrolling: touch;
         }
         
         .cd-header {
@@ -1134,7 +1138,7 @@ export default function CustomerDashboard() {
         }
       `}</style>
 
-      <div style={{ display: "flex", minHeight: "100vh", background: "#faf4ee" }}>
+      <div style={{ display: "flex", height: "100vh", height: "100dvh", overflow: "hidden", background: "#faf4ee" }}>
 
         {/* ══ SIDEBAR ══ */}
         <Sidebar
@@ -1149,7 +1153,7 @@ export default function CustomerDashboard() {
         />
 
         {/* ══ MAIN ══ */}
-        <main className="cd-main" style={{ flex: 1, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <main className="cd-main" style={{ display: "flex", flexDirection: "column" }}>
           <header className="cd-header" style={{ background: "#fff", borderBottom: "1px solid rgba(201,149,106,0.12)", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50, gap: 12 }}>
             <p style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>
               {NAV_ITEMS.find((n) => n.id === activeSection)?.label}
