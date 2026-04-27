@@ -586,10 +586,7 @@
     transform: translateX(0);
   }
 
-  /* Show overlay */
-  .sidebar-overlay {
-    display: block;
-  }
+
 
   /* Show hamburger toggle */
   .sidebar__toggle {
