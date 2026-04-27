@@ -342,7 +342,7 @@ export default function Orders() {
                         currentStatus={o.status}
                         orderId={o.id}
                         onStatusChange={handleStatusChange}
-                        isCompact={false}
+                        isCompact={window.innerWidth <= 768}
                       />
                     </div>
 

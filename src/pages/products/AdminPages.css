@@ -640,6 +640,7 @@
   padding: 4px;
   gap: 4px;
   margin-bottom: 0.5rem;
+  min-height: 44px; /* Better tap target */
 }
 .ap-pay-btn {
   flex: 1;
@@ -821,14 +822,24 @@
     margin-top: 0.75rem;
     padding-top: 0.75rem;
   }
+
+  .ap-order-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .ap-pay-btn {
+    padding: 0.75rem 0.5rem; /* Larger tap target on mobile */
+    font-size: 0.85rem;
+  }
 }
 
 @media (max-width:600px) {
   .ap-root { padding:1.25rem 0.9rem 2rem; }
   .ap-kpi-row { grid-template-columns:1fr 1fr; gap:0.6rem; }
   .ap-kpi-val { font-size:1.3rem; }
-  .ap-table th:nth-child(2),
-  .ap-table td:nth-child(2) { display:none; }
+  .ap-table th:nth-child(3),
+  .ap-table td:nth-child(3) { display:none; }
 
   .ap-order-detail {
     padding: 0.75rem 0.65rem;
@@ -1725,6 +1736,17 @@
     justify-content: flex-end;
   }
 
+  .ap-edit-btn, .ap-del-btn {
+    padding: 10px !important;
+    background: var(--cream-dark) !important;
+    border-radius: 8px !important;
+  }
+  
+  .ap-edit-btn svg, .ap-del-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
   .ap-table tbody tr:hover { background: var(--white); }
   .ap-table tbody tr:last-child td { border-bottom: none; }
 
@@ -1767,4 +1789,19 @@
 
   /* ── Page header ── */
   .ap-page-header { flex-direction: column; align-items: flex-start; }
+
+  /* ── Customers on mobile ── */
+  .ap-customer-header {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.5rem;
+  }
+  .ap-customer-info { grid-column: 1; grid-row: 1 / 3; }
+  .ap-customer-stats { grid-column: 2; grid-row: 1; gap: 0.75rem; }
+  .ap-expand-btn { grid-column: 2; grid-row: 2; justify-self: end; }
+  
+  .ap-detail-row {
+    grid-template-columns: 80px 1fr;
+    gap: 0.5rem;
+  }
 }

@@ -121,41 +121,40 @@ export default function Customers() {
   }
 
   return (
-    <div className="ap-page">
+    <div className="ap-root">
       {/* Header */}
-      <div className="ap-header">
-        <h1>Customers</h1>
-        <p className="ap-header-desc">Manage and view all customer information</p>
+      <div className="ap-page-header">
+        <div>
+          <h1 className="ap-page-title">Customers</h1>
+          <p className="ap-page-sub">Manage and view all customer information</p>
+        </div>
       </div>
 
-      {/* Controls */}
-      <div className="ap-controls">
+      {/* Filters/Controls */}
+      <div className="ap-filters">
         <div className="ap-search-box">
           <Search size={18} />
           <input
             type="text"
-            placeholder="Search customers by name or email..."
+            placeholder="Search customers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
-      </div>
-
-      {/* Sort buttons */}
-      <div className="ap-sort-controls">
-        <button
-          className={`ap-sort-btn ${sortBy === "orders" ? "active" : ""}`}
-          onClick={() => setSortBy("orders")}
-        >
-          Sort by Orders
-        </button>
-        <button
-          className={`ap-sort-btn ${sortBy === "spent" ? "active" : ""}`}
-          onClick={() => setSortBy("spent")}
-        >
-          Sort by Spent
-        </button>
+        <div className="ap-cat-tabs">
+          <button
+            className={`ap-range-tab ${sortBy === "orders" ? "active" : ""}`}
+            onClick={() => setSortBy("orders")}
+          >
+            Sort by Orders
+          </button>
+          <button
+            className={`ap-range-tab ${sortBy === "spent" ? "active" : ""}`}
+            onClick={() => setSortBy("spent")}
+          >
+            Sort by Spent
+          </button>
+        </div>
       </div>
 
       {/* Customers List */}
