@@ -94,10 +94,16 @@ body {
 }
 
 #root {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
   min-height: 100dvh;
+}
+
+@media (max-width: 768px) {
+  html, body, #root {
+    overflow-x: hidden;
+    overflow-y: visible !important;
+    height: auto !important;
+  }
 }
 
 /* push content below fixed header */

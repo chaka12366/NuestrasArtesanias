@@ -978,6 +978,16 @@ export default function CustomerDashboard() {
           overflow-y: auto;
           overflow-x: hidden;
           -webkit-overflow-scrolling: touch;
+          min-height: 0;
+        }
+        
+        @media (max-width: 768px) {
+          .cd-main {
+            height: auto !important;
+            min-height: 100dvh;
+            overflow: visible !important;
+            margin-left: 0 !important;
+          }
         }
         
         .cd-header {
@@ -1138,7 +1148,22 @@ export default function CustomerDashboard() {
         }
       `}</style>
 
-      <div style={{ display: "flex", height: "100vh", height: "100dvh", overflow: "hidden", background: "#faf4ee" }}>
+      <div className="cd-root-container" style={{ display: "flex", background: "#faf4ee" }}>
+        <style>{`
+          .cd-root-container {
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+          }
+          @media (max-width: 768px) {
+            .cd-root-container {
+              height: auto;
+              min-height: 100dvh;
+              overflow: visible;
+              display: block;
+            }
+          }
+        `}</style>
 
         {/* ══ SIDEBAR ══ */}
         <Sidebar

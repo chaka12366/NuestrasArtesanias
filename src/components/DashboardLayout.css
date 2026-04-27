@@ -21,6 +21,16 @@
   overflow: hidden;
 }
 
+/* Allow scrolling on body for mobile */
+@media (max-width: 768px) {
+  .dashboard-container {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+    display: block !important;
+  }
+}
+
 /* Admin variant - wider sidebar (280px) */
 .dashboard-container--admin .dashboard-main--admin {
   margin-left: var(--sidebar-width-admin-desktop);
@@ -37,6 +47,16 @@
   overflow: hidden;
   position: relative;
   transition: margin-left var(--transition-smooth);
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .dashboard-main {
+    height: auto !important;
+    min-height: 100dvh;
+    overflow: visible !important;
+    margin-left: 0 !important;
+  }
 }
 
 /* Content wrapper - scrollable */
@@ -50,6 +70,15 @@
   flex-direction: column;
   padding: clamp(1rem, 3vw, 2rem);
   max-width: 100%;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    overflow: visible !important;
+    height: auto !important;
+    flex: none !important;
+  }
 }
 
 /* Desktop (1025px+) */

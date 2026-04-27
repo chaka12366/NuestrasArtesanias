@@ -537,7 +537,7 @@
   .dash-avatar        { width: 36px; height: 36px; font-size: 0.9rem; }
   .dash-logout-btn    { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
 
-  .dash-main          { padding: 1.5rem 1.25rem 2rem; }
+  .dash-main          { padding: 1.5rem 1.25rem 2rem; overflow: visible !important; height: auto !important; }
 
   .dash-hero {
     flex-direction: column;
