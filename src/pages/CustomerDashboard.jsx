@@ -280,6 +280,7 @@ function Overview({ orders, onViewOrder, user }) {
 
 /* ─── SECTION: MY ORDERS ─────────────────────────────────────── */
 function MyOrders({ orders, onViewOrder }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const filtered = useMemo(() => orders.filter((o) => {
@@ -371,6 +372,7 @@ function MyOrders({ orders, onViewOrder }) {
 
 /* ─── SECTION: ORDER HISTORY ─────────────────────────────────── */
 function OrderHistory({ orders }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const delivered = orders.filter((o) => o.status === "delivered");
   const filtered = useMemo(() => delivered.filter((o) =>

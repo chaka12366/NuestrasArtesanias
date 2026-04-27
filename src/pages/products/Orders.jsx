@@ -146,7 +146,7 @@ export default function Orders() {
 
   /* ── Cancel Order Handler ── */
   const handleCancelOrder = async (orderId) => {
-    setCancelling(true);2
+    setCancelling(true);
     const result = await cancelOrder(orderId);
     setCancelling(false);
 

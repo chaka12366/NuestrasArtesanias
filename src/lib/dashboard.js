@@ -163,11 +163,12 @@ export async function restoreStock(orderId) {
       }
 
       const newStock = (Number(product.stock) || 0) + item.quantity
+      const newStatus = newStock === 0 ? 'out' : newStock <= 6 ? 'low' : 'active'
 
-      // Update product stock
+      // Update product stock and status
       const { error: updateError } = await supabase
         .from('products')
-        .update({ stock: newStock })
+        .update({ stock: newStock, status: newStatus })
         .eq('id', item.product_id)
 
       if (updateError) {
