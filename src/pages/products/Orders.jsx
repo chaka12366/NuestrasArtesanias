@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import "./AdminPages.css";
 import OrderStatus from "./OrderStatus.jsx";
 import EmptyState from "../../components/EmptyState.jsx";
-import { fetchAllOrders, updateOrderStatus, cancelOrder } from "../../lib/dashboard.js";
+import { fetchAllOrders, updateOrderStatus, cancelOrder, cancelOrderItem } from "../../lib/dashboard.js";
 import { updatePaymentStatus } from "../../lib/orders.js";
 import { sendCustomerStatusEmail } from "../../lib/emailNotification.js";
 import { Clock, Truck, CheckCircle2, DollarSign, MapPin, ChevronUp, ChevronDown, X, AlertCircle, Trash2, MessageCircle } from "lucide-react";
@@ -33,6 +33,7 @@ export default function Orders() {
   const [expanded, setExpanded] = useState(null);
   const [cancelConfirm, setCancelConfirm] = useState(null);
   const [cancelling, setCancelling] = useState(false);
+  const [cancellingItemId, setCancellingItemId] = useState(null);
 
   // Fetch real orders from Supabase on component mount
   useEffect(() => {
@@ -46,9 +47,10 @@ export default function Orders() {
         const customerEmail = order.profiles?.email || order.guest_email || '';
         const customerPhone = order.profiles?.phone || order.guest_phone || 'N/A';
 
-        const itemsQty = order.order_items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-        const allItemsStr = order.order_items?.map(i => i.product_name).join(", ") || 'Order';
-        const itemsDetailStr = order.order_items?.map(i => `${i.product_name} ×${i.quantity}`).join(", ") || 'Order';
+        const activeItems = (order.order_items || []).filter(i => i.status !== 'cancelled');
+        const itemsQty = activeItems.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        const allItemsStr = activeItems.map(i => i.product_name).join(", ") || (order.order_items?.length > 0 ? 'Cancelled Items' : 'Order');
+        const itemsDetailStr = activeItems.map(i => `${i.product_name} ×${i.quantity}`).join(", ") || '';
 
         const orderDate = new Date(order.created_at);
         const formattedDate = orderDate.toLocaleDateString('en-US', {
@@ -64,6 +66,7 @@ export default function Orders() {
           phone: customerPhone,
           item: allItemsStr,
           itemsDetail: itemsDetailStr,
+          rawItems: order.order_items || [],
           qty: itemsQty,
           total: Number(order.total) || 0,
           status: order.status || 'pending',
@@ -71,6 +74,10 @@ export default function Orders() {
           date: formattedDate,
           district: order.district || 'N/A',
           city: order.city || 'N/A',
+          address1: order.address_line1 || '',
+          address2: order.address_line2 || '',
+          shippingMethod: order.shipping_method || 'Standard',
+          shippingCost: Number(order.shipping_cost) || 0,
           notes: order.delivery_notes || "",
         };
       });
@@ -160,6 +167,45 @@ export default function Orders() {
     }
   };
 
+  /* ── Cancel Single Item Handler ── */
+  const handleCancelItem = async (orderId, itemId, productId, quantity, productName) => {
+    setCancellingItemId(itemId);
+    const result = await cancelOrderItem(itemId, productId, quantity);
+    setCancellingItemId(null);
+
+    if (result.success) {
+      setOrders(os => os.map(o => {
+        if (o.id !== orderId) return o;
+        
+        // Update rawItems
+        const updatedRawItems = o.rawItems.map(ri => ri.id === itemId ? { ...ri, status: 'cancelled' } : ri);
+        
+        // Recalculate summary fields for consistent UI
+        const activeItems = updatedRawItems.filter(ri => ri.status !== 'cancelled');
+        const itemsQty = activeItems.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        const allItemsStr = activeItems.map(i => i.product_name).join(", ") || (updatedRawItems.length > 0 ? 'Cancelled Items' : 'Order');
+        const itemsDetailStr = activeItems.map(i => `${i.product_name} ×${i.quantity}`).join(", ") || '';
+        
+        // Subtract subtotal from total
+        const itemToCancel = o.rawItems.find(ri => ri.id === itemId);
+        const subToSubtract = itemToCancel ? Number(itemToCancel.unit_price) * Number(itemToCancel.quantity) : 0;
+        const newTotal = Math.max(0, (Number(o.total) || 0) - subToSubtract);
+
+        return {
+          ...o,
+          rawItems: updatedRawItems,
+          qty: itemsQty,
+          item: allItemsStr,
+          itemsDetail: itemsDetailStr,
+          total: newTotal,
+        };
+      }));
+      toast.success(`✓ "${productName}" cancelled. Stock restored.`);
+    } else {
+      toast.error(`✗ ${result.message}`);
+    }
+  };
+
   const showCancelConfirm = (orderId) => {
     setCancelConfirm(orderId);
   };
@@ -191,7 +237,7 @@ export default function Orders() {
       <div className="ap-page-header">
         <div>
           <h1 className="ap-page-title">Orders</h1>
-          <p className="ap-page-sub">{orders.length} total · BZD ${totalRev} revenue</p>
+          <p className="ap-page-sub">{orders.length} total · BZD ${totalRev.toFixed(2)} revenue</p>
         </div>
       </div>
 
@@ -203,7 +249,7 @@ export default function Orders() {
           { Icon: Truck, label: "Ready", val: ready, color: "#2980b9" },
           { Icon: CheckCircle2, label: "Delivered", val: delivered, color: "#27ae60" },
           { Icon: X, label: "Cancelled", val: cancelled, color: "#e74c3c" },
-          { Icon: DollarSign, label: "Revenue", val: `$${totalRev}`, color: "#8b4513" },
+          { Icon: DollarSign, label: "Revenue", val: `$${totalRev.toFixed(2)}`, color: "#8b4513" },
         ].map((k, i) => (
           <div key={i} className="ap-kpi-card" style={{ "--i": i, "--accent": k.color }}>
             <div className="ap-kpi-icon"><k.Icon size={24} color={k.color} /></div>
@@ -251,7 +297,7 @@ export default function Orders() {
                 <p className="ap-order-item-name">{o.item}</p>
                 <p className="ap-order-qty">×{o.qty}</p>
               </div>
-              <span className="ap-order-total">${o.total}</span>
+              <span className="ap-order-total">${Number(o.total).toFixed(2)}</span>
               <div className="ap-order-badges" style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <span className="ap-status-badge" style={{ "--sc": o.paymentStatus === 'paid' ? '#27ae60' : '#c0392b' }}>
                   {o.paymentStatus === 'paid' ? 'Paid' : 'Unpaid'}
@@ -300,23 +346,71 @@ export default function Orders() {
                       <span className="ap-info-label">City/Village:</span>
                       <span className="ap-info-value">{o.city}</span>
                     </div>
+                    {o.address1 && (
+                      <div className="ap-info-row">
+                        <span className="ap-info-label">Address:</span>
+                        <span className="ap-info-value">{o.address1}</span>
+                      </div>
+                    )}
+                    {o.address2 && (
+                      <div className="ap-info-row">
+                        <span className="ap-info-label">Apt/Suite:</span>
+                        <span className="ap-info-value">{o.address2}</span>
+                      </div>
+                    )}
+                    <div className="ap-info-row">
+                      <span className="ap-info-label">Shipping:</span>
+                      <span className="ap-info-value" style={{ textTransform: 'capitalize', fontWeight: '600', color: '#6b4423' }}>{o.shippingMethod}</span>
+                    </div>
+                    <div className="ap-info-row">
+                      <span className="ap-info-label">Ship Cost:</span>
+                      <span className="ap-info-value">${o.shippingCost.toFixed(2)} BZD</span>
+                    </div>
+                    {o.notes && (
+                      <div className="ap-info-row" style={{ marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px dashed #ede8e2' }}>
+                        <span className="ap-info-label">Notes:</span>
+                        <span className="ap-info-value" style={{ fontStyle: 'italic', color: '#8b4513' }}>{o.notes}</span>
+                      </div>
+                    )}
 
                     <h4 className="ap-section-title" style={{ marginTop: '1.25rem' }}>Order Details</h4>
-                    <ul className="ap-item-list">
-                      {o.itemsDetail.split(', ').map((item, idx) => (
-                        <li key={idx} className="ap-item-list-li">• {item}</li>
-                      ))}
+                    <ul className="ap-item-list" style={{ listStyle: 'none', padding: 0 }}>
+                      {o.rawItems.map((ri) => {
+                        const isCancelled = ri.status === 'cancelled';
+                        return (
+                          <li key={ri.id} className="ap-item-list-li" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid #f0ebe5' }}>
+                            <span style={{ flex: 1, textDecoration: isCancelled ? 'line-through' : 'none', opacity: isCancelled ? 0.5 : 1 }}>
+                              • {ri.product_name} ×{ri.quantity}
+                            </span>
+                            {isCancelled ? (
+                              <span style={{ fontSize: 11, background: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: 10, fontWeight: 500, whiteSpace: 'nowrap' }}>Cancelled</span>
+                            ) : (
+                              o.status !== 'cancelled' && o.status !== 'delivered' && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleCancelItem(o.id, ri.id, ri.product_id, ri.quantity, ri.product_name); }}
+                                  disabled={cancellingItemId === ri.id}
+                                  style={{
+                                    fontSize: 11, padding: '3px 10px', borderRadius: 8,
+                                    border: '1px solid #e74c3c', background: '#fff',
+                                    color: '#e74c3c', cursor: cancellingItemId === ri.id ? 'not-allowed' : 'pointer',
+                                    fontFamily: 'inherit', fontWeight: 500, whiteSpace: 'nowrap',
+                                    opacity: cancellingItemId === ri.id ? 0.6 : 1,
+                                    transition: 'all 0.2s',
+                                  }}
+                                >
+                                  {cancellingItemId === ri.id ? '...' : '✕ Cancel'}
+                                </button>
+                              )
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                     <div className="ap-total-box">
                       <span>Total:</span>
                       <strong>${Number(o.total).toFixed(2)} BZD</strong>
-                    </div>
-                    {o.notes && (
-                      <div className="ap-notes-box">
-                        <strong>Notes:</strong> {o.notes}
-                      </div>
-                    )}
                   </div>
+                </div>
 
                   {/* Right Column: Actions */}
                   <div className="ap-order-section">

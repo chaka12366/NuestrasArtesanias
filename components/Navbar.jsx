@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../src/contexts/auth.js";
 import { useCart } from "../src/contexts/CartContext.jsx";
 import { getStoreSettings, getStoreSettingsSync } from "../src/utils/storeSettingsCache.js";
+import { fetchCategories } from "../src/lib/products.js";
 import "./Navbar.css";
 import logo from "../src/assets/logo.png";
 import { User, Key, Sparkles, ShoppingCart, Menu, X } from "lucide-react";
@@ -12,6 +13,7 @@ export default function Navbar() {
   const [dropOpen, setDropOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropTimeout, setDropTimeout] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const location = useLocation();
   const navigate  = useNavigate();
@@ -27,11 +29,21 @@ export default function Navbar() {
     if (dropTimeout) clearTimeout(dropTimeout);
   }, [location]);
 
-  // Fetch store settings (uses shared cache — no duplicate calls)
+  // Fetch store settings and categories
   useEffect(() => {
-    getStoreSettings().then(data => {
-      if (data) setStore(data);
-    });
+    getStoreSettings()
+      .then(data => {
+        if (data) setStore(data);
+      })
+      .catch(err => console.error("Failed to fetch store settings:", err));
+
+    fetchCategories()
+      .then(data => {
+        if (data && data.length > 0) {
+          setCategories(data);
+        }
+      })
+      .catch(err => console.error("Failed to fetch categories:", err));
   }, []);
 
   // Add shadow on scroll
@@ -81,13 +93,10 @@ export default function Navbar() {
     setDropTimeout(timeout);
   }, []);
 
-  const productLinks = [
-    { to: "/bracklets",    label: "Bracklets" },
-    { to: "/anklets",      label: "Anklets" },
-    { to: "/waistchains",  label: "Waist Chains" },
-    { to: "/necklaces",    label: "Necklaces" },
-    { to: "/earrings",     label: "Earrings" },
-  ];
+  const productLinks = categories.map(c => ({
+    to: `/${c.slug}`,
+    label: c.name
+  }));
 
   return (
     <header className={`navbar-header ${scrolled ? "scrolled" : ""}`}>

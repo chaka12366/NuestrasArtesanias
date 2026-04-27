@@ -12,21 +12,32 @@ import { supabase } from './supabase.js'
  * @returns {Promise<Object>}
  */
 export async function fetchDashboardStats() {
-  const [revenue, statusSummary, topProducts, customerStats, lowStock] =
-    await Promise.all([
-      supabase.from('monthly_revenue').select('*'),
-      supabase.from('order_status_summary').select('*'),
-      supabase.from('top_products').select('*').limit(10),
-      supabase.from('customer_stats').select('*').single(),
-      supabase.from('low_stock_alerts').select('*'),
-    ])
+  try {
+    const [revenue, statusSummary, topProducts, customerStats, lowStock] =
+      await Promise.all([
+        supabase.from('monthly_revenue').select('*'),
+        supabase.from('order_status_summary').select('*'),
+        supabase.from('top_products').select('*').limit(10),
+        supabase.from('customer_stats').select('*').single(),
+        supabase.from('low_stock_alerts').select('*'),
+      ])
 
-  return {
-    monthlyRevenue: revenue.data || [],
-    orderStatus:    statusSummary.data || [],
-    topProducts:    topProducts.data || [],
-    customerStats:  customerStats.data || { total_customers: 0, new_this_month: 0 },
-    lowStockAlerts: lowStock.data || [],
+    return {
+      monthlyRevenue: revenue.data || [],
+      orderStatus:    statusSummary.data || [],
+      topProducts:    topProducts.data || [],
+      customerStats:  customerStats.data || { total_customers: 0, new_this_month: 0 },
+      lowStockAlerts: lowStock.data || [],
+    }
+  } catch (err) {
+    console.error('Error fetching dashboard stats:', err)
+    return {
+      monthlyRevenue: [],
+      orderStatus:    [],
+      topProducts:    [],
+      customerStats:  { total_customers: 0, new_this_month: 0 },
+      lowStockAlerts: [],
+    }
   }
 }
 
@@ -129,11 +140,13 @@ export async function restoreStock(orderId) {
       return { success: true, message: 'Order already cancelled. Stock restore skipped.', restoredCount: 0 }
     }
 
-    // Fetch all items in this order
+    // Fetch only ACTIVE items in this order (skip already-cancelled ones
+    // whose stock was already restored by cancelOrderItem)
     const { data: orderItems, error: itemsError } = await supabase
       .from('order_items')
-      .select('product_id, quantity')
+      .select('product_id, quantity, status')
       .eq('order_id', orderId)
+      .neq('status', 'cancelled')
 
     if (itemsError) {
       console.error('Error fetching order items:', itemsError)
@@ -275,6 +288,91 @@ export async function cancelOrder(orderId) {
       orderCancelled: false,
       stockRestored: false,
     }
+  }
+}
+
+/**
+ * Cancel a SINGLE item inside an order and restore its stock.
+ *
+ * FLOW:
+ * 1. Check if item is already cancelled (prevent double-cancel)
+ * 2. Set order_items.status = 'cancelled'
+ * 3. Restore product stock for that item's quantity
+ *
+ * @param {number} itemId      - order_items.id
+ * @param {number} productId   - products.id
+ * @param {number} quantity    - quantity to restore
+ * @returns {Promise<{ success: boolean, message: string }>}
+ */
+export async function cancelOrderItem(itemId, productId, quantity) {
+  try {
+    // 1. Fetch current item status to prevent double-cancel
+    const { data: item, error: itemError } = await supabase
+      .from('order_items')
+      .select('status')
+      .eq('id', itemId)
+      .single()
+
+    if (itemError) {
+      console.error('Error fetching order item:', itemError)
+      return { success: false, message: 'Could not fetch item' }
+    }
+
+    if (item.status === 'cancelled') {
+      return { success: false, message: 'Item is already cancelled' }
+    }
+
+    // 2. Mark item as cancelled
+    const { data: cancelledItem, error: updateError } = await supabase
+      .from('order_items')
+      .update({ status: 'cancelled' })
+      .eq('id', itemId)
+      .select('order_id, subtotal')
+      .single()
+
+    if (updateError) {
+      console.error('Error cancelling order item:', updateError)
+      return { success: false, message: updateError.message }
+    }
+
+    // 2b. Update the parent order total
+    if (cancelledItem) {
+      const { data: orderData } = await supabase
+        .from('orders')
+        .select('total')
+        .eq('id', cancelledItem.order_id)
+        .single()
+
+      if (orderData) {
+        const newTotal = Math.max(0, (Number(orderData.total) || 0) - (Number(cancelledItem.subtotal) || 0))
+        await supabase
+          .from('orders')
+          .update({ total: newTotal })
+          .eq('id', cancelledItem.order_id)
+      }
+    }
+
+    // 3. Restore stock for this product
+    const { data: product, error: prodError } = await supabase
+      .from('products')
+      .select('stock')
+      .eq('id', productId)
+      .single()
+
+    if (!prodError && product) {
+      const newStock = (Number(product.stock) || 0) + quantity
+      const newStatus = newStock === 0 ? 'out' : newStock <= 6 ? 'low' : 'active'
+
+      await supabase
+        .from('products')
+        .update({ stock: newStock, status: newStatus })
+        .eq('id', productId)
+    }
+
+    return { success: true, message: 'Item cancelled and stock restored' }
+  } catch (err) {
+    console.error('Error in cancelOrderItem:', err)
+    return { success: false, message: err.message }
   }
 }
 

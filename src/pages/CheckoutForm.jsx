@@ -229,8 +229,7 @@ function StepAccount({ onNext, onGuest, user }) {
       onNext({ ...form, isNewAccount: true });
 
     } catch (err) {
-      console.error("Signup error:", err);
-      setSignupError("An unexpected error occurred. Please try again.");
+      // Silently handle - error message already set for user
       setSigningUp(false);
     }
   };
@@ -709,10 +708,23 @@ function StepReview({ account, delivery, cartItems, cartTotal, onBack, onPlace, 
       </div>
 
       {orderError && (
-        <div className="cp-err-box">
-          {orderError.split('\n').map((line, i) => (
-            <p key={i} className="cp-err">{i === 0 ? `⚠ ${line}` : `• ${line}`}</p>
-          ))}
+        <div style={{
+          background: 'rgba(231, 76, 60, 0.08)',
+          border: '1px solid #e74c3c',
+          borderRadius: '8px',
+          padding: '16px',
+          marginBottom: '16px',
+          display: 'flex',
+          gap: '12px',
+          color: '#e74c3c',
+          fontSize: '0.9rem'
+        }}>
+          <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            {orderError.split('\n').map((line, i) => (
+              <p key={i} style={{ margin: i === 0 ? 0 : '6px 0 0 0' }}>{i === 0 ? `${line}` : `• ${line}`}</p>
+            ))}
+          </div>
         </div>
       )}
 
@@ -791,8 +803,14 @@ export default function CheckoutPage() {
 
     // ── CRITICAL: Validate stock before placing ──
     try {
-      const { valid, issues } = await validateCartStock();
+      const { valid, issues, networkError } = await validateCartStock();
       if (!valid) {
+        if (networkError) {
+          toast.update(toastId, { render: "Could not verify stock. Please try again.", type: "error", isLoading: false, autoClose: 3000 });
+          setOrderError("Could not verify product availability. Please try again.");
+          setPlacing(false);
+          return;
+        }
         const issueMessages = issues.map(i => {
           if (i.removed) return `"${i.name}" is out of stock and was removed`;
           return `"${i.name}" — only ${i.available} available (you requested ${i.requested})`;
@@ -804,7 +822,7 @@ export default function CheckoutPage() {
         return;
       }
     } catch (err) {
-      console.error("Stock validation error:", err);
+      // Silently handle - error message shown to user via toast
       toast.update(toastId, { render: "Could not verify stock. Please try again.", type: "error", isLoading: false, autoClose: 3000 });
       setOrderError("Could not verify product availability. Please try again.");
       setPlacing(false);

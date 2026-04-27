@@ -1,25 +1,45 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { fetchFeaturedProducts } from "../lib/products.js";
+import { fetchFeaturedProducts, fetchCategories } from "../lib/products.js";
 import "./Home.css";
-import { Truck, Sparkles, Star, Gift, Gem, Zap, Watch, Palette, ShoppingBag, Shirt } from "lucide-react";
+import { Truck, Sparkles, Star, Gift, Gem, Zap, ShoppingBag } from "lucide-react";
 
-const CATEGORIES = [
-  { label: "Bracelets", to: "/bracklets", icon: <Gem size={32} />, desc: "Handcrafted bracelets & watches" },
-  { label: "Anklets",     to: "/anklets",      icon: <Sparkles size={32} />, desc: "Beautiful ankle jewelry" },
-  { label: "Waist Chains", to: "/waistchains",     icon: <Zap size={32} />, desc: "Statement waist accessories" },
-  { label: "Necklaces",   to: "/necklaces",        icon: <Gem size={32} />, desc: "Elegant neck jewelry" },
-  { label: "Earrings",    to: "/earrings",     icon: <Sparkles size={32} />, desc: "Stylish ear ornaments" },
-];
+// Fallback icons for categories
+const ICON_MAP = {
+  bracelets:   <Gem size={32} />,
+  bracklets:   <Gem size={32} />,
+  anklets:     <Sparkles size={32} />,
+  beauty:      <Sparkles size={32} />,
+  waistchains: <Zap size={32} />,
+  'waist-chains': <Zap size={32} />,
+  necklaces:   <Gem size={32} />,
+  bags:        <ShoppingBag size={32} />,
+  earrings:    <Sparkles size={32} />,
+  apparel:     <ShoppingBag size={32} />,
+};
 
 export default function Home() {
   const [current, setCurrent] = useState(0);
   const [featuredSlides, setFeaturedSlides] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  // Fetch featured products from Supabase
+  // Fetch data from Supabase
   useEffect(() => {
-    fetchFeaturedProducts().then(data => setFeaturedSlides(data));
+    fetchFeaturedProducts()
+      .then(data => setFeaturedSlides(data || []))
+      .catch(err => {
+        // Silently handle - will show empty featured section
+        setFeaturedSlides([]);
+      });
+      
+    fetchCategories()
+      .then(data => setCategories(data || []))
+      .catch(err => {
+        // Silently handle - will show empty categories
+        setCategories([]);
+      });
   }, []);
+
 
   // Auto-advance slider
   useEffect(() => {
@@ -46,7 +66,7 @@ export default function Home() {
  &amp; Earrings — handcrafted with love from Belize.
           </p>
           <div className="hero-ctas">
-            <Link to="/bracklets" className="btn-primary">Shop Now</Link>
+            <Link to={categories.length > 0 ? `/${categories[0].slug}` : "/"} className="btn-primary">Shop Now</Link>
             <Link to="/about"       className="btn-ghost">Our Story</Link>
           </div>
         </div>
@@ -100,11 +120,11 @@ export default function Home() {
           <p>Everything you need, all in one place</p>
         </div>
         <div className="cat-grid">
-          {CATEGORIES.map(cat => (
-            <Link key={cat.to} to={cat.to} className="cat-card">
-              <span className="cat-emoji">{cat.icon}</span>
-              <h3 className="cat-label">{cat.label}</h3>
-              <p className="cat-desc">{cat.desc}</p>
+          {categories.map(cat => (
+            <Link key={cat.id} to={`/${cat.slug}`} className="cat-card">
+              <span className="cat-emoji">{ICON_MAP[cat.slug] || <Gem size={32} />}</span>
+              <h3 className="cat-label">{cat.name}</h3>
+              <p className="cat-desc">{cat.description || "Handcrafted artisan products"}</p>
               <span className="cat-arrow">→</span>
             </Link>
           ))}

@@ -141,24 +141,30 @@ function OrderModal({ order, onClose }) {
 
         <p style={{ fontSize: 10, fontWeight: 600, color: T.gold, letterSpacing: "0.12em", textTransform: "uppercase", marginBottom: 10, fontFamily: T.sans }}>Items Ordered</p>
         <div style={{ background: T.blush, borderRadius: 14, padding: "12px 16px", marginBottom: 20, border: "1px solid rgba(201,149,106,0.12)" }}>
-          {order.items.map((item, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < order.items.length - 1 ? "1px solid rgba(201,149,106,0.15)" : "none" }}>
+          {order.items.map((item, i) => {
+            const isCancelled = item.itemStatus === 'cancelled';
+            return (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < order.items.length - 1 ? "1px solid rgba(201,149,106,0.15)" : "none", opacity: isCancelled ? 0.5 : 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 {item.image ? (
-                  <img src={item.image} alt={item.name} loading="lazy" style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 8, border: "1px solid rgba(201,149,106,0.2)" }} />
+                  <img src={item.image} alt={item.name} loading="lazy" style={{ width: 40, height: 40, objectFit: "cover", borderRadius: 8, border: "1px solid rgba(201,149,106,0.2)", filter: isCancelled ? 'grayscale(1)' : 'none' }} />
                 ) : (
                   <div style={{ width: 40, height: 40, background: "#fff", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(201,149,106,0.2)" }}>
                     <Package size={20} color={T.goldLight} />
                   </div>
                 )}
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: T.text, margin: 0, fontFamily: T.sans }}>{item.name}</p>
-                  <p style={{ fontSize: 12, color: T.muted, margin: 0, fontFamily: T.sans }}>Qty: {item.qty}</p>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: T.text, margin: 0, fontFamily: T.sans, textDecoration: isCancelled ? 'line-through' : 'none' }}>{item.name}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <p style={{ fontSize: 12, color: T.muted, margin: 0, fontFamily: T.sans }}>Qty: {item.qty}</p>
+                    {isCancelled && <span style={{ fontSize: 10, background: '#fee2e2', color: '#991b1b', padding: '1px 7px', borderRadius: 8, fontWeight: 500 }}>Cancelled</span>}
+                  </div>
                 </div>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: T.brown, fontFamily: T.sans }}>{fmtMoney(item.price * item.qty)}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: isCancelled ? T.muted : T.brown, fontFamily: T.sans, textDecoration: isCancelled ? 'line-through' : 'none' }}>{fmtMoney(item.price * item.qty)}</span>
             </div>
-          ))}
+            );
+          })}
           <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, marginTop: 4, borderTop: "1px solid rgba(201,149,106,0.2)" }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: T.text, fontFamily: T.sans }}>Total</span>
             <span style={{ fontSize: 15, fontWeight: 700, color: T.brown, fontFamily: T.sans }}>{fmtMoney(order.total)}</span>
@@ -596,7 +602,6 @@ function MyProfile({ user }) {
         setTimeout(() => setSuccessPasswordMsg(""), 4000);
       }
     } catch (err) {
-      console.error('Password update error:', err);
       setPasswordError("An error occurred while updating password");
     } finally {
       setPasswordLoading(false);
@@ -653,11 +658,6 @@ function MyProfile({ user }) {
             <div style={{ marginBottom: 20 }}>
               <label style={labelStyle}>Phone Number</label>
               <input type="tel" name="phone" value={profile.phone} onChange={handleChange} style={inp} placeholder="e.g. +501 123-4567" />
-            </div>
-
-            <div style={{ marginBottom: 28 }}>
-              <label style={labelStyle}>Delivery Address</label>
-              <textarea name="address" value={profile.address} onChange={handleChange} style={{ ...inp, resize: "vertical", minHeight: 80 }} placeholder="Your full delivery address" />
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid rgba(201,149,106,0.15)", paddingTop: 20 }}>
@@ -869,22 +869,26 @@ export default function CustomerDashboard() {
 
     // Initial fetch
     fetchMyOrders().then(data => {
-      const transformed = data.map(o => ({
+      const transformed = (data || []).map(o => ({
         id: o.id,
         customerName: o.delivery_name,
         items: (o.order_items || []).map(i => ({
-          name: i.product_name,
+          name: i.product_name || 'Unknown Item',
           qty: i.quantity,
-          price: Number(i.unit_price),
+          price: Number(i.unit_price) || 0,
           image: i.product_image,
+          itemStatus: i.status || 'active',
         })),
         status: o.status,
         paymentStatus: o.payment_status,
         date: o.created_at,
         notes: o.delivery_notes || "",
-        total: Number(o.total),
+        total: Number(o.total) || 0,
       }));
       setMyOrders(transformed);
+      setLoadingOrders(false);
+    }).catch(err => {
+      console.error('Failed to load orders:', err);
       setLoadingOrders(false);
     });
 
@@ -1198,9 +1202,19 @@ export default function CustomerDashboard() {
           </header>
 
           <div className="cd-content" style={{ flex: 1, padding: "28px", width: "100%", display: "flex", flexDirection: "column" }}>
-            {activeSection === "overview" && <div className="cd-section"><Overview orders={myOrders} onViewOrder={setSelectedOrder} user={user} /></div>}
-            {activeSection === "orders"   && <div className="cd-section"><MyOrders orders={myOrders} onViewOrder={setSelectedOrder} /></div>}
-            {activeSection === "history"  && <div className="cd-section"><OrderHistory orders={myOrders} /></div>}
+            {loadingOrders && (activeSection === "overview" || activeSection === "orders" || activeSection === "history") ? (
+              <div className="cd-section" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '40vh', flexDirection: 'column', gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', border: `3px solid ${T.cream2}`, borderTopColor: T.gold, animation: 'spin 0.7s linear infinite' }} />
+                <p style={{ color: T.muted, fontSize: 14, fontFamily: T.sans }}>Loading your orders...</p>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : (
+              <>
+                {activeSection === "overview" && <div className="cd-section"><Overview orders={myOrders} onViewOrder={setSelectedOrder} user={user} /></div>}
+                {activeSection === "orders"   && <div className="cd-section"><MyOrders orders={myOrders} onViewOrder={setSelectedOrder} /></div>}
+                {activeSection === "history"  && <div className="cd-section"><OrderHistory orders={myOrders} /></div>}
+              </>
+            )}
             {activeSection === "profile"  && <div className="cd-section"><MyProfile user={user} /></div>}
           </div>
         </main>

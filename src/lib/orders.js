@@ -44,6 +44,7 @@ function normalizePaymentMethod(label) {
  * @returns {Promise<{ success: boolean, orderId?: string, error?: string, stockIssues?: Array }>}
  */
 export async function placeOrder(orderData, cartItems) {
+  try {
   // ── 0 — Pre-flight: Validate stock for ALL items ──────────
   const productIds = cartItems.map(item => item.id)
   const { data: products, error: stockCheckError } = await supabase
@@ -52,7 +53,7 @@ export async function placeOrder(orderData, cartItems) {
     .in('id', productIds)
 
   if (stockCheckError) {
-    console.error('Stock check error:', stockCheckError)
+    // Silently handle - error message returned to user
     return { success: false, error: 'Could not verify product availability. Please try again.' }
   }
 
@@ -105,7 +106,7 @@ export async function placeOrder(orderData, cartItems) {
     .single()
 
   if (orderError) {
-    console.error('Order insert error:', orderError)
+    // Silently handle - error message returned to user
     return { success: false, error: orderError.message }
   }
 
@@ -124,7 +125,7 @@ export async function placeOrder(orderData, cartItems) {
     .insert(items)
 
   if (itemsError) {
-    console.error('Order items insert error:', itemsError)
+    // Silently handle - error message returned to user
     return { success: false, error: itemsError.message }
   }
 
@@ -155,10 +156,8 @@ export async function placeOrder(orderData, cartItems) {
       order_id: order.id,
       total_price: orderData.total,
     })
-    console.log('Order notification email sent successfully')
   } catch (emailError) {
-    // Log error but don't fail the order
-    console.warn('Failed to send order notification email:', emailError.message)
+    // Silently handle - order is already complete
   }
 
   // ── 5 — Check inventory levels and send low stock alerts ──
@@ -174,14 +173,17 @@ export async function placeOrder(orderData, cartItems) {
           stock_quantity: newStock,
           alert_level: `Stock is at ${newStock} units (threshold: ${LOW_STOCK_THRESHOLD}) after order ${order.id}`,
         });
-        console.log(`Low stock alert sent for ${info.name || item.name} (stock: ${newStock})`);
       }
     } catch (emailError) {
-      console.warn(`Failed to send low stock alert for ${item.name}:`, emailError.message);
+      // Silently handle - order is complete
     }
   }
 
   return { success: true, orderId: order.id }
+  } catch (err) {
+    // Silently handle - error message returned to user
+    return { success: false, error: 'An unexpected error occurred. Please try again.' }
+  }
 }
 
 /**

@@ -17,29 +17,22 @@ const DEFAULT_CONTACT = {
   instagram: "@_nuestrasartesanias_",
 };
 
-/* ── Category label lookup ─────────────────────────────────── */
-const categoryLabels = {
-  bracklets:   "Bracklets & Jewelry",
-  anklets:     "Anklets & Makeup",
-  waistchains: "Waist Chains",
-  necklaces:   "Bags & Accessories",
-  earrings:    "Earrings & Apparel",
-};
-
 /* ── Seeded "random" helpers ───────────────────────────── */
 function seededNum(id, offset, min, max) {
   return min + ((id * 37 + offset) % (max - min + 1));
 }
 
-
-
 function getFeatures(category) {
   const map = {
+    bracelets:   ["Handcrafted by local artisans", "Premium metal finishes", "Adjustable sizing", "Gift-ready packaging"],
     bracklets:   ["Handcrafted by local artisans", "Premium metal finishes", "Adjustable sizing", "Gift-ready packaging"],
     anklets:     ["Handcrafted design", "High-quality materials", "Comfortable fit", "Authentic Belizean craftsmanship"],
+    beauty:      ["High-quality materials", "Authentic Belizean craftsmanship", "Premium formula", "Ethically sourced"],
     waistchains: ["Adjustable clasp", "Tarnish-resistant coating", "Lightweight & comfortable", "Pairs with any outfit"],
     necklaces:   ["Premium materials", "Expert craftsmanship", "Multiple wear options", "Authentic design"],
+    bags:        ["Premium materials", "Expert craftsmanship", "Multiple wear options", "Authentic design"],
     earrings:    ["Handcrafted artistry", "Quality materials", "Comfortable wear", "Sensitive ear friendly"],
+    apparel:     ["Handcrafted artistry", "Quality materials", "Comfortable wear", "Sensitive ear friendly"],
   };
   return map[category] ?? ["Premium quality", "Handcrafted", "Fast shipping", "30-day returns"];
 }
@@ -56,6 +49,7 @@ export default function ProductDetail() {
   const [qty,     setQty]     = useState(1);
   const [added,   setAdded]   = useState(false);
   const [wished,  setWished]  = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false); // Prevent double-click
   const [addedTimeoutId, setAddedTimeoutId] = useState(null);
   const [contactInfo, setContactInfo] = useState(DEFAULT_CONTACT);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -65,10 +59,16 @@ export default function ProductDetail() {
   // Fetch product from Supabase
   useEffect(() => {
     setLoadingProduct(true);
-    fetchProductById(parseInt(id)).then(data => {
-      setProduct(data);
-      setLoadingProduct(false);
-    });
+    fetchProductById(parseInt(id))
+      .then(data => {
+        setProduct(data);
+        setLoadingProduct(false);
+      })
+      .catch(err => {
+        // Silently handle error - show 404 page
+        setProduct(null);
+        setLoadingProduct(false);
+      });
   }, [id]);
 
   useEffect(() => {
@@ -99,11 +99,9 @@ export default function ProductDetail() {
         }
       }
     } catch (err) {
-      console.error("Failed to load store settings:", err);
+      // Silently handle - will use default contact info
     }
   }, []);
-
-  const catLabel = categoryLabels[category] || category;
 
   if (loadingProduct) return (
     showLoading ? (
@@ -153,11 +151,23 @@ export default function ProductDetail() {
   );
 
   if (!product) return (
-    <div className="pd-error">
-      <p>Product not found.</p>
-      <Link to={`/${category}`}>← Back to {catLabel}</Link>
+    <div className="pd-root">
+      <nav className="pd-breadcrumb" aria-label="breadcrumb">
+        <Link to="/">Home</Link>
+      </nav>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', gap: 20 }}>
+        <div style={{ fontSize: 48, marginBottom: 10 }}>404</div>
+        <p style={{ fontSize: 18, color: '#7c3d26', fontWeight: 500 }}>Product not found</p>
+        <p style={{ color: '#999', maxWidth: 400 }}>This product may have been removed or is out of stock. Please check back or explore our other collections.</p>
+        <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+          <Link to={`/${category || 'products'}`} style={{ padding: '10px 20px', background: '#c9956a', color: '#fff', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>← Back to {category || 'Products'}</Link>
+          <Link to="/" style={{ padding: '10px 20px', background: '#f5ece0', color: '#7c3d26', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>Home</Link>
+        </div>
+      </div>
     </div>
   );
+
+  const catLabel = product.categoryName || (category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Products');
 
   /* Derived values */
   const stock        = product.stock ?? 0;
@@ -217,8 +227,10 @@ export default function ProductDetail() {
 
   /* Handlers */
   function handleAddToCart() {
-    if (isOutOfStock) {
-      toast.error("This item is out of stock");
+    if (isOutOfStock || addingToCart) {
+      if (isOutOfStock) {
+        toast.error("This item is out of stock");
+      }
       return;
     }
 
@@ -230,11 +242,15 @@ export default function ProductDetail() {
       return;
     }
 
+    setAddingToCart(true);
     addToCart({ ...product, category }, qty);
     setAdded(true);
     // Clear any previous timeout before setting a new one
     if (addedTimeoutId) clearTimeout(addedTimeoutId);
-    const timeoutId = setTimeout(() => setAdded(false), 2500);
+    const timeoutId = setTimeout(() => {
+      setAdded(false);
+      setAddingToCart(false);
+    }, 2500);
     setAddedTimeoutId(timeoutId);
     setDrawerOpen(true);
   }
@@ -491,12 +507,15 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <button
-              className={`pd-add-btn ${added ? "added" : ""}${isOutOfStock ? " disabled" : ""}`}
+              className={`pd-add-btn ${added ? "added" : ""}${isOutOfStock || addingToCart ? " disabled" : ""}`}
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock || addingToCart}
+              style={addingToCart ? { opacity: 0.7 } : {}}
             >
               {isOutOfStock ? (
                 <><AlertTriangle size={18} /> Out of Stock</>
+              ) : addingToCart ? (
+                <><ShoppingCart size={18} /> Adding...</>
               ) : (
                 <><ShoppingCart size={18} /> {added ? "Added to Cart ✓" : "Add to Cart"}</>
               )}

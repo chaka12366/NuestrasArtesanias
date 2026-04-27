@@ -133,7 +133,8 @@ export function CartProvider({ children }) {
     const stockMap = await checkStockForProducts(productIds);
 
     if (stockMap.size === 0) {
-      return { valid: false, issues: [{ name: "Unknown", requested: 0, available: 0, removed: false, error: "Could not verify stock" }] };
+      // Network failure — cannot verify stock, surface a clean error
+      return { valid: false, issues: [], networkError: true };
     }
 
     const issues = [];

@@ -23,17 +23,19 @@ export async function fetchCart() {
     return []
   }
 
-  return data.map(item => ({
-    id:         item.product_id,
-    key:        `${item.products.categories?.slug || 'unknown'}-${item.product_id}`,
-    name:       item.products.name,
-    price:      Number(item.products.price),
-    image:      item.products.image_url,
-    stock:      item.products.stock,
-    category:   item.products.categories?.slug,
-    qty:        item.quantity,
-    cartItemId: item.id,
-  }))
+  return data
+    .filter(item => item.products != null)
+    .map(item => ({
+      id:         item.product_id,
+      key:        `${item.products.categories?.slug || 'unknown'}-${item.product_id}`,
+      name:       item.products.name,
+      price:      Number(item.products.price),
+      image:      item.products.image_url,
+      stock:      item.products.stock,
+      category:   item.products.categories?.slug,
+      qty:        item.quantity,
+      cartItemId: item.id,
+    }))
 }
 
 /**

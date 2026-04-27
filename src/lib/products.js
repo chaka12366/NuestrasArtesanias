@@ -298,7 +298,6 @@ export async function updateProduct(productId, updates) {
           stock_quantity: product.stock,
           alert_level: `Stock is at ${product.stock} units (threshold: ${LOW_STOCK_THRESHOLD})`,
         })
-        console.log(`Low stock alert sent for ${product.name}`)
       }
     } catch (emailError) {
       console.warn('Failed to send low stock alert:', emailError.message)
@@ -342,12 +341,6 @@ export async function uploadProductImage(file, fileName) {
   const fileExt = file.name.split('.').pop()
   const random = Math.random().toString(36).substring(2, 6)
   const filePath = `${fileName || `product-${timestamp}-${random}`}.${fileExt}`
-
-  console.log('--- SUPABASE UPLOAD DEBUG ---');
-  console.log('Project URL:', import.meta.env.VITE_SUPABASE_URL);
-  console.log('Bucket Name: product-images');
-  console.log('File Path:', filePath);
-  console.log('File Object:', file);
 
   const { data, error } = await supabase.storage
     .from('product-images')
@@ -622,12 +615,6 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
       const ext = file.name.split('.').pop()
       const filename = `product_${productId}_${timestamp}_${random}.${ext}`
       const filePath = `product-images/${productId}/${filename}`
-
-      console.log('--- SUPABASE BATCH UPLOAD DEBUG ---');
-      console.log('Project URL:', import.meta.env.VITE_SUPABASE_URL);
-      console.log('Bucket Name: product-images');
-      console.log('File Path:', filePath);
-      console.log('File Object:', file);
 
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage

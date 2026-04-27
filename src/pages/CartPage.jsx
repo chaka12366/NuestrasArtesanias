@@ -128,6 +128,9 @@ export default function CartPage() {
   const { items, itemCount, total, updateQty, removeFromCart, clearCart } = useCart();
   const [productImages, setProductImages] = useState({});
   const [loadingImages, setLoadingImages] = useState({});
+  const [disabledAction, setDisabledAction] = useState(null); // Prevent double-clicks on same item
+  const [checkoutInProgress, setCheckoutInProgress] = useState(false); // Prevent double checkout click
+  const [clearConfirm, setClearConfirm] = useState(false); // Two-step clear cart confirmation
   const fetchedIdsRef = useRef(new Set());
 
   useEffect(() => {
@@ -152,7 +155,7 @@ export default function CartPage() {
         });
       })
       .catch(err => {
-        console.error('Error fetching batch images:', err);
+        // Silently handle error - images will show logo.png fallback
         idsToFetch.forEach(id => {
           setLoadingImages(prev => ({ ...prev, [id]: false }));
         });
@@ -217,14 +220,27 @@ export default function CartPage() {
 
                   <div className="cart-page-item-actions">
                     <div className="cart-page-qty-group">
-                      <button className="cart-page-qty-btn" onClick={() => updateQty(item.key, item.qty - 1)} aria-label="Decrease quantity">
+                      <button 
+                        className="cart-page-qty-btn" 
+                        onClick={() => {
+                          setDisabledAction(item.key);
+                          updateQty(item.key, item.qty - 1);
+                          setTimeout(() => setDisabledAction(null), 200);
+                        }} 
+                        disabled={disabledAction === item.key}
+                        aria-label="Decrease quantity"
+                      >
                         <Minus size={16} />
                       </button>
                       <span className="cart-page-qty-display">{item.qty}</span>
                       <button
                         className="cart-page-qty-btn"
-                        onClick={() => updateQty(item.key, item.qty + 1)}
-                        disabled={(item.stock ?? 99) > 0 && item.qty >= (item.stock ?? 99)}
+                        onClick={() => {
+                          setDisabledAction(item.key);
+                          updateQty(item.key, item.qty + 1);
+                          setTimeout(() => setDisabledAction(null), 200);
+                        }}
+                        disabled={((item.stock ?? 99) > 0 && item.qty >= (item.stock ?? 99)) || disabledAction === item.key}
                         aria-label="Increase quantity"
                       >
                         <Plus size={16} />
@@ -232,7 +248,16 @@ export default function CartPage() {
                     </div>
 
                     <div className="cart-page-item-btns">
-                      <button className="cart-page-action-btn delete-btn" onClick={() => removeFromCart(item.key)} aria-label="Delete item">
+                      <button 
+                        className="cart-page-action-btn delete-btn" 
+                        onClick={() => {
+                          setDisabledAction(item.key);
+                          removeFromCart(item.key);
+                          setTimeout(() => setDisabledAction(null), 200);
+                        }} 
+                        disabled={disabledAction === item.key}
+                        aria-label="Delete item"
+                      >
                         <Trash2 size={16} />
                         Delete
                       </button>
@@ -283,8 +308,18 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button className="cart-checkout-cta" onClick={() => navigate("/checkout")}>Proceed to Checkout</button>
-            <button className="cart-continue-shopping" onClick={() => navigate("/")}>Continue Shopping</button>
+            <button 
+              className="cart-checkout-cta" 
+              onClick={() => {
+                setCheckoutInProgress(true);
+                setTimeout(() => navigate("/checkout"), 100);
+              }}
+              disabled={checkoutInProgress}
+              style={checkoutInProgress ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
+            >
+              {checkoutInProgress ? 'Loading...' : 'Proceed to Checkout'}
+            </button>
+            <button className="cart-continue-shopping" onClick={() => navigate("/")} disabled={checkoutInProgress}>Continue Shopping</button>
 
             <div className="cart-summary-benefits">
               <div className="benefit"><Truck size={24} className="benefit-icon" /><p>Free shipping on orders over $50</p></div>
@@ -293,8 +328,21 @@ export default function CartPage() {
             </div>
 
             {items.length > 1 && (
-              <button className="cart-clear-cart-btn" onClick={() => { if (window.confirm('Remove all items?')) clearCart(); }}>
-                Clear Entire Cart
+              <button
+                className="cart-clear-cart-btn"
+                onClick={() => {
+                  if (!clearConfirm) {
+                    setClearConfirm(true);
+                    // Auto-reset after 3s if user doesn't confirm
+                    setTimeout(() => setClearConfirm(false), 3000);
+                  } else {
+                    setClearConfirm(false);
+                    clearCart();
+                  }
+                }}
+                style={clearConfirm ? { background: '#e74c3c', color: '#fff', borderColor: '#e74c3c' } : {}}
+              >
+                {clearConfirm ? 'Tap again to confirm' : 'Clear Entire Cart'}
               </button>
             )}
           </div>

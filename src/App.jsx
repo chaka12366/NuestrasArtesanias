@@ -19,16 +19,13 @@ const About = lazy(() => import("./pages/About.jsx"));
 const Contact = lazy(() => import("./pages/Contact.jsx"));
 const CartPage = lazy(() => import("./pages/CartPage.jsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.jsx"));
-const Bracklets = lazy(() => import("./pages/products/Bracklets.jsx"));
-const Anklets = lazy(() => import("./pages/products/Anklets.jsx"));
-const Waistchains = lazy(() => import("./pages/products/Waistchains.jsx"));
-const Necklaces = lazy(() => import("./pages/products/Necklaces.jsx"));
-const Earrings = lazy(() => import("./pages/products/Earrings.jsx"));
+const CategoryPage = lazy(() => import("./pages/products/CategoryPage.jsx"));
 const Analytics = lazy(() => import("./pages/products/Analytics.jsx"));
 const Products = lazy(() => import("./pages/products/Products.jsx"));
 const Orders = lazy(() => import("./pages/products/Orders.jsx"));
 const Customers = lazy(() => import("./pages/products/Customers.jsx"));
 const Settings = lazy(() => import("./pages/products/Settings.jsx"));
+
 const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard.jsx"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail.jsx"));
 
@@ -175,7 +172,11 @@ function OwnerProtectionLayout() {
 }
 
 function CustomerDashboardLayout() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -241,11 +242,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/bracklets" element={<Bracklets />} />
-          <Route path="/anklets" element={<Anklets />} />
-          <Route path="/waistchains" element={<Waistchains />} />
-          <Route path="/necklaces" element={<Necklaces />} />
-          <Route path="/earrings" element={<Earrings />} />
+          <Route path="/:categorySlug" element={<CategoryPage />} />
 
           {/* ✅ Product Detail Page */}
           <Route path="/product/:category/:id" element={<ProductDetail />} />

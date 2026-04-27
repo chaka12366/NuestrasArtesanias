@@ -105,6 +105,7 @@ CREATE TABLE public.order_items (
   unit_price numeric NOT NULL,
   quantity integer NOT NULL CHECK (quantity >= 1),
   subtotal numeric DEFAULT (unit_price * (quantity)::numeric),
+  status text NOT NULL DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'cancelled'::text])),
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT order_items_pkey PRIMARY KEY (id),
   CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id),

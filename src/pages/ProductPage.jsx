@@ -43,6 +43,9 @@ export default function ProductPage({ title, subtitle, products, category, loadi
     p.name.toLowerCase().includes(debouncedSearch.toLowerCase())
   ), [products, debouncedSearch]);
 
+  // Empty products fallback (no search but category has no items)
+  const hasNoProducts = !loading && !search && (!products || products.length === 0);
+
   return (
     <main className="pp-root">
       <style>{`
@@ -105,6 +108,14 @@ export default function ProductPage({ title, subtitle, products, category, loadi
           ) : (
             <div className="pp-grid" style={{ minHeight: "50vh" }}></div>
           )
+        ) : hasNoProducts ? (
+          <EmptyState
+            title="No Products Available"
+            description="This category doesn't have any products yet. Check back soon or explore other categories!"
+            buttonText="Back to Home"
+            onClick={() => window.location.href = '/'}
+            type="search"
+          />
         ) : filtered.length === 0 ? (
           <EmptyState
             title="No Results Found"

@@ -91,19 +91,28 @@ export default function OwnerDashboard() {
 
     // Fetch real data from Supabase (static imports, no dynamic import)
     fetchDashboardStats().then(data => {
-      const totalRevenue = data.monthlyRevenue.reduce((s, m) => s + Number(m.revenue || 0), 0);
-      const totalOrders = data.monthlyRevenue.reduce((s, m) => s + Number(m.order_count || 0), 0);
-      setStats({ revenue: Math.round(totalRevenue), orders: totalOrders, products: 0 });
+      if (data && data.monthlyRevenue) {
+        const totalRevenue = data.monthlyRevenue.reduce((s, m) => s + Number(m.revenue || 0), 0);
+        const totalOrders = data.monthlyRevenue.reduce((s, m) => s + Number(m.order_count || 0), 0);
+        setStats({ revenue: Math.round(totalRevenue), orders: totalOrders, products: 0 });
+      } else {
+        setStats({ revenue: 0, orders: 0, products: 0 });
+      }
+    }).catch(err => {
+      // Silently handle - stats will show 0
+      setStats({ revenue: 0, orders: 0, products: 0 });
     });
 
     fetchNotifications(5).then(data => {
-      setActivities(data.map(n => ({
+      setActivities((data || []).map(n => ({
         id: n.id,
         icon: activityIcons[n.type] || <Bell size={20} />,
         text: n.message,
         time: new Date(n.created_at).toLocaleString(),
         color: activityColors[n.type] || "#f3f4f6",
       })));
+    }).catch(err => {
+      console.error('Failed to load notifications:', err);
     });
 
     const t = setTimeout(() => setAnimate(true), 400);
@@ -179,19 +188,28 @@ export default function OwnerDashboard() {
               <span className="dash-live-dot" />
             </h2>
             <div className="dash-activity-list">
-              {activities.map((a, i) => (
-                <div
-                  key={a.id}
-                  className="activity-item"
-                  style={{ "--delay": `${i * 80 + 200}ms`, "--bg": a.color }}
-                >
-                  <div className="activity-icon">{a.icon}</div>
+              {activities.length === 0 ? (
+                <div className="activity-item" style={{ '--delay': '200ms', '--bg': '#f3f4f6', textAlign: 'center' }}>
                   <div className="activity-text">
-                    <span className="activity-msg">{a.text}</span>
-                    <span className="activity-time">{a.time}</span>
+                    <span className="activity-msg">No recent activity</span>
+                    <span className="activity-time">Activity will appear here as orders come in</span>
                   </div>
                 </div>
-              ))}
+              ) : (
+                activities.map((a, i) => (
+                  <div
+                    key={a.id}
+                    className="activity-item"
+                    style={{ "--delay": `${i * 80 + 200}ms`, "--bg": a.color }}
+                  >
+                    <div className="activity-icon">{a.icon}</div>
+                    <div className="activity-text">
+                      <span className="activity-msg">{a.text}</span>
+                      <span className="activity-time">{a.time}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </section>
 
