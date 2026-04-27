@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/auth.js";
 import { toast } from "react-toastify";
 import { User, Palette } from "lucide-react";
@@ -321,7 +321,7 @@ function AccountForm({ onSuccess }) {
           </form>
 
           <p className="ca-login-link">
-            Already have an account? <a href="/login">Sign in</a>
+            Already have an account? <Link to="/login">Sign in</Link>
           </p>
         </div>
 

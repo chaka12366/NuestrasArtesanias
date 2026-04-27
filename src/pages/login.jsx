@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/auth.js";
 import { supabase } from "../lib/supabase.js";
 import { toast } from "react-toastify";
@@ -276,7 +276,7 @@ export default function Login() {
 
           {/* Create Account CTA */}
           <p className="login-create-account">
-            Don't have an account? <a href="/create-account" className="create-link">Create Account</a> and Be Part of the Family!
+            Don't have an account? <Link to="/create-account" className="create-link">Create Account</Link> and Be Part of the Family!
           </p>
         </div>
       </div>
