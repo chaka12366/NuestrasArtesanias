@@ -28,6 +28,7 @@
   width: 100%;
   font-family: "DM Sans", sans-serif;
   background: var(--off-white);
+  align-items: stretch;
 }
 
 
@@ -122,9 +123,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
+  justify-content: flex-start;
+  padding: clamp(3rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3rem) clamp(2.5rem, 5vw, 3.5rem);
   align-self: stretch;
+  overflow-y: auto;
 }
 
 .login-form-container {

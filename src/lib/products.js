@@ -37,6 +37,7 @@ export async function fetchProductsByCategory(categorySlug) {
     tag:      p.tag || undefined,
     stock:    p.stock,
     status:   p.status,
+    description: p.description || '',
     category: categorySlug,
   }))
 }
@@ -217,6 +218,7 @@ export async function fetchAllProducts() {
     stock:    Number(p.stock || 0),
     status:   p.status,
     active:   p.active,
+    description: p.description || '',
     category: p.categories?.slug,
     categoryId: p.categories?.id,
     categoryName: p.categories?.name,
@@ -271,9 +273,9 @@ export async function updateProduct(productId, updates) {
     // Auto-update status based on stock
     updateData.status = Number(updates.stock) === 0 ? 'out' : Number(updates.stock) <= LOW_STOCK_THRESHOLD ? 'low' : 'active'
   }
-  if (updates.description) updateData.description = updates.description
+  if (updates.description !== undefined) updateData.description = updates.description
   if (updates.tag !== undefined) updateData.tag = updates.tag || null
-  if (updates.image_url) updateData.image_url = updates.image_url
+  if (updates.image_url !== undefined) updateData.image_url = updates.image_url
   if (updates.category_id !== undefined) updateData.category_id = Number(updates.category_id)
 
   const { error } = await supabase

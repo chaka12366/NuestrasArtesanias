@@ -31,17 +31,7 @@ function seededNum(id, offset, min, max) {
   return min + ((id * 37 + offset) % (max - min + 1));
 }
 
-/* ── Dynamic descriptions ──────────────────────────────── */
-function getDescription(category, name) {
-  const map = {
-    bracklets: `Premium handcrafted ${name} made with the finest metals and stones. Each piece is carefully crafted by skilled artisans from Belize, ensuring exceptional quality and a unique charm. Whether you're dressing up or keeping it casual, this piece adds an elegant touch to any look. Perfect as a gift or a treat for yourself.`,
-    anklets:   `Beautiful handcrafted ${name} that adds elegance to any ankle. Made with high-quality materials and traditional Belizean craftsmanship. Perfect for daily wear or special occasions. Each piece is unique and carries the authentic artistry of Belize.`,
-    waistchains: `Elegant ${name} designed to accentuate your silhouette. Made with high-quality metals and hand-strung beads. Features an adjustable clasp to suit all body types. A stunning statement piece that pairs beautifully with crop tops, swimwear, or any casual outfit.`,
-    necklaces: `Stunning ${name} crafted with premium materials and expert artistry. This piece combines traditional design with modern appeal. Perfect for layering or wearing solo as a statement piece. An ideal accessory for any occasion.`,
-    earrings:  `Exquisite handcrafted ${name} that frame the face beautifully. Made from high-quality materials with attention to detail and comfort. Suitable for sensitive ears. Available in limited quantities — grab yours before they're gone!`,
-  };
-  return map[category] ?? `${name} — a unique handcrafted item from Nuestras Artesanías. Premium quality, made with love and care in Belize.`;
-}
+
 
 function getFeatures(category) {
   const map = {
@@ -413,7 +403,7 @@ export default function ProductDetail() {
           {/* Description */}
           <div className="pd-desc-section">
             <h3>About this item</h3>
-            <p className="pd-desc-text">{getDescription(category, product.name)}</p>
+            <p className="pd-desc-text">{product.description || 'No description available.'}</p>
           </div>
 
           {/* Feature bullets */}

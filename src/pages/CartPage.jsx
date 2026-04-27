@@ -204,6 +204,9 @@ export default function CartPage() {
                 <div className="cart-page-item-content">
                   <div className="cart-page-item-header">
                     <h3 className="cart-page-item-name">{item.name}</h3>
+                    {item.description && (
+                      <p className="cart-page-item-description">{item.description}</p>
+                    )}
                     {(() => {
                       const stock = item.stock ?? 99;
                       if (stock <= 0) return <p className="cart-page-item-status out"><AlertTriangle size={12} /> Out of Stock</p>;
