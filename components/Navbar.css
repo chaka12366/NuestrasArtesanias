@@ -71,6 +71,7 @@
   gap: 1.5rem;
   width: 100%;
   box-sizing: border-box;
+  flex-wrap: nowrap;
 }
 
 /* ── HAMBURGER (LEFT) ── */
@@ -81,7 +82,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 12px;
   border-radius: 8px;
   transition: background 0.2s;
   width: var(--touch-target-min);
@@ -90,11 +91,11 @@
   min-height: var(--touch-target-min);
   justify-content: center;
   align-items: center;
-  margin-right: 12px;
   flex-shrink: 0;
   order: -1;
   z-index: 1001;
   -webkit-tap-highlight-color: transparent;
+  margin: 0;
 }
 
 @media (max-width: 480px) {
@@ -290,7 +291,9 @@
   align-items: center;
   gap: 0.65rem;
   text-decoration: none;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  justify-content: center;
 }
 
 .navbar-logo-circle {
@@ -413,7 +416,8 @@
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
   flex-shrink: 0;
 }
 
@@ -510,13 +514,13 @@
    RESPONSIVE — Tablet & below (768px)
    ──────────────────────────────────────── */
 @media (max-width: 767px) {
-  .navbar-nav { padding: 0 1rem; gap: 1rem; }
+  .navbar-nav { padding: 0 0.75rem; gap: 0.5rem; display: flex; align-items: center; justify-content: space-between; }
   .navbar-logo-circle { width: clamp(32px, 10vw, 38px); height: clamp(32px, 10vw, 38px); }
   .navbar-brand-text { font-size: clamp(0.9rem, 2vw, 1rem); }
   .hamburger { display: flex; }
   .navbar-links { display: none; }
   .navbar-links.open { display: flex; }
-  .navbar-right { gap: 0.5rem; }
+  .navbar-right { gap: 0.35rem; }
   .auth-icon-btn { width: 40px; height: 40px; }
 }
 
@@ -529,8 +533,8 @@
     --nav-h: 64px;
   }
 
-  .navbar-nav { padding: 0 0.75rem; gap: 0.5rem; }
-  .hamburger { margin-right: 8px; }
+  .navbar-nav { padding: 0 0.5rem; gap: 0.35rem; }
+  .hamburger { padding: 12px; margin: 0; }
   .navbar-logo-circle { width: 36px; height: 36px; }
   .navbar-brand-text { font-size: 0.95rem; }
   .sidebar-nav { width: var(--sidebar-w); }
@@ -539,6 +543,8 @@
   .sidebar-nav-link { padding: 10px 16px; font-size: 0.9rem; }
   .sidebar-nav-label { padding: 10px 16px 6px; font-size: 0.7rem; }
   .sidebar-nav-footer { padding: 14px 16px; }
+  .navbar-right { gap: 0.3rem; }
+  .auth-icon-btn { width: 44px; height: 44px; }
 }
 
 /* ────────────────────────────────────────

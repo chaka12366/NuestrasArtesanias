@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../contexts/auth.js";
 import { supabase } from "../lib/supabase.js";
 import { toast } from "react-toastify";
@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, login } = useAuth();
 
   const isLoggingIn = useRef(false);
@@ -24,8 +25,13 @@ export default function Login() {
           .select('role')
           .eq('id', data.user.id)
           .single();
-          
-        if (profile?.role === 'owner') {
+        
+        // If there's a "from" location, redirect back to that page
+        // Otherwise, redirect based on role
+        const fromLocation = location.state?.from;
+        if (fromLocation && fromLocation !== '/login') {
+          navigate(fromLocation, { replace: true });
+        } else if (profile?.role === 'owner') {
           navigate('/dashboard', { replace: true });
         } else {
           navigate('/customer-dashboard', { replace: true });
@@ -33,7 +39,7 @@ export default function Login() {
       }
     };
     checkUser();
-  }, [navigate]);
+  }, [navigate, location]);
 
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
@@ -122,10 +128,15 @@ export default function Login() {
         setPasswordError("");
         isLoggingIn.current = false;
         
-        if (result.role === 'owner') {
-          navigate('/dashboard');
+        // If there's a "from" location in state, redirect back to that page
+        // Otherwise, redirect based on role
+        const fromLocation = location.state?.from;
+        if (fromLocation && fromLocation !== '/login') {
+          navigate(fromLocation, { replace: true });
+        } else if (result.role === 'owner') {
+          navigate('/dashboard', { replace: true });
         } else {
-          navigate('/customer-dashboard');
+          navigate('/customer-dashboard', { replace: true });
         }
       } else {
         // Handle specific error messages

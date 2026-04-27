@@ -5,11 +5,6 @@
   padding: 24px 20px 60px;
 }
 
-@media (max-width: 720px) {
-  .pd-root {
-    padding: 24px 16px 280px;
-  }
-}
 .pd-error {
   text-align: center;
   padding: 80px 20px;
@@ -139,6 +134,7 @@
   justify-content: center;
   flex: 1;
   min-width: 0;
+  z-index: 1;
 }
 
 .pd-main-img-wrapper {
@@ -225,7 +221,10 @@
 .pd-thumb-strip-mobile::-webkit-scrollbar { display: none; }
 
 /* ── Info column ───────────────────────────────────────── */
-.pd-info-col { min-width: 0; }
+.pd-info-col { 
+  min-width: 0;
+  padding-bottom: 12px;
+}
 .pd-name {
   font-size: 1.55rem;
   font-weight: 700;
@@ -257,6 +256,8 @@
   align-items: baseline;
   gap: 12px;
   margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
 }
 .pd-price {
   font-size: 2rem;
@@ -641,6 +642,9 @@
   .pd-layout {
     grid-template-columns: 1fr;
   }
+  .pd-root {
+    padding: 24px 16px 440px;
+  }
   .pd-img-col { position: static; }
   .pd-info-col { order: 2; }
   .pd-buy-col {
@@ -659,10 +663,14 @@
   .pd-buy-box {
     max-width: 100%;
     margin: 0;
-    padding: 16px;
+    padding: 14px 16px 20px;
     border-radius: 20px 20px 0 0;
     border: 1px solid #ddd;
     border-bottom: none;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .pd-badges { flex-direction: column; }
 
@@ -680,5 +688,122 @@
   }
   .pd-img-card {
     border-radius: 12px;
+  }
+  
+  /* Hide desktop-only elements on mobile */
+  .pd-buy-price { display: none; }
+  .pd-buy-orig { display: none; }
+  .pd-processing { display: none; }
+  .pd-payment-info { display: none; }
+  .pd-trust { display: none; }
+  .pd-delivery { display: none; }
+  .pd-buy-divider { display: none; }
+  
+  /* Compact quantity selector */
+  .pd-qty-row {
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .pd-qty-row label {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .pd-qty-ctrl {
+    width: 100%;
+  }
+  .pd-qty-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+  .pd-qty-num {
+    min-width: 40px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+  
+  /* Button sizing on mobile */
+  .pd-add-btn {
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    flex-grow: 1;
+  }
+  
+  .pd-buy-now-btn {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+    flex-grow: 0;
+    background: #f0ebe3;
+    color: #2c1d11;
+    border: 1px solid #d5ccc3;
+  }
+  .pd-buy-now-btn:hover:not(:disabled) {
+    background: #e8dfd5;
+    border-color: #c9956a;
+    transform: none;
+  }
+  
+  /* Stock info sizing */
+  .pd-stock {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    margin-bottom: 0;
+  }
+}
+
+/* ────────────────────────────────────────
+   RESPONSIVE — Mobile Extra Small (480px and below)
+   ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  .pd-root {
+    padding: 20px 12px 440px;
+  }
+  
+  .pd-buy-box {
+    padding: 12px 14px 16px;
+    border-radius: 16px 16px 0 0;
+    gap: 8px;
+  }
+  
+  .pd-add-btn {
+    min-height: 48px;
+    padding: 12px 12px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+  
+  .pd-buy-now-btn {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+  }
+  
+  .pd-qty-ctrl {
+    width: 100%;
+  }
+  
+  .pd-qty-btn {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+  
+  .pd-qty-num {
+    min-width: 36px;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .pd-stock {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
   }
 }

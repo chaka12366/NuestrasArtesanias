@@ -36,8 +36,8 @@ export default function DashboardSidebar({ isOpen, onClose }) {
     onClose();
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/", { replace: true });
   };
 

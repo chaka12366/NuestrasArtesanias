@@ -45,8 +45,8 @@ export default function DashboardLayout() {
     navigate(paths[itemId]);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/", { replace: true });
   };
 

@@ -72,8 +72,8 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
+    await logout();
     navigate("/", { replace: true });
     setMenuOpen(false);
   }, [logout, navigate]);

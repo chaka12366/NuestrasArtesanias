@@ -178,7 +178,7 @@
      PRODUCT DETAIL PAGE
      ═══════════════════════════════════════ */
   .pd-root {
-    padding: 16px 12px 280px !important;
+    padding: 24px 16px 440px !important;
   }
 
   .pd-layout {
@@ -192,6 +192,7 @@
 
   .pd-info-col {
     order: 2 !important;
+    padding-bottom: 12px !important;
   }
 
   .pd-buy-col {
@@ -209,11 +210,15 @@
   .pd-buy-box {
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 16px !important;
+    padding: 14px 16px 20px !important;
     border-radius: 20px 20px 0 0 !important;
     border: 1px solid #ddd !important;
     border-bottom: none !important;
     box-shadow: 0 -4px 16px rgba(0,0,0,0.08) !important;
+    background: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
   }
 
   .pd-name {
@@ -242,17 +247,78 @@
 
   .pd-img-card {
     border-radius: 12px !important;
+    z-index: 1 !important;
   }
 
-  .pd-add-btn,
-  .pd-buy-now-btn {
+  /* Hide desktop-only elements on mobile */
+  .pd-buy-price { display: none !important; }
+  .pd-buy-orig { display: none !important; }
+  .pd-processing { display: none !important; }
+  .pd-payment-info { display: none !important; }
+  .pd-trust { display: none !important; }
+  .pd-delivery { display: none !important; }
+  .pd-buy-divider { display: none !important; }
+
+  /* Optimize button sizing on mobile */
+  .pd-add-btn {
     min-height: 48px !important;
     width: 100% !important;
+    padding: 12px 14px !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 8px !important;
+  }
+
+  .pd-buy-now-btn {
+    min-height: 44px !important;
+    width: 100% !important;
+    padding: 10px 12px !important;
+    font-size: 0.85rem !important;
+    margin-bottom: 0 !important;
+    background: #f0ebe3 !important;
+    color: #2c1d11 !important;
+    border: 1px solid #d5ccc3 !important;
+  }
+
+  .pd-buy-now-btn:hover:not(:disabled) {
+    background: #e8dfd5 !important;
+    border-color: #c9956a !important;
+    transform: none !important;
   }
 
   .pd-qty-btn {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 8px 12px !important;
+  }
+
+  .pd-qty-ctrl {
+    width: 100% !important;
+  }
+
+  .pd-qty-row {
+    flex-direction: column !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .pd-qty-row label {
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+  }
+
+  .pd-qty-num {
     min-width: 40px !important;
-    min-height: 40px !important;
+    padding: 6px 10px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .pd-stock {
+    font-size: 0.8rem !important;
+    padding: 6px 10px !important;
+    margin-bottom: 0 !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
   }
 
   .pd-contact-btn {

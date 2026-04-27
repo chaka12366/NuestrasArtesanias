@@ -119,8 +119,8 @@ export default function OwnerDashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate("/", { replace: true });
   };
 

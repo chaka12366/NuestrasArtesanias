@@ -145,17 +145,18 @@ export function AuthProvider({ children }) {
     return { success: true };
   };
 
-  // Logout
+  // Logout - Smooth and consistent
   const logout = async () => {
-    toast.info(
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <strong style={{ fontSize: '0.95rem', marginBottom: '2px' }}>Info</strong>
-        <span>You have been logged out</span>
-      </div>
-    );
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await supabase.auth.signOut();
-    setUser(null);
+    try {
+      // Sign out immediately (no delay)
+      await supabase.auth.signOut();
+      // Show toast notification (non-blocking)
+      toast.success("You have been logged out");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+    // Note: onAuthStateChange listener will handle setUser(null) automatically
   };
 
   return (

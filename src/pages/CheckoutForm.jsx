@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "../contexts/CartContext.jsx";
 import { useAuth } from "../contexts/auth.js";
 import { supabase } from "../lib/supabase.js";
@@ -96,6 +96,7 @@ function Field({ label, required, error, children, half }) {
 /* ── Step 1: Account ── */
 function StepAccount({ onNext, onGuest, user }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [form, setForm] = useState({ fn: "", ln: "", email: "", phone: "", pw: "" });
   const [errors, setE] = useState({});
   const [touched, setTouched] = useState({});
@@ -249,7 +250,7 @@ function StepAccount({ onNext, onGuest, user }) {
 
         <button className="cp-btn-primary" onClick={() => onNext({ isExisting: true })}>Continue to delivery →</button>
         <div className="cp-divider"><span>or</span></div>
-        <button className="cp-btn-ghost" onClick={() => navigate("/login")}>Already have an account? Sign in</button>
+        <button className="cp-btn-ghost" onClick={() => navigate("/login", { state: { from: location.pathname } })}>Already have an account? Sign in</button>
       </div>
     );
   }
@@ -432,7 +433,7 @@ function StepAccount({ onNext, onGuest, user }) {
       </button>
 
       <div className="cp-divider"><span>or</span></div>
-      <button className="cp-btn-ghost" onClick={() => navigate("/login")} disabled={signingUp}>Already have an account? Sign in</button>
+      <button className="cp-btn-ghost" onClick={() => navigate("/login", { state: { from: location.pathname } })} disabled={signingUp}>Already have an account? Sign in</button>
       <TermsAndPrivacyModal isOpen={termsAndPrivacyModalOpen} onClose={() => setTermsAndPrivacyModalOpen(false)} />
     </div>
   );

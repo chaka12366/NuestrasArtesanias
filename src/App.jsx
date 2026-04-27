@@ -154,13 +154,14 @@ function LoginLayout() {
  */
 function OwnerProtectionLayout() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return <FullScreenLoader />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (user.role !== "owner") {
@@ -173,13 +174,14 @@ function OwnerProtectionLayout() {
 
 function CustomerDashboardLayout() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return <FullScreenLoader />;
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   if (user.role !== "customer") {

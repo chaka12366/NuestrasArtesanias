@@ -846,9 +846,9 @@ export default function CustomerDashboard() {
     setActiveSection(sectionId);
   };
 
-  const handleLogout = () => { 
-    logout(); 
-    navigate("/login", { replace: true }); 
+  const handleLogout = async () => { 
+    await logout(); 
+    navigate("/", { replace: true }); 
   };
 
   const handleReturnShopping = () => {
