@@ -130,10 +130,10 @@
   }
 }
 
-/* Mobile: 1 per row */
+/* Mobile: 2 per row */
 @media (max-width: 640px) {
   .mui-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -329,5 +329,12 @@
 
   .mui-info-text {
     font-size: 0.75rem;
+  }
+}
+@media (hover: none) {
+  .mui-delete-btn,
+  .mui-image-number {
+    opacity: 1;
+    transform: scale(1);
   }
 }
