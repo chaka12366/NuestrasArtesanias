@@ -373,8 +373,21 @@
 /* RESPONSIVE                          */
 /* ════════════════════════════════════ */
 
+/* ── Desktop & Tablet (≥ 769px) ──────
+   Sidebar always visible — reset mobile
+   transform and block the overlay      */
+@media (min-width: 769px) {
+  .sidebar {
+    transform: none;
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+}
+
 /* Tablet (769px – 1024px) */
-@media (max-width: 1024px) and (min-width: 769px) {
+@media (min-width: 769px) and (max-width: 1024px) {
   .sidebar {
     width: 240px;
     padding: 20px 0 0;
@@ -397,8 +410,9 @@
   }
 }
 
-/* Mobile (≤ 768px) */
+/* ── Mobile (≤ 768px) ───────────────── */
 @media (max-width: 768px) {
+  /* Sidebar slides in from left, hidden off-screen by default */
   .sidebar {
     width: 72vw;
     max-width: 300px;
@@ -411,12 +425,12 @@
     transform: translateX(0);
   }
 
-  /* Show hamburger */
+  /* Show hamburger toggle */
   .sidebar__toggle {
     display: flex;
   }
 
-  /* Show close button for both variants on mobile */
+  /* Show close button for ALL variants on mobile */
   .sidebar__close {
     display: flex;
     width: 32px;
@@ -447,7 +461,7 @@
   }
 }
 
-/* Small phones (≤ 480px) */
+/* ── Small phones (≤ 480px) ─────────── */
 @media (max-width: 480px) {
   .sidebar {
     width: 75vw;
@@ -455,22 +469,17 @@
     min-width: 200px;
   }
 
+  .sidebar__brand-title  { font-size: 18px; }
+  .sidebar__user-email   { font-size: 11px; }
+
   .sidebar__nav-item {
     font-size: 12px;
     padding: 10px 11px;
   }
-
-  .sidebar__brand-title {
-    font-size: 18px;
-  }
-
-  .sidebar__user-email {
-    font-size: 11px;
-  }
 }
 
-/* Landscape phones */
-@media (max-height: 500px) and (orientation: landscape) {
+/* ── Landscape phones ───────────────── */
+@media (max-width: 768px) and (max-height: 500px) and (orientation: landscape) {
   .sidebar {
     width: 52vw;
     max-width: 260px;
@@ -482,17 +491,9 @@
     min-height: 44px;
   }
 
-  .sidebar__brand-title {
-    font-size: 17px;
-  }
-
-  .sidebar__profile {
-    padding: 10px 14px;
-  }
-
-  .sidebar__nav {
-    padding: 6px 8px;
-  }
+  .sidebar__brand-title { font-size: 17px; }
+  .sidebar__profile     { padding: 10px 14px; }
+  .sidebar__nav         { padding: 6px 8px; }
 
   .sidebar__nav-item {
     padding: 7px 10px;
