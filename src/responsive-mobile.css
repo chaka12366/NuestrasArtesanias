@@ -414,6 +414,7 @@
 
   .pd-thumb-strip-mobile {
     display: flex !important;
+    align-items: center !important;
   }
   .pd-thumb-strip-mobile .pd-thumb {
     width: 52px !important;
