@@ -23,7 +23,7 @@
   }
 
   /* ── GLOBAL: Ensure all buttons stay in bounds ── */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn) {
     max-width: 100% !important;
     width: 100% !important;
     min-height: 48px !important;
@@ -362,7 +362,7 @@
      PRODUCT DETAIL PAGE
      ═══════════════════════════════════════ */
   .pd-root {
-    padding: 24px 16px 440px !important;
+    padding: 16px 16px 80px !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
@@ -370,7 +370,7 @@
 
   .pd-layout {
     grid-template-columns: 1fr !important;
-    gap: 20px !important;
+    gap: 16px !important;
     width: 100% !important;
   }
 
@@ -378,40 +378,18 @@
     position: static !important;
     width: 100% !important;
     max-width: 100% !important;
+    order: 1 !important;
   }
 
   .pd-info-col {
     order: 2 !important;
-    padding-bottom: 12px !important;
+    padding: 0 !important;
     width: 100% !important;
   }
 
+  /* Hide the desktop buy-col entirely on mobile */
   .pd-buy-col {
-    order: 3 !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    z-index: 100 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  .pd-buy-box {
-    max-width: 100% !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 14px 16px 20px !important;
-    border-radius: 20px 20px 0 0 !important;
-    border: 1px solid #ddd !important;
-    border-bottom: none !important;
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.08) !important;
-    background: #fff !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    overflow-x: hidden !important;
+    display: none !important;
   }
 
   .pd-name {
@@ -426,8 +404,7 @@
 
   .pd-badges {
     flex-direction: column !important;
-    flex-wrap: wrap !important;
-    gap: 0.5rem !important;
+    gap: 8px !important;
   }
 
   .pd-thumb-strip {
@@ -436,6 +413,13 @@
 
   .pd-thumb-strip-mobile {
     display: flex !important;
+  }
+  .pd-thumb-strip-mobile .pd-thumb {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    padding: 0 !important;
   }
 
   .pd-gallery {
@@ -448,87 +432,104 @@
     z-index: 1 !important;
     width: 100% !important;
     max-width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+    overflow: hidden !important;
   }
 
-  /* Hide desktop-only elements on mobile */
-  .pd-buy-price { display: none !important; }
-  .pd-buy-orig { display: none !important; }
-  .pd-processing { display: none !important; }
-  .pd-payment-info { display: none !important; }
-  .pd-trust { display: none !important; }
-  .pd-delivery { display: none !important; }
-  .pd-buy-divider { display: none !important; }
-
-  /* Optimize button sizing on mobile */
-  .pd-add-btn {
-    min-height: 48px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 12px 14px !important;
-    font-size: 0.95rem !important;
-    margin-bottom: 8px !important;
+  /* Fix wishlist button sizing on mobile */
+  .pd-wish-btn {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    z-index: 2 !important;
+    border-radius: 50% !important;
   }
 
-  .pd-buy-now-btn {
-    min-height: 48px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 10px 12px !important;
-    font-size: 0.85rem !important;
+  /* Show mobile-inline section */
+  .pd-mobile-inline {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+
+  /* Fix qty buttons inside mobile-inline */
+  .pd-mobile-inline .pd-qty-row {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     margin-bottom: 0 !important;
-    background: #f0ebe3 !important;
+    width: 100% !important;
+  }
+  .pd-mobile-inline .pd-qty-row label {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    display: inline !important;
+    width: auto !important;
+    min-height: auto !important;
+  }
+  .pd-mobile-inline .pd-qty-ctrl {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    width: auto !important;
+    gap: 0 !important;
+  }
+  .pd-mobile-inline .pd-qty-btn {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 !important;
+  }
+  .pd-mobile-inline .pd-qty-num {
+    width: 48px !important;
+    min-width: 48px !important;
+    text-align: center !important;
+  }
+
+  /* Mobile inline buttons */
+  .pd-mobile-inline .pd-add-btn {
+    min-height: 50px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .pd-mobile-inline .pd-buy-now-btn {
+    min-height: 44px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #f5f0ea !important;
     color: #2c1d11 !important;
     border: 1px solid #d5ccc3 !important;
   }
 
-  .pd-buy-now-btn:hover:not(:disabled) {
-    background: #e8dfd5 !important;
-    border-color: #c9956a !important;
-    transform: none !important;
-  }
-
-  .pd-qty-btn {
-    min-width: 44px !important;
-    min-height: 48px !important;
-    padding: 8px 12px !important;
-    flex-shrink: 0;
-  }
-
-  .pd-qty-ctrl {
-    width: 100% !important;
-    max-width: 100% !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 0.5rem !important;
-  }
-
-  .pd-qty-row {
-    flex-direction: column !important;
-    gap: 6px !important;
-    margin-bottom: 8px !important;
-    width: 100% !important;
-  }
-
-  .pd-qty-row label {
-    font-size: 0.8rem !important;
-    font-weight: 600 !important;
-  }
-
-  .pd-qty-num {
-    min-width: 40px !important;
-    padding: 6px 10px !important;
-    font-size: 0.85rem !important;
-    width: 100% !important;
-  }
-
-  .pd-stock {
-    font-size: 0.8rem !important;
-    padding: 6px 10px !important;
-    margin-bottom: 0 !important;
-    min-height: 36px !important;
+  /* Mobile Sticky Bottom CTA Bar */
+  .pd-mobile-sticky-bar {
     display: flex !important;
     align-items: center !important;
+    justify-content: space-between !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    background: #fff !important;
+    padding: 12px 16px !important;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08) !important;
+    z-index: 50 !important;
+    gap: 16px !important;
+  }
+  .pd-sticky-add-btn {
+    flex: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding: 12px 20px !important;
   }
 
   .pd-contact-btn {
@@ -1201,7 +1202,7 @@
   /* ═══════════════════════════════════════
      GLOBAL BUTTON OPTIMIZATION
      ═══════════════════════════════════════ */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn) {
     min-height: 44px !important;
     font-size: 0.9rem !important;
   }
@@ -1247,42 +1248,41 @@
   /* ═══════════════════════════════════════
      PRODUCT DETAIL - SMALL PHONES
      ═══════════════════════════════════════ */
-  .pd-main {
-    grid-template-columns: 1fr !important;
+  .pd-root {
+    padding: 12px 12px 76px !important;
   }
-
-  .pd-img-section {
-    width: 100% !important;
+  .pd-name {
+    font-size: 1.15rem !important;
   }
-
-  .pd-info-section {
-    width: 100% !important;
-  }
-
-  .pd-title {
-    font-size: 1.3rem !important;
-    margin-bottom: 0.8rem !important;
-  }
-
   .pd-price {
-    font-size: 1.1rem !important;
-    margin-bottom: 1rem !important;
+    font-size: 1.4rem !important;
   }
-
-  .pd-qty-ctrl {
-    gap: 0.4rem !important;
+  .pd-mobile-inline .pd-add-btn {
+    min-height: 48px !important;
+    font-size: 0.92rem !important;
   }
-
-  .pd-qty-btn {
-    min-width: 38px !important;
+  .pd-mobile-inline .pd-buy-now-btn {
+    min-height: 42px !important;
+    font-size: 0.82rem !important;
+  }
+  .pd-mobile-inline .pd-qty-btn {
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
     min-height: 40px !important;
   }
-
-  .pd-add-btn,
-  .pd-buy-now-btn {
-    font-size: 0.85rem !important;
-    min-height: 42px !important;
-    padding: 8px 12px !important;
+  .pd-mobile-inline .pd-qty-num {
+    width: 42px !important;
+    min-width: 42px !important;
+    font-size: 0.92rem !important;
+  }
+  .pd-sticky-price {
+    font-size: 1.2rem !important;
+  }
+  .pd-sticky-add-btn {
+    font-size: 0.88rem !important;
+    min-height: 44px !important;
+    padding: 10px 16px !important;
   }
 
   /* ═══════════════════════════════════════

@@ -433,6 +433,67 @@ export default function ProductDetail() {
             ))}
           </ul>
 
+          {/* ── Mobile-only: Stock + Qty + Add to Cart (inline flow) ── */}
+          <div className="pd-mobile-inline">
+            {/* Stock */}
+            <div className={`pd-stock ${isOutOfStock ? "out" : stock <= 4 ? "low" : "ok"}`}>
+              {isOutOfStock ? <AlertTriangle size={14} /> : <Package size={14} />}
+              {isOutOfStock
+                ? "Out of Stock"
+                : stock <= 4
+                  ? `Only ${stock} left in stock — order soon!`
+                  : `In Stock — ${stock} units available`}
+            </div>
+
+            {/* Quantity */}
+            <div className="pd-qty-row">
+              <label htmlFor="qty-input-mobile">Quantity:</label>
+              <div className="pd-qty-ctrl">
+                <button
+                  className="pd-qty-btn"
+                  onClick={handleQuantityDecrease}
+                  disabled={isOutOfStock || qty <= 1}
+                  aria-label="Decrease quantity"
+                >
+                  <Minus size={14} />
+                </button>
+                <span id="qty-input-mobile" className="pd-qty-num" role="status" aria-live="polite">{isOutOfStock ? 0 : qty}</span>
+                <button
+                  className="pd-qty-btn"
+                  onClick={handleQuantityIncrease}
+                  disabled={isOutOfStock || qty >= stock}
+                  aria-label="Increase quantity"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* Add to Cart (inline, full-width) */}
+            <button
+              className={`pd-add-btn ${added ? "added" : ""}${isOutOfStock || addingToCart ? " disabled" : ""}`}
+              onClick={handleAddToCart}
+              disabled={isOutOfStock || addingToCart}
+              style={addingToCart ? { opacity: 0.7 } : {}}
+            >
+              {isOutOfStock ? (
+                <><AlertTriangle size={18} /> Out of Stock</>
+              ) : addingToCart ? (
+                <><ShoppingCart size={18} /> Adding...</>
+              ) : (
+                <><ShoppingCart size={18} /> {added ? "Added to Cart ✓" : "Add to Cart"}</>
+              )}
+            </button>
+
+            {/* Continue Shopping */}
+            <button
+              className={`pd-buy-now-btn${isOutOfStock ? " disabled" : ""}`}
+              onClick={handleContinueShopping}
+            >
+              Continue Shopping
+            </button>
+          </div>
+
           {/* Badges row */}
           <div className="pd-badges">
             <div className="pd-badge-item">
@@ -452,9 +513,9 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* ── Col 3: Buy Box ───────────────────────────── */}
+        {/* ── Col 3: Buy Box (Desktop) ──────────────────── */}
         <div className="pd-buy-col">
-          <div className="pd-buy-box">
+          <div className="pd-buy-box pd-buy-box-desktop">
 
             {/* Price */}
             <div className="pd-buy-price">${product.price.toFixed(2)}</div>
@@ -542,6 +603,24 @@ export default function ProductDetail() {
               <Shield size={13} /> Secure & encrypted checkout
             </p>
           </div>
+        </div>
+
+        {/* ── Mobile Sticky Bottom CTA Bar ──────────────── */}
+        <div className="pd-mobile-sticky-bar">
+          <div className="pd-sticky-price">${product.price.toFixed(2)}</div>
+          <button
+            className={`pd-sticky-add-btn ${added ? "added" : ""}${isOutOfStock || addingToCart ? " disabled" : ""}`}
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || addingToCart}
+          >
+            {isOutOfStock ? (
+              <>Out of Stock</>
+            ) : addingToCart ? (
+              <>Adding...</>
+            ) : (
+              <><ShoppingCart size={16} /> {added ? "Added ✓" : "Add to Cart"}</>
+            )}
+          </button>
         </div>
 
       </div>
