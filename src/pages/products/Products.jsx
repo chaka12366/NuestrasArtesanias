@@ -326,77 +326,97 @@ export default function Products() {
           type="products"
         />
       ) : (
-        <div className="ap-pgrid">
-          {filtered.map((p, i) => (
-            <div key={p.id} className="ap-pcard" style={{"--i": i}}>
-              {/* Top: Image + Name + Status */}
-              <div className="ap-pcard-top">
-                <div className="ap-pcard-thumb"
-                  onClick={() => { setImgEditId(p.id); setTimeout(() => rowFileRefs.current[p.id]?.click(), 10); }}>
-                  <ProductThumb img={p.image} name={p.name} />
-                  <span className="ap-pcard-cam">📷</span>
-                </div>
-                <input type="file" accept="image/*" className="ap-file-hidden"
-                  ref={el => rowFileRefs.current[p.id] = el}
-                  onChange={e => handleRowImg(p.id, e.target.files[0])} />
-                <div className="ap-pcard-info">
-                  <span className="ap-pcard-name">{p.name}</span>
-                  <div className="ap-pcard-meta">
-                    {p.tag && <span className="ap-pcard-tag">{p.tag}</span>}
-                    <span className="ap-pcard-cat">{p.categoryName}</span>
-                  </div>
-                </div>
-                <button className={`ap-pcard-status st-${p.status}`}
-                  onClick={async () => {
-                    const nextStatus = p.status === "active" ? "low" : p.status === "low" ? "out" : "active";
-                    await updateProduct(p.id, { stock: p.stock });
-                    setProducts(ps => ps.map(x => x.id === p.id ? { ...x, status: nextStatus } : x));
-                  }}>
-                  {STATUS_LABELS[p.status]}
-                </button>
-              </div>
+        <div className="ap-ptable-wrap">
+          {/* Desktop table header */}
+          <div className="ap-ptable-header">
+            <span>IMG</span>
+            <span>PRODUCT</span>
+            <span>CATEGORY</span>
+            <span>PRICE</span>
+            <span>STOCK</span>
+            <span>STATUS</span>
+            <span>ACTIONS</span>
+          </div>
 
-              {/* Middle: Price + Stock */}
-              <div className="ap-pcard-stats">
-                <div className="ap-pcard-stat">
+          <div className="ap-pgrid">
+            {filtered.map((p, i) => (
+              <div key={p.id} className="ap-pcard" style={{"--i": i}}>
+                {/* Col 1: Image */}
+                <div className="ap-pcard-img">
+                  <div className="ap-pcard-thumb"
+                    onClick={() => { setImgEditId(p.id); setTimeout(() => rowFileRefs.current[p.id]?.click(), 10); }}>
+                    <ProductThumb img={p.image} name={p.name} />
+                    <span className="ap-pcard-cam">📷</span>
+                  </div>
+                  <input type="file" accept="image/*" className="ap-file-hidden"
+                    ref={el => rowFileRefs.current[p.id] = el}
+                    onChange={e => handleRowImg(p.id, e.target.files[0])} />
+                </div>
+
+                {/* Col 2: Product name + tag */}
+                <div className="ap-pcard-product">
+                  <span className="ap-pcard-name">{p.name}</span>
+                  {p.tag && <span className="ap-pcard-tag">{p.tag}</span>}
+                </div>
+
+                {/* Col 3: Category */}
+                <div className="ap-pcard-category">
+                  <span className="ap-pcard-cat">{p.categoryName}</span>
+                </div>
+
+                {/* Col 4: Price */}
+                <div className="ap-pcard-price">
                   <span className="ap-pcard-stat-label">Price</span>
                   {editing?.id === p.id && editing.field === "price" ? (
                     <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
                       onChange={e => setEditing({ ...editing, val: e.target.value })}
                       onBlur={commitEdit} onKeyDown={e => e.key === "Enter" && commitEdit()} />
                   ) : (
-                    <span className="ap-pcard-stat-val ap-pcard-price" onClick={() => setEditing({ id: p.id, field: "price", val: p.price })}>
+                    <span className="ap-pcard-stat-val" onClick={() => setEditing({ id: p.id, field: "price", val: p.price })}>
                       ${p.price.toFixed(2)} <Edit size={11} style={{ opacity: 0.4, marginLeft: 3 }} />
                     </span>
                   )}
                 </div>
-                <div className="ap-pcard-stat-divider" />
-                <div className="ap-pcard-stat">
+
+                {/* Col 5: Stock */}
+                <div className="ap-pcard-stock">
                   <span className="ap-pcard-stat-label">Stock</span>
                   {editing?.id === p.id && editing.field === "stock" ? (
                     <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
                       onChange={e => setEditing({ ...editing, val: e.target.value })}
                       onBlur={commitEdit} onKeyDown={e => e.key === "Enter" && commitEdit()} />
                   ) : (
-                    <span className={`ap-pcard-stat-val ap-pcard-stock ${p.stock <= 3 ? "critical" : p.stock <= 8 ? "warn" : ""}`}
+                    <span className={`ap-pcard-stat-val ${p.stock <= 3 ? "critical" : p.stock <= 8 ? "warn" : ""}`}
                       onClick={() => setEditing({ id: p.id, field: "stock", val: p.stock })}>
                       {p.stock} <Edit size={11} style={{ opacity: 0.4, marginLeft: 3 }} />
                     </span>
                   )}
                 </div>
-              </div>
 
-              {/* Bottom: Actions */}
-              <div className="ap-pcard-actions">
-                <button className="ap-pcard-btn ap-pcard-btn-edit" onClick={() => handleEditClick(p)} title="Edit Product">
-                  <Edit size={14} /> Edit
-                </button>
-                <button className="ap-pcard-btn ap-pcard-btn-del" onClick={() => setDeleteModalId(p.id)} title="Delete Product">
-                  <Trash2 size={14} /> Delete
-                </button>
+                {/* Col 6: Status */}
+                <div className="ap-pcard-statuswrap">
+                  <button className={`ap-pcard-status st-${p.status}`}
+                    onClick={async () => {
+                      const nextStatus = p.status === "active" ? "low" : p.status === "low" ? "out" : "active";
+                      await updateProduct(p.id, { stock: p.stock });
+                      setProducts(ps => ps.map(x => x.id === p.id ? { ...x, status: nextStatus } : x));
+                    }}>
+                    {STATUS_LABELS[p.status]}
+                  </button>
+                </div>
+
+                {/* Col 7: Actions */}
+                <div className="ap-pcard-actions">
+                  <button className="ap-pcard-btn ap-pcard-btn-edit" onClick={() => handleEditClick(p)} title="Edit Product">
+                    <Edit size={14} /> <span className="ap-pcard-btn-label">Edit</span>
+                  </button>
+                  <button className="ap-pcard-btn ap-pcard-btn-del" onClick={() => setDeleteModalId(p.id)} title="Delete Product">
+                    <Trash2 size={14} /> <span className="ap-pcard-btn-label">Delete</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 

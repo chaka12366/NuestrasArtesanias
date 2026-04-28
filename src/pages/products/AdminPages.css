@@ -1638,51 +1638,73 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-   PRODUCT CARD GRID — replaces old table layout
+   PRODUCT TABLE / CARD — DESKTOP TABLE, MOBILE CARDS
    ═══════════════════════════════════════════════════════ */
 
-.ap-pgrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 1rem;
-  animation: fade-up 0.45s 0.1s var(--ease) both;
-}
-
-.ap-pcard {
+/* ── Table wrapper ── */
+.ap-ptable-wrap {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(92,45,14,0.06);
+  animation: fade-up 0.45s 0.1s var(--ease) both;
+}
+
+/* ── Desktop table header ── */
+.ap-ptable-header {
+  display: grid;
+  grid-template-columns: 60px 1fr 130px 100px 80px 90px 90px;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--cream);
+  border-bottom: 1.5px solid var(--border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ── Grid container ── */
+.ap-pgrid {
   display: flex;
   flex-direction: column;
+}
+
+/* ── Each product row (desktop) ── */
+.ap-pcard {
+  display: grid;
+  grid-template-columns: 60px 1fr 130px 100px 80px 90px 90px;
+  align-items: center;
   gap: 0.75rem;
-  box-shadow: 0 2px 12px rgba(92,45,14,0.06);
-  transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease);
-  animation: fade-up 0.35s calc(var(--i, 0) * 30ms + 0.15s) var(--ease) both;
-  overflow: hidden;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid rgba(139,69,19,0.06);
+  transition: background 0.15s;
+  animation: fade-up 0.3s calc(var(--i, 0) * 20ms + 0.1s) var(--ease) both;
 }
-.ap-pcard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 28px rgba(92,45,14,0.12);
-}
+.ap-pcard:last-child { border-bottom: none; }
+.ap-pcard:hover { background: rgba(139,69,19,0.02); }
 
 .ap-pcard-skeleton {
-  min-height: 180px;
+  min-height: 56px;
+  display: block;
+  padding: 0.65rem 1.25rem;
 }
 
-/* ── Top row: Image + Info + Status ── */
-.ap-pcard-top {
+/* ── Col 1: Image ── */
+.ap-pcard-img {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+  align-items: center;
 }
 
 .ap-pcard-thumb {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
 }
@@ -1691,19 +1713,19 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid rgba(139,69,19,0.1);
 }
 .ap-pcard-thumb .ap-prod-thumb-placeholder {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
+  border-radius: 8px;
   background: linear-gradient(135deg, var(--brown-pale), var(--cream-dark));
   color: var(--brown-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   border: 1px solid rgba(139,69,19,0.1);
@@ -1716,24 +1738,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0;
   transition: opacity 0.18s;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 .ap-pcard-thumb:hover .ap-pcard-cam { opacity: 1; }
 
-.ap-pcard-info {
-  flex: 1;
-  min-width: 0;
+/* ── Col 2: Product name + tag ── */
+.ap-pcard-product {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .ap-pcard-name {
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: var(--brown-dark);
   white-space: nowrap;
   overflow: hidden;
@@ -1741,15 +1763,8 @@
   line-height: 1.3;
 }
 
-.ap-pcard-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
 .ap-pcard-tag {
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1758,11 +1773,18 @@
   background: var(--brown-mid);
   color: #fff;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Col 3: Category ── */
+.ap-pcard-category {
+  display: flex;
+  align-items: center;
 }
 
 .ap-pcard-cat {
-  font-size: 0.72rem;
-  padding: 2px 8px;
+  font-size: 0.78rem;
+  padding: 3px 10px;
   border-radius: 10px;
   background: var(--cream-dark);
   color: var(--brown-mid);
@@ -1770,11 +1792,46 @@
   white-space: nowrap;
 }
 
-.ap-pcard-status {
-  flex-shrink: 0;
-  padding: 4px 10px;
-  border-radius: 20px;
+/* ── Col 4 & 5: Price + Stock ── */
+.ap-pcard-price,
+.ap-pcard-stock {
+  display: flex;
+  align-items: center;
+}
+
+/* Hide the "Price" / "Stock" labels on desktop — they're shown in the header */
+.ap-pcard-stat-label {
+  display: none;
   font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ap-pcard-stat-val {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--brown-dark);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s;
+}
+.ap-pcard-stat-val:hover { color: var(--brown-mid); }
+.ap-pcard-stat-val.warn     { color: #e67e22; }
+.ap-pcard-stat-val.critical { color: #e74c3c; }
+
+/* ── Col 6: Status ── */
+.ap-pcard-statuswrap {
+  display: flex;
+  align-items: center;
+}
+
+.ap-pcard-status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
   border: none;
@@ -1783,7 +1840,6 @@
   background: rgba(0,0,0,0.06);
   color: var(--charcoal);
   white-space: nowrap;
-  /* Override responsive-mobile.css button resets */
   width: auto !important;
   min-width: auto !important;
   min-height: auto !important;
@@ -1794,143 +1850,159 @@
 .ap-pcard-status.st-out    { background: #fdecea; color: #e74c3c; }
 .ap-pcard-status:hover     { filter: brightness(0.93); }
 
-/* ── Stats row: Price + Stock ── */
-.ap-pcard-stats {
-  display: flex;
-  align-items: center;
-  background: var(--cream);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 0.75rem;
-  gap: 0;
-}
-
-.ap-pcard-stat {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.ap-pcard-stat-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.ap-pcard-stat-val {
-  font-weight: 700;
-  font-size: 0.92rem;
-  color: var(--brown-dark);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  transition: color 0.15s;
-}
-.ap-pcard-stat-val:hover { color: var(--brown-mid); }
-
-.ap-pcard-price { font-family: "Playfair Display", serif; }
-
-.ap-pcard-stock.warn     { color: #e67e22; }
-.ap-pcard-stock.critical { color: #e74c3c; }
-
-.ap-pcard-stat-divider {
-  width: 1px;
-  align-self: stretch;
-  background: var(--border);
-  margin: 0 0.75rem;
-  flex-shrink: 0;
-}
-
-/* ── Action buttons ── */
+/* ── Col 7: Actions ── */
 .ap-pcard-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
+  justify-content: flex-end;
 }
 
 .ap-pcard-btn {
-  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--cream);
+  gap: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background: none;
   font-family: "DM Sans", sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s var(--ease);
   color: var(--charcoal);
-  /* Override responsive-mobile.css button resets */
   width: auto !important;
   min-width: auto !important;
   min-height: auto !important;
   max-width: none !important;
 }
-.ap-pcard-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
 
-.ap-pcard-btn-edit {
-  color: #2980b9;
-  border-color: rgba(41,128,185,0.2);
-  background: rgba(41,128,185,0.06);
-}
-.ap-pcard-btn-edit:hover {
-  background: rgba(41,128,185,0.12);
-  border-color: rgba(41,128,185,0.35);
-}
+/* Hide "Edit" / "Delete" text on desktop — icon-only buttons */
+.ap-pcard-btn-label { display: none; }
 
-.ap-pcard-btn-del {
-  color: #e74c3c;
-  border-color: rgba(231,76,60,0.2);
-  background: rgba(231,76,60,0.04);
-}
-.ap-pcard-btn-del:hover {
-  background: rgba(231,76,60,0.1);
-  border-color: rgba(231,76,60,0.35);
-}
+.ap-pcard-btn-edit { color: #2980b9; }
+.ap-pcard-btn-edit:hover { background: rgba(41,128,185,0.1); }
+
+.ap-pcard-btn-del { color: #e74c3c; }
+.ap-pcard-btn-del:hover { background: rgba(231,76,60,0.08); }
 
 /* ═══════════════════════════════════════════════════════
-   PRODUCT CARD — RESPONSIVE
+   RESPONSIVE — MOBILE CARD LAYOUT (≤768px)
    ═══════════════════════════════════════════════════════ */
 
-/* Tablet: 2 columns */
-@media (max-width: 1024px) {
-  .ap-pgrid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 768px) {
+  /* Remove table wrapper styling */
+  .ap-ptable-wrap {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: visible;
   }
-}
 
-/* Mobile: 1 column, tighter spacing */
-@media (max-width: 600px) {
+  /* Hide desktop header */
+  .ap-ptable-header { display: none; }
+
+  /* Stack cards */
   .ap-pgrid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 0.75rem;
   }
 
+  /* Card layout via grid areas */
   .ap-pcard {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "img  product  status"
+      "price price   stock"
+      "actions actions actions";
+    gap: 0.5rem 0.75rem;
     padding: 0.85rem;
-    gap: 0.6rem;
+    border-bottom: none;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px rgba(92,45,14,0.06);
+    animation: fade-up 0.35s calc(var(--i, 0) * 30ms + 0.15s) var(--ease) both;
+  }
+  .ap-pcard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(92,45,14,0.1);
   }
 
-  .ap-pcard-thumb {
-    width: 50px;
-    height: 50px;
+  /* Grid area assignments */
+  .ap-pcard-img       { grid-area: img; }
+  .ap-pcard-product   { grid-area: product; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .ap-pcard-category  { display: none; } /* shown inline via tag in product area */
+  .ap-pcard-price     { grid-area: price; }
+  .ap-pcard-stock     { grid-area: stock; justify-content: flex-end; }
+  .ap-pcard-statuswrap { grid-area: status; justify-content: flex-end; }
+  .ap-pcard-actions   { grid-area: actions; }
+
+  /* Enlarge thumbnail */
+  .ap-pcard-thumb { width: 52px; height: 52px; border-radius: 10px; }
+  .ap-pcard-thumb .ap-prod-thumb,
+  .ap-pcard-thumb .ap-prod-thumb-placeholder { border-radius: 10px; }
+
+  /* Product name */
+  .ap-pcard-name { font-size: 0.92rem; }
+
+  /* Show category badge inline in product cell */
+  .ap-pcard-product::after {
+    content: attr(data-category);
   }
 
-  .ap-pcard-name {
-    font-size: 0.88rem;
+  /* Price & Stock — show labels, styled as stat bar */
+  .ap-pcard-price,
+  .ap-pcard-stock {
+    flex-direction: column;
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 0.4rem 0.65rem;
+    gap: 2px;
   }
 
-  .ap-pcard-stats {
-    padding: 0.45rem 0.65rem;
+  .ap-pcard-stat-label {
+    display: block;
+  }
+
+  .ap-pcard-stat-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  /* Actions — full width, buttons side by side with labels */
+  .ap-pcard-actions {
+    justify-content: stretch;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed var(--border);
+    margin-top: 0.15rem;
+  }
+
+  .ap-pcard-btn {
+    flex: 1;
+    gap: 6px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--cream);
+  }
+
+  /* Show button labels on mobile */
+  .ap-pcard-btn-label { display: inline; }
+
+  .ap-pcard-btn-edit {
+    border-color: rgba(41,128,185,0.2);
+    background: rgba(41,128,185,0.06);
+  }
+  .ap-pcard-btn-del {
+    border-color: rgba(231,76,60,0.2);
+    background: rgba(231,76,60,0.04);
   }
 
   /* ── Filters on mobile ── */
@@ -1974,4 +2046,5 @@
   .ap-expand-btn { grid-column: 2; grid-row: 2; justify-self: end; }
   .ap-detail-row { grid-template-columns: 80px 1fr; gap: 0.5rem; }
 }
+
 
