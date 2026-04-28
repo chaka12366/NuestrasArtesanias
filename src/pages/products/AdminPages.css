@@ -243,7 +243,7 @@
   to   { opacity:1; transform:translateX(0);    }
 }
 
-.ap-prod-name-cell { display:flex; align-items:center; gap:0.5rem; }
+.ap-prod-name-cell { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
 .ap-prod-name { font-weight:600; color:var(--brown-dark); }
 
 .ap-tag {
@@ -1685,6 +1685,7 @@
     display: block !important; /* override the old hide rule */
     border: none;
     padding: 0;
+    min-width: 0;
   }
 
   .ap-prod-name { font-size: 0.88rem; }
@@ -1753,11 +1754,10 @@
   /* ── Filters on mobile ── */
   .ap-filters { flex-direction: column; align-items: stretch; }
   .ap-search { max-width: 100%; }
-  .ap-cat-tabs { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 4px; }
-  .ap-cat-tabs::-webkit-scrollbar { display: none; }
+  .ap-cat-tabs { flex-wrap: wrap; overflow-x: visible; padding-bottom: 4px; }
 
   /* ── Stock summary pills scroll ── */
-  .ap-stock-summary { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .ap-stock-summary { flex-wrap: wrap; overflow-x: visible; padding-bottom: 4px; }
   .ap-stock-summary::-webkit-scrollbar { display: none; }
 
   /* ── Modals full-screen on mobile ── */
