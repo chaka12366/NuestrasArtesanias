@@ -95,15 +95,16 @@
   z-index: 1003;
   -webkit-tap-highlight-color: transparent;
   margin: 0;
+  flex-wrap: nowrap !important;
 }
 
 @media (max-width: 480px) {
   .hamburger {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    min-height: 52px;
-    padding: 10px;
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    min-height: 52px !important;
+    padding: 10px !important;
   }
 }
 
@@ -130,7 +131,7 @@
   width: var(--sidebar-w);
   height: 100%;
   background: #fff;
-  z-index: 1001;
+  z-index: 1005;
   transform: translateX(-100%);
   transition: transform var(--transition-smooth);
   box-shadow: 4px 0 24px rgba(0,0,0,0.12);
@@ -499,7 +500,7 @@
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.4);
-  z-index: 1000;
+  z-index: 1004;
   animation: fadeIn 0.2s;
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);

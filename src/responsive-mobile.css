@@ -23,7 +23,7 @@
   }
 
   /* ── GLOBAL: Ensure all buttons stay in bounds ── */
-  button {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn) {
     max-width: 100% !important;
     width: 100% !important;
     min-height: 48px !important;
@@ -34,8 +34,8 @@
   }
 
   /* ── GLOBAL: Flex containers wrap properly ── */
-  [style*="display: flex"],
-  [style*="display:flex"] {
+  [style*="display: flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right),
+  [style*="display:flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right) {
     flex-wrap: wrap !important;
   }
 
