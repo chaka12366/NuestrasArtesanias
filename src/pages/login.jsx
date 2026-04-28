@@ -14,6 +14,17 @@ export default function Login() {
   const { user, login } = useAuth();
 
   const isLoggingIn = useRef(false);
+  const emailInputRef = useRef(null);
+
+  // Auto-focus email field on mount for better mobile UX
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (emailInputRef.current && window.innerWidth <= 768) {
+        emailInputRef.current.focus();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Redirect to appropriate page if already logged in (but skip if currently logging in)
   useEffect(() => {
@@ -186,6 +197,7 @@ export default function Login() {
               <label className="form-field-label">Email <span className="form-field-required">*</span></label>
               <div className="form-input-wrapper">
                 <input
+                  ref={emailInputRef}
                   type="email"
                   className={`login-input form-input ${
                     emailTouched && email ? (emailError ? "error" : "valid") : ""
@@ -196,6 +208,7 @@ export default function Login() {
                   onBlur={handleEmailBlur}
                   disabled={submitting}
                   aria-invalid={emailTouched && !!emailError}
+                  autoComplete="email"
                 />
                 {emailTouched && email && !emailError && (
                   <span className="form-input-icon valid">✓</span>
@@ -224,6 +237,7 @@ export default function Login() {
                   onBlur={handlePasswordBlur}
                   disabled={submitting}
                   aria-invalid={passwordTouched && !!passwordError}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"

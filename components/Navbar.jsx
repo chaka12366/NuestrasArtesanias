@@ -99,7 +99,8 @@ export default function Navbar() {
   }));
 
   return (
-    <header className={`navbar-header ${scrolled ? "scrolled" : ""}`}>
+    <>
+      <header className={`navbar-header ${scrolled ? "scrolled" : ""}`}>
 
       {/* Top bar */}
       <div className="navbar-topbar">
@@ -123,102 +124,7 @@ export default function Navbar() {
           <span />
         </button>
 
-        {/* Left Sidebar Navigation */}
-        {menuOpen && (
-          <div 
-            className="nav-overlay" 
-            onClick={() => setMenuOpen(false)}
-            role="presentation"
-            aria-hidden="true"
-          />
-        )}
-        <div className={`sidebar-nav ${menuOpen ? "open" : ""}`}>
-          <div className="sidebar-nav-header">
-            <Link 
-              to="/" 
-              className="sidebar-nav-logo"
-              onClick={() => setMenuOpen(false)}
-            >
-              <div className="sidebar-logo-circle">
-                <img src={logo} alt={store.name} />
-              </div>
-              <span>{store.name}</span>
-            </Link>
-            <button
-              className="sidebar-nav-close"
-              onClick={() => setMenuOpen(false)}
-              aria-label="Close menu"
-              title="Close"
-            >
-              <X size={24} />
-            </button>
-          </div>
 
-          <nav className="sidebar-nav-links" role="navigation">
-            <NavLink 
-              to="/" 
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </NavLink>
-
-            <div className="sidebar-nav-section">
-              <p className="sidebar-nav-label">Products</p>
-              {productLinks.map(link => (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </NavLink>
-              ))}
-            </div>
-
-            <NavLink 
-              to="/about" 
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              About Us
-            </NavLink>
-
-            <NavLink 
-              to="/contact" 
-              className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
-              onClick={() => setMenuOpen(false)}
-            >
-              Contact
-            </NavLink>
-          </nav>
-
-          <div className="sidebar-nav-footer">
-            {user ? (
-              <button 
-                className="sidebar-nav-auth-btn profile-btn"
-                onClick={() => {
-                  navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard');
-                  setMenuOpen(false);
-                }}
-                title={`Dashboard (${user.email})`}
-              >
-                <User size={18} />
-                <span>Dashboard</span>
-              </button>
-            ) : (
-              <button 
-                className="sidebar-nav-auth-btn login-btn"
-                onClick={handleLogin}
-                title="Login"
-              >
-                <Key size={18} />
-                <span>Login</span>
-              </button>
-            )}
-          </div>
-        </div>
 
         {/* Logo - CENTER */}
         <Link to="/" className="navbar-logo">
@@ -321,5 +227,103 @@ export default function Navbar() {
       </nav>
 
     </header>
+
+      {/* Left Sidebar Navigation */}
+      {menuOpen && (
+        <div 
+          className="nav-overlay" 
+          onClick={() => setMenuOpen(false)}
+          role="presentation"
+          aria-hidden="true"
+        />
+      )}
+      <div className={`sidebar-nav ${menuOpen ? "open" : ""}`}>
+        <div className="sidebar-nav-header">
+          <Link 
+            to="/" 
+            className="sidebar-nav-logo"
+            onClick={() => setMenuOpen(false)}
+          >
+            <div className="sidebar-logo-circle">
+              <img src={logo} alt={store.name} />
+            </div>
+            <span>{store.name}</span>
+          </Link>
+          <button
+            className="sidebar-nav-close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            title="Close"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <nav className="sidebar-nav-links" role="navigation">
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            Home
+          </NavLink>
+
+          <div className="sidebar-nav-section">
+            <p className="sidebar-nav-label">Products</p>
+            {productLinks.map(link => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </div>
+
+          <NavLink 
+            to="/about" 
+            className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            About Us
+          </NavLink>
+
+          <NavLink 
+            to="/contact" 
+            className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
+            onClick={() => setMenuOpen(false)}
+          >
+            Contact
+          </NavLink>
+        </nav>
+
+        <div className="sidebar-nav-footer">
+          {user ? (
+            <button 
+              className="sidebar-nav-auth-btn profile-btn"
+              onClick={() => {
+                navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard');
+                setMenuOpen(false);
+              }}
+              title={`Dashboard (${user.email})`}
+            >
+              <User size={18} />
+              <span>Dashboard</span>
+            </button>
+          ) : (
+            <button 
+              className="sidebar-nav-auth-btn login-btn"
+              onClick={handleLogin}
+              title="Login"
+            >
+              <Key size={18} />
+              <span>Login</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
