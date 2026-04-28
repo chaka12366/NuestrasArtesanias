@@ -1646,108 +1646,125 @@
 
 /* On small phones — convert table to card layout */
 @media (max-width: 600px) {
-  .ap-table-card { padding: 0.5rem; }
+  .ap-root { padding: 1rem 0.5rem 5rem; overflow-x: hidden; }
+  
+  .ap-table-card { padding: 0.75rem; background: transparent; box-shadow: none; border: none; }
 
   .ap-table thead { display: none; }
 
   .ap-table,
   .ap-table tbody,
   .ap-table tr,
-  .ap-table td { display: block; width: 100%; }
+  .ap-table td { display: block; width: 100%; box-sizing: border-box; }
 
   .ap-table tbody tr {
     background: var(--white);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    margin-bottom: 0.75rem;
-    padding: 0.75rem;
-    display: grid;
-    grid-template-columns: 44px 1fr auto;
-    grid-template-rows: auto auto auto;
-    gap: 0.4rem 0.75rem;
-    align-items: center;
-    animation: fade-up 0.3s calc(var(--i)*30ms) var(--ease) both;
-  }
-
-  /* IMG cell — row 1 col 1 */
-  .ap-table td:nth-child(1) {
-    grid-column: 1;
-    grid-row: 1 / 3;
-    border: none;
-    padding: 0;
-    align-self: center;
-  }
-
-  /* Product name cell — row 1 col 2 */
-  .ap-table td:nth-child(2) {
-    grid-column: 2;
-    grid-row: 1;
-    display: block !important; /* override the old hide rule */
-    border: none;
-    padding: 0;
-    min-width: 0;
-  }
-
-  .ap-prod-name { font-size: 0.88rem; }
-
-  /* Category — hidden on mobile */
-  .ap-table td:nth-child(3) {
-    display: none !important;
-  }
-
-  /* Price — row 2 col 2 */
-  .ap-table td:nth-child(4) {
-    grid-column: 2;
-    grid-row: 2;
-    border: none;
-    padding: 0;
-  }
-
-  .ap-price-cell { font-size: 0.85rem; }
-
-  /* Stock — row 1 col 3 */
-  .ap-table td:nth-child(5) {
-    grid-column: 3;
-    grid-row: 1;
-    border: none;
-    padding: 0;
-    text-align: right;
-  }
-
-  /* Status — row 2 col 3 */
-  .ap-table td:nth-child(6) {
-    grid-column: 3;
-    grid-row: 2;
-    border: none;
-    padding: 0;
-    text-align: right;
-  }
-
-  .ap-status-badge { font-size: 0.68rem; padding: 3px 8px; }
-
-  /* Actions — full width row 3 */
-  .ap-table td:nth-child(7) {
-    grid-column: 1 / -1;
-    grid-row: 3;
-    border-top: 1px solid var(--border);
-    padding: 0.5rem 0 0;
-    margin-top: 0.25rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    padding: 1rem;
     display: flex;
-    gap: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(139,69,19,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+
+  .ap-table tbody tr:hover {
+    box-shadow: 0 6px 20px rgba(139,69,19,0.1);
+    transform: translateY(-2px);
+  }
+
+  /* reset td styles */
+  .ap-table td {
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* 1. IMG cell */
+  .ap-table td:nth-child(1) {
+    width: auto;
+    flex-shrink: 0;
+  }
+  .ap-thumb-cell { width: 50px; height: 50px; }
+  .ap-prod-thumb, .ap-prod-thumb-placeholder { width: 100%; height: 100%; font-size: 0.9rem; }
+
+  /* 2. Product Name */
+  .ap-table td:nth-child(2) {
+    flex: 1;
+    min-width: 0; /* allows text truncation */
+    display: flex !important;
+  }
+  .ap-prod-name-cell { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+  .ap-prod-name { font-size: 1rem; }
+  .ap-tag { font-size: 0.65rem; }
+
+  /* 3. Category - Hidden */
+  .ap-table td:nth-child(3) { display: none !important; }
+
+  /* Right-align Status on top row */
+  .ap-table td:nth-child(6) {
+    width: auto;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+  }
+  .ap-status-badge { font-size: 0.65rem; padding: 4px 8px; }
+
+  /* Break to new line for Price & Stock */
+  .ap-table td:nth-child(4),
+  .ap-table td:nth-child(5) {
+    width: auto;
+    background: var(--cream);
+    padding: 0.4rem 0.75rem !important;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Add labels before Price and Stock */
+  .ap-table td:nth-child(4)::before { content: "Price: "; color: var(--muted); font-weight: 500; margin-right: 0.4rem; font-size: 0.75rem; }
+  .ap-table td:nth-child(5)::before { content: "Stock: "; color: var(--muted); font-weight: 500; margin-right: 0.4rem; font-size: 0.75rem; }
+
+  /* Actions container */
+  .ap-table td:nth-child(7) {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem !important;
+    border-top: 1px dashed var(--border) !important;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  /* The inner div inside td:nth-child(7) */
+  .ap-table td:nth-child(7) > div {
+    width: 100%;
     justify-content: flex-end;
   }
 
   .ap-edit-btn, .ap-del-btn {
-    padding: 10px !important;
+    padding: 0.6rem 1rem !important;
     background: var(--cream-dark) !important;
-    border-radius: 8px !important;
+    border-radius: var(--radius-sm) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 !important;
+    width: auto !important;
   }
   
-  .ap-edit-btn svg, .ap-del-btn svg {
-    width: 20px !important;
-    height: 20px !important;
-  }
+  .ap-edit-btn:hover { background: #e0f2fe !important; color: #0284c7 !important; }
+  .ap-del-btn:hover { background: #fee2e2 !important; color: #dc2626 !important; }
 
+  /* Hide skeleton table properly on mobile */
+  .ap-table tbody tr:has(.skeleton) { display: flex; flex-direction: column; width: 100%; }
+  .ap-table td[colspan="7"] { width: 100% !important; flex: 1 !important; display: block !important; }
+  .ap-table td[colSpan="7"] { width: 100% !important; flex: 1 !important; display: block !important; }
+  
   .ap-table tbody tr:hover { background: var(--white); }
   .ap-table tbody tr:last-child td { border-bottom: none; }
 
