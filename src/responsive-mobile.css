@@ -24,7 +24,7 @@
   }
 
   /* ── GLOBAL: Ensure all buttons stay in bounds ── */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn):not(.ap-pcard-btn):not(.ap-pcard-status):not(.ap-pcard-btn-edit):not(.ap-pcard-btn-del) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn):not(.ap-pcard-btn):not(.ap-pcard-status):not(.ap-pcard-btn-edit):not(.ap-pcard-btn-del):not(.cart-page-qty-btn):not(.cart-page-action-btn):not(.cg-btn) {
     max-width: 100% !important;
     width: 100% !important;
     min-height: 48px !important;
@@ -546,102 +546,34 @@
   }
 
   /* ═══════════════════════════════════════
-     CART PAGE
+     CART PAGE — containment only; visual layout in CartPage.css
      ═══════════════════════════════════════ */
   .cart-page-root {
-    padding: 20px 12px !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
   }
 
-  .cart-page-header h1 {
-    font-size: 1.6rem !important;
-    word-wrap: break-word !important;
-  }
-
   .cart-page-container {
     grid-template-columns: 1fr !important;
-    gap: 20px !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
   .cart-summary-section {
-    position: static !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
   .cart-items-list {
-    padding: 16px 12px !important;
     width: 100% !important;
     max-width: 100% !important;
     overflow-x: hidden !important;
   }
 
   .cart-page-item {
-    grid-template-columns: 90px 1fr !important;
-    gap: 12px !important;
-    padding: 14px !important;
     width: 100% !important;
-  }
-
-  .cart-page-item-img-container {
-    width: 90px !important;
-    flex-shrink: 0;
-  }
-
-  .cart-page-item-img {
-    width: 90px !important;
-    height: 90px !important;
-  }
-
-  .cart-page-item-price {
-    grid-column: 1 / -1 !important;
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    text-align: right !important;
-    padding-top: 10px !important;
-    border-top: 1px solid #e8ddf5 !important;
-    margin-top: 8px !important;
-    width: 100% !important;
-  }
-
-  .cart-page-item-name {
-    font-size: 0.92rem !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-  }
-
-  .cart-page-item-actions {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 10px !important;
-    width: 100% !important;
-  }
-
-  .cart-page-item-btns {
-    width: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 12px !important;
-    padding: 12px !important;
-  }
-
-  .cart-page-action-btn {
-    flex: 1 !important;
-    justify-content: center !important;
-    min-height: 48px !important;
-    padding: 8px 14px !important;
-    min-width: 80px !important;
-    width: 100% !important;
-  }
-
-  .cart-page-qty-btn {
-    min-width: 40px !important;
-    min-height: 48px !important;
-    flex-shrink: 0;
+    max-width: 100% !important;
   }
 
   .cart-page-subtotal-mobile {
@@ -649,37 +581,19 @@
     width: 100% !important;
   }
 
-  .cart-checkout-cta,
-  .cart-continue-shopping {
-    min-height: 48px !important;
-    font-size: 0.95rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
   .cart-page-empty {
-    margin-top: 108px !important;
+    margin-top: 80px !important;
     padding: 40px 16px !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
   .cart-empty-cta {
-    min-height: 48px !important;
-    padding: 12px 28px !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* Cart image gallery mobile */
-  .cg-root {
-    width: 90px !important;
-  }
-
-  .cg-img-wrap {
-    width: 90px !important;
-    height: 90px !important;
-  }
+  /* Cart gallery — let CartPage.css @media handle sizing */
 
   /* ═══════════════════════════════════════
      CHECKOUT FORM
