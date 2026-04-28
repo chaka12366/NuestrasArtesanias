@@ -16,6 +16,7 @@ function ProductThumb({ img, name }) {
   return <div className="ap-prod-thumb ap-prod-thumb-placeholder">{initials}</div>;
 }
 
+
 export default function Products() {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);

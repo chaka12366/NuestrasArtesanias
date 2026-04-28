@@ -279,7 +279,7 @@ export default function CartPage() {
           </div>
 
           <div className="cart-page-subtotal-mobile">
-            <span>Subtotal ({itemCount} item{itemCount !== 1 ? "s" : ""}):</span>
+            <span>Subtotal ({itemCount} item{itemCount !== 1 ? "s" : ""})</span>
             <span className="cart-page-subtotal-value">${total.toFixed(2)}</span>
           </div>
         </div>
