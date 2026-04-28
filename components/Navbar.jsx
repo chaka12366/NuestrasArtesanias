@@ -65,10 +65,10 @@ export default function Navbar() {
     if (menuOpen && window.innerWidth <= 768) {
       document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "auto";
     }
     return () => {
-      document.body.style.overflow = "unset";
+      document.body.style.overflow = "auto";
     };
   }, [menuOpen]);
 

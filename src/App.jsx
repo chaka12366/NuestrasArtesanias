@@ -204,7 +204,7 @@ function CustomerDashboardLayout() {
  * /contact → Contact (public)
  * /cart → Cart (public)
  * /bracklets, /anklets, /waistchains, /necklaces, /earrings → Jewelry Products (public)
- * /product/:category/:id → Product Detail (public)
+ * /product/:id → Product Detail (public)
  * /login → Login (public, redirects to home if already logged in)
  * /create-account → Create Account (public, redirects to home after successful registration)
  * /dashboard, /products, /orders, /analytics, /settings → Owner Dashboard (protected)
@@ -225,6 +225,16 @@ export default function App() {
         doc.setAttribute('data-style', settings.cardStyle || 'rounded');
       }
     }).catch(console.error);
+
+    // Global interaction debugger
+    const handleGlobalClick = (e) => {
+      const button = e.target.closest('button, .nav-item, .cd-order-item, .activity-item');
+      if (button) {
+        console.log("clicked", button.className || button.tagName);
+      }
+    };
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
   }, []);
 
   if (loading) {
@@ -247,7 +257,7 @@ export default function App() {
           <Route path="/:categorySlug" element={<CategoryPage />} />
 
           {/* ✅ Product Detail Page */}
-          <Route path="/product/:category/:id" element={<ProductDetail />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* 404 fallback */}
           <Route path="*" element={

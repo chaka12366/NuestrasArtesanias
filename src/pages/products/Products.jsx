@@ -7,6 +7,7 @@ import "./AdminPages.css";
 
 const STATUS_LABELS = { active:"Active", low:"Low Stock", out:"Out of Stock" };
 const EMPTY_NEW = { name:"", categoryId:"", price:"", stock:"", description:"", tag:"", images:[] };
+const EMPTY_EDIT = { id:null, name:"", categoryId:"", price:"", stock:"", description:"", tag:"", images:[], image:"", status:"", active:true, category:"", categoryName:"" };
 const MAX_IMAGES = 5;
 
 function ProductThumb({ img, name }) {
@@ -249,7 +250,19 @@ export default function Products() {
       ? imagesData.sort((a,b) => a.display_order - b.display_order).map(img => img.image_url) 
       : (p.image ? [p.image] : []);
     
-    setEditModalP({ ...p, img: p.image, images });
+    // Ensure ALL fields are present and properly initialized
+    setEditModalP({
+      ...EMPTY_EDIT,  // Start with empty template
+      ...p,           // Spread product data (overrides empties)
+      images,         // Ensure images array is set
+      id: p.id,       // Ensure id is set
+      name: p.name || "",
+      price: p.price || 0,
+      stock: p.stock || 0,
+      categoryId: p.categoryId || "",
+      description: p.description || "",
+      tag: p.tag || "",
+    });
   };
 
   return (

@@ -27,8 +27,11 @@ const ProductCard = memo(function ProductCard({ product, category }) {
     ? product.images.find(img => img.is_primary)?.image_url || product.images[0].image_url
     : (product.image || product.image_url);
 
+  // Debug: Ensure product ID exists and is correct
+  console.log("Product ID:", product.id);
+
   return (
-    <Link to={`/product/${category}/${product.id}`} className="pcard-link">
+    <Link to={`/product/${product.id}`} className="pcard-link">
       <div className={`pcard${isOutOfStock ? " pcard-oos" : ""}`}>
         {product.tag && <span className="pcard-tag">{product.tag}</span>}
         
@@ -64,7 +67,7 @@ const ProductCard = memo(function ProductCard({ product, category }) {
           <p className="pcard-ship"><Truck size={14} style={{ display: "inline", marginRight: 4 }} /> Shipping Countrywide</p>
           <div className="pcard-footer">
             <span className="pcard-price">${product.price.toFixed(2)}</span>
-            <button className="pcard-btn" onClick={e => e.preventDefault()}>
+            <button className="pcard-btn">
               View Details
             </button>
           </div>

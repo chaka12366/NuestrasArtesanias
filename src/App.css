@@ -118,7 +118,19 @@ a {
   text-decoration: none;
 }
 img { display: block; max-width: 100%; }
-button { font-family: inherit; cursor: pointer; }
+button, a, .nav-item, .cd-order-item, .activity-item, .ap-btn { 
+  font-family: inherit; 
+  cursor: pointer; 
+  pointer-events: auto !important;
+  z-index: 2; /* Ensure clicks register above random rogue elements */
+  position: relative; /* Required for z-index to work */
+}
+
+button:disabled, .ap-btn:disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
 
 /* ── 404 ── */
 .not-found {

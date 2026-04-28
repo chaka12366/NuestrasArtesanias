@@ -39,7 +39,7 @@ function getFeatures(category) {
 
 /* ── Component ─────────────────────────────────────────── */
 export default function ProductDetail() {
-  const { category, id } = useParams();
+  const { id } = useParams();
   const navigate          = useNavigate();
   const { addToCart, setDrawerOpen } = useCart();
 
@@ -58,6 +58,7 @@ export default function ProductDetail() {
 
   // Fetch product from Supabase
   useEffect(() => {
+    console.log("Product ID (Detail):", id);
     setLoadingProduct(true);
     fetchProductById(parseInt(id))
       .then(data => {
@@ -160,14 +161,14 @@ export default function ProductDetail() {
         <p style={{ fontSize: 18, color: '#7c3d26', fontWeight: 500 }}>Product not found</p>
         <p style={{ color: '#999', maxWidth: 400 }}>This product may have been removed or is out of stock. Please check back or explore our other collections.</p>
         <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
-          <Link to={`/${category || 'products'}`} style={{ padding: '10px 20px', background: '#c9956a', color: '#fff', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>← Back to {category || 'Products'}</Link>
+          <Link to={`/${product?.category || 'products'}`} style={{ padding: '10px 20px', background: '#c9956a', color: '#fff', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>← Back to {product?.category || 'Products'}</Link>
           <Link to="/" style={{ padding: '10px 20px', background: '#f5ece0', color: '#7c3d26', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>Home</Link>
         </div>
       </div>
     </div>
   );
 
-  const catLabel = product.categoryName || (category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Products');
+  const catLabel = product.categoryName || (product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Products');
 
   /* Derived values */
   const stock        = product.stock ?? 0;
@@ -243,7 +244,7 @@ export default function ProductDetail() {
     }
 
     setAddingToCart(true);
-    addToCart({ ...product, category }, qty);
+    addToCart(product, qty);
     setAdded(true);
     // Clear any previous timeout before setting a new one
     if (addedTimeoutId) clearTimeout(addedTimeoutId);
@@ -256,7 +257,7 @@ export default function ProductDetail() {
   }
 
   function handleContinueShopping() {
-    navigate(`/${category}`);
+    navigate(`/${product?.category || ''}`);
   }
 
   // Handle quantity increment with stock cap
@@ -278,7 +279,7 @@ export default function ProductDetail() {
       <nav className="pd-breadcrumb" aria-label="breadcrumb">
         <Link to="/">Home</Link>
         <ChevronRight size={13} />
-        <Link to={`/${category}`}>{catLabel}</Link>
+        <Link to={`/${product.category}`}>{catLabel}</Link>
         <ChevronRight size={13} />
         <span>{product.name}</span>
       </nav>
@@ -424,7 +425,7 @@ export default function ProductDetail() {
 
           {/* Feature bullets */}
           <ul className="pd-features">
-            {getFeatures(category).map((f, i) => (
+            {getFeatures(product.category).map((f, i) => (
               <li key={i}>
                 <CheckCircle size={14} color="#2a9d5c" />
                 <span>{f}</span>

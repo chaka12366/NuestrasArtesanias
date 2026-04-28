@@ -108,7 +108,9 @@ export default function Analytics() {
         <div className="ap-card ap-chart-card">
           <h3 className="ap-card-title">Monthly Revenue (BZD)</h3>
           <div className="ap-bar-chart">
-            {revenueData.length > 0 ? (
+            {loading ? (
+              <p style={{padding:"20px", color:"#999"}}>Loading chart...</p>
+            ) : revenueData.length > 0 ? (
               revenueData.map((v,i)=>{
                 const maxRev = Math.max(...revenueData);
                 return (
@@ -125,7 +127,7 @@ export default function Analytics() {
                 )
               })
             ) : (
-              <p style={{padding:"20px"}}>Loading chart...</p>
+              <p style={{padding:"20px", color:"#999"}}>No data available yet</p>
             )}
           </div>
         </div>
@@ -135,7 +137,7 @@ export default function Analytics() {
           <h3 className="ap-card-title">Sales by Category</h3>
           <div className="ap-donut-wrap">
             <svg viewBox="0 0 100 100" className="ap-donut-svg">
-              {catData.length > 0 ? (
+              {loading ? null : catData.length > 0 ? (
                 (() => {
                   let offset = 0;
                   return catData.map((c,i)=>{
@@ -154,8 +156,10 @@ export default function Analytics() {
                     return el;
                   });
                 })()
-              ) : null}
-              <text x="50" y="47" textAnchor="middle" className="donut-center-val">{kpiStats.totalOrders}</text>
+              ) : (
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#f3f4f6" strokeWidth="18" />
+              )}
+              <text x="50" y="47" textAnchor="middle" className="donut-center-val">{loading ? "..." : kpiStats.totalOrders}</text>
               <text x="50" y="57" textAnchor="middle" className="donut-center-label">orders</text>
             </svg>
             <div className="ap-donut-legend">
@@ -176,7 +180,9 @@ export default function Analytics() {
         <div className="ap-card">
           <h3 className="ap-card-title">Top Products</h3>
           <div className="ap-top-list">
-            {topProducts.length > 0 ? (
+            {loading ? (
+              <p style={{padding:"20px", color:"#999"}}>Loading top products...</p>
+            ) : topProducts.length > 0 ? (
               topProducts.map((p,i)=>(
                 <div key={i} className="ap-top-item" style={{"--i":i}}>
                   <span className="ap-top-rank">#{i+1}</span>
@@ -202,7 +208,9 @@ export default function Analytics() {
         <div className="ap-card ap-sparkline-card">
           <h3 className="ap-card-title">Orders / Month</h3>
           <div className="ap-spark-wrap">
-            {ordersData.length > 0 ? (
+            {loading ? (
+              <p style={{padding:"20px", color:"#999"}}>Loading chart...</p>
+            ) : ordersData.length > 0 ? (
               <svg viewBox="0 0 220 80" className="ap-spark-svg" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
@@ -227,7 +235,7 @@ export default function Analytics() {
                 })()}
               </svg>
             ) : (
-              <p style={{padding:"20px", color:"#999"}}>Loading chart...</p>
+              <p style={{padding:"20px", color:"#999"}}>No data available yet</p>
             )}
             <div className="ap-spark-labels">
               {months.map((m,i)=><span key={i}>{m}</span>)}
