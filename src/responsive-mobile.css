@@ -988,6 +988,9 @@
   .cg-dots {
     flex-wrap: nowrap !important;
     gap: 6px !important;
+    align-items: center !important;
+    display: flex !important;
+    justify-content: center !important;
   }
 
   .slider-dot {
