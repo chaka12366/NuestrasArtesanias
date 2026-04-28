@@ -299,133 +299,106 @@ export default function Products() {
         ))}
       </div>
 
-      <div className="ap-card ap-table-card">
-        {loading ? (
-          <table className="ap-table">
-            <thead>
-              <tr>
-                <th style={{width:52}}>IMG</th>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {showLoading ? (
-                [1, 2, 3, 4].map(i => (
-                  <tr key={`skel-${i}`}>
-                    <td colSpan="7">
-                      <div className="skeleton" style={{ height: "48px", width: "100%", borderRadius: "8px" }}></div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr><td colSpan="7" style={{ height: "200px" }}></td></tr>
-              )}
-            </tbody>
-          </table>
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            title="No Products Yet"
-            description={catFilter === "All" && search === ""
-              ? "You haven't added any products yet. Create your first handcrafted artesanía product to get started!"
-              : "No products match your filters. Try adjusting your search or category selection."}
-            buttonText={catFilter === "All" && search === "" ? "Add Product" : "Clear Filters"}
-            onClick={() => {
-              if (catFilter === "All" && search === "") {
-                setShowAdd(true);
-              } else {
-                setCatFilter("All");
-                setSearch("");
-              }
-            }}
-            type="products"
-          />
-        ) : (
-          <table className="ap-table">
-            <thead>
-              <tr>
-                <th style={{width:52}}>IMG</th>
-                <th>Product</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((p,i)=>(
-                <tr key={p.id} style={{"--i":i}}>
-                  <td>
-                    <div className="ap-thumb-cell"
-                      onClick={()=>{ setImgEditId(p.id); setTimeout(()=>rowFileRefs.current[p.id]?.click(),10); }}>
-                      <ProductThumb img={p.image} name={p.name}/>
-                      <span className="ap-thumb-edit-overlay">📷</span>
-                    </div>
-                    <input type="file" accept="image/*" className="ap-file-hidden"
-                      ref={el=>rowFileRefs.current[p.id]=el}
-                      onChange={e=>handleRowImg(p.id, e.target.files[0])}/>
-                  </td>
-                  <td>
-                    <div className="ap-prod-name-cell">
-                      <span className="ap-prod-name">{p.name}</span>
-                      {p.tag && <span className="ap-tag">{p.tag}</span>}
-                    </div>
-                  </td>
-                  <td><span className="ap-cat-badge">{p.categoryName}</span></td>
-                  <td>
-                    {editing?.id===p.id && editing.field==="price" ? (
-                      <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
-                        onChange={e=>setEditing({...editing,val:e.target.value})}
-                        onBlur={commitEdit} onKeyDown={e=>e.key==="Enter"&&commitEdit()}/>
-                    ) : (
-                      <span className="ap-price-cell" onClick={()=>setEditing({id:p.id,field:"price",val:p.price})}>
-                        ${p.price.toFixed(2)} <Edit size={12} style={{ display: "inline", verticalAlign: "middle", marginLeft: 4, opacity: 0.6 }} />
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editing?.id===p.id && editing.field==="stock" ? (
-                      <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
-                        onChange={e=>setEditing({...editing,val:e.target.value})}
-                        onBlur={commitEdit} onKeyDown={e=>e.key==="Enter"&&commitEdit()}/>
-                    ) : (
-                      <span className={`ap-stock-num ${p.stock<=3?"critical":p.stock<=8?"warn":""}`}
-                        onClick={()=>setEditing({id:p.id,field:"stock",val:p.stock})}>
-                        {p.stock} <Edit size={12} style={{ display: "inline", verticalAlign: "middle", marginLeft: 4, opacity: 0.6 }} />
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <button className={`ap-status-badge st-${p.status}`}
-                      onClick={async ()=>{
-                        const nextStatus = p.status==="active"?"low":p.status==="low"?"out":"active";
-                        await updateProduct(p.id, { stock: p.stock });
-                        setProducts(ps=>ps.map(x=>x.id===p.id?{...x,status:nextStatus}:x));
-                      }}>
-                      {STATUS_LABELS[p.status]}
-                    </button>
-                  </td>
-                  <td>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                      <button className="ap-edit-btn" onClick={()=>handleEditClick(p)} style={{ background: "none", border: "none", cursor: "pointer", color: "#3498db" }} title="Edit Product">
-                        <Edit size={16} />
-                      </button>
-                      <button className="ap-del-btn" onClick={()=>setDeleteModalId(p.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e74c3c" }} title="Delete Product">
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* PRODUCT LISTING */}
+      {loading ? (
+        <div className="ap-pgrid">
+          {showLoading ? [1,2,3,4].map(i => (
+            <div key={`skel-${i}`} className="ap-pcard ap-pcard-skeleton">
+              <div className="skeleton" style={{ height: "100%", borderRadius: "14px" }}></div>
+            </div>
+          )) : <div style={{ height: "200px" }}></div>}
+        </div>
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          title="No Products Yet"
+          description={catFilter === "All" && search === ""
+            ? "You haven't added any products yet. Create your first handcrafted artesanía product to get started!"
+            : "No products match your filters. Try adjusting your search or category selection."}
+          buttonText={catFilter === "All" && search === "" ? "Add Product" : "Clear Filters"}
+          onClick={() => {
+            if (catFilter === "All" && search === "") {
+              setShowAdd(true);
+            } else {
+              setCatFilter("All");
+              setSearch("");
+            }
+          }}
+          type="products"
+        />
+      ) : (
+        <div className="ap-pgrid">
+          {filtered.map((p, i) => (
+            <div key={p.id} className="ap-pcard" style={{"--i": i}}>
+              {/* Top: Image + Name + Status */}
+              <div className="ap-pcard-top">
+                <div className="ap-pcard-thumb"
+                  onClick={() => { setImgEditId(p.id); setTimeout(() => rowFileRefs.current[p.id]?.click(), 10); }}>
+                  <ProductThumb img={p.image} name={p.name} />
+                  <span className="ap-pcard-cam">📷</span>
+                </div>
+                <input type="file" accept="image/*" className="ap-file-hidden"
+                  ref={el => rowFileRefs.current[p.id] = el}
+                  onChange={e => handleRowImg(p.id, e.target.files[0])} />
+                <div className="ap-pcard-info">
+                  <span className="ap-pcard-name">{p.name}</span>
+                  <div className="ap-pcard-meta">
+                    {p.tag && <span className="ap-pcard-tag">{p.tag}</span>}
+                    <span className="ap-pcard-cat">{p.categoryName}</span>
+                  </div>
+                </div>
+                <button className={`ap-pcard-status st-${p.status}`}
+                  onClick={async () => {
+                    const nextStatus = p.status === "active" ? "low" : p.status === "low" ? "out" : "active";
+                    await updateProduct(p.id, { stock: p.stock });
+                    setProducts(ps => ps.map(x => x.id === p.id ? { ...x, status: nextStatus } : x));
+                  }}>
+                  {STATUS_LABELS[p.status]}
+                </button>
+              </div>
+
+              {/* Middle: Price + Stock */}
+              <div className="ap-pcard-stats">
+                <div className="ap-pcard-stat">
+                  <span className="ap-pcard-stat-label">Price</span>
+                  {editing?.id === p.id && editing.field === "price" ? (
+                    <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
+                      onChange={e => setEditing({ ...editing, val: e.target.value })}
+                      onBlur={commitEdit} onKeyDown={e => e.key === "Enter" && commitEdit()} />
+                  ) : (
+                    <span className="ap-pcard-stat-val ap-pcard-price" onClick={() => setEditing({ id: p.id, field: "price", val: p.price })}>
+                      ${p.price.toFixed(2)} <Edit size={11} style={{ opacity: 0.4, marginLeft: 3 }} />
+                    </span>
+                  )}
+                </div>
+                <div className="ap-pcard-stat-divider" />
+                <div className="ap-pcard-stat">
+                  <span className="ap-pcard-stat-label">Stock</span>
+                  {editing?.id === p.id && editing.field === "stock" ? (
+                    <input className="ap-inline-edit" type="number" value={editing.val} autoFocus
+                      onChange={e => setEditing({ ...editing, val: e.target.value })}
+                      onBlur={commitEdit} onKeyDown={e => e.key === "Enter" && commitEdit()} />
+                  ) : (
+                    <span className={`ap-pcard-stat-val ap-pcard-stock ${p.stock <= 3 ? "critical" : p.stock <= 8 ? "warn" : ""}`}
+                      onClick={() => setEditing({ id: p.id, field: "stock", val: p.stock })}>
+                      {p.stock} <Edit size={11} style={{ opacity: 0.4, marginLeft: 3 }} />
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Bottom: Actions */}
+              <div className="ap-pcard-actions">
+                <button className="ap-pcard-btn ap-pcard-btn-edit" onClick={() => handleEditClick(p)} title="Edit Product">
+                  <Edit size={14} /> Edit
+                </button>
+                <button className="ap-pcard-btn ap-pcard-btn-del" onClick={() => setDeleteModalId(p.id)} title="Delete Product">
+                  <Trash2 size={14} /> Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ADD MODAL */}
       {showAdd && (

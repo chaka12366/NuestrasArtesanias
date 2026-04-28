@@ -13,8 +13,9 @@
   }
 
   /* ── GLOBAL: Container constraints ── */
-  * {
+  *, *::before, *::after {
     max-width: 100%;
+    box-sizing: border-box !important;
   }
 
   /* ── GLOBAL: Touch-friendly tap targets ── */
@@ -23,7 +24,7 @@
   }
 
   /* ── GLOBAL: Ensure all buttons stay in bounds ── */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye):not(.ca-link-btn):not(.slider-dot):not(.cg-dot):not(.cp-prog-dot):not(.sidebar__toggle):not(.ap-range-tab):not(.pd-qty-btn):not(.pd-wish-btn):not(.pd-thumb):not(.pd-thumb-scroll-btn):not(.pd-sticky-add-btn):not(.ap-pcard-btn):not(.ap-pcard-status):not(.ap-pcard-btn-edit):not(.ap-pcard-btn-del) {
     max-width: 100% !important;
     width: 100% !important;
     min-height: 48px !important;
@@ -839,16 +840,7 @@
     max-width: 100% !important;
   }
 
-  /* Admin table: horizontal scroll container */
-  .ap-table-card {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    width: 100% !important;
-  }
-
-  .ap-table {
-    min-width: 600px !important;
-  }
+  /* Product cards handled by .ap-pcard in AdminPages.css — no table overrides needed */
 
   /* Admin order grid mobile */
   .ap-order-main {
