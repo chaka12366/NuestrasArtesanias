@@ -23,7 +23,7 @@
   }
 
   /* ── GLOBAL: Ensure all buttons stay in bounds ── */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye) {
     max-width: 100% !important;
     width: 100% !important;
     min-height: 48px !important;
@@ -101,10 +101,18 @@
     width: 100% !important;
   }
 
-  .password-toggle {
+  .password-toggle,
+  .ca-pw-eye,
+  .cp-pw-eye {
     right: 10px !important;
     width: 40px !important;
     height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: auto !important;
   }
 
   .form-error {
@@ -1144,7 +1152,7 @@
   /* ═══════════════════════════════════════
      GLOBAL BUTTON OPTIMIZATION
      ═══════════════════════════════════════ */
-  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn) {
+  button:not(.hamburger):not(.auth-icon-btn):not(.sidebar-nav-link):not(.sidebar-nav-close):not(.dropdown-trigger):not(.sidebar-nav-auth-btn):not(.login-forgot-password):not(.password-toggle):not(.ca-pw-eye):not(.cp-pw-eye) {
     min-height: 44px !important;
     font-size: 0.9rem !important;
   }
