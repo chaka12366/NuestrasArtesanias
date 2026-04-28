@@ -415,8 +415,8 @@
 
 /* ── RIGHT CONTROLS ── */
 .navbar-right {
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  align-items: center !important;
   justify-content: flex-end;
   gap: 0.5rem;
   flex-shrink: 0;
@@ -464,12 +464,15 @@
 
 /* ── AUTH ICON BUTTON ── */
 .auth-icon-btn {
-  width: 44px;
-  height: 44px;
+  width: 44px !important;
+  height: 44px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
   border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
   background: var(--off-white);
   border: 1.5px solid var(--primary-light);
   cursor: pointer;
@@ -478,12 +481,20 @@
   color: var(--charcoal);
   position: relative;
   -webkit-tap-highlight-color: transparent;
+  transform-origin: center center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.auth-icon-btn svg {
+  margin: 0 !important;
+  display: block;
 }
 
 @media (max-width: 480px) {
   .auth-icon-btn {
-    width: 48px;
-    height: 48px;
+    width: 48px !important;
+    height: 48px !important;
   }
 }
 
@@ -527,8 +538,9 @@
   /* ✅ FIX: absolutely center the logo so it never gets squeezed out */
   .navbar-logo {
     position: absolute;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     z-index: 1;
     pointer-events: auto;
   }
@@ -539,7 +551,7 @@
   .navbar-links { display: none; }
   .navbar-links.open { display: flex; }
   .navbar-right { gap: 0.35rem; }
-  .auth-icon-btn { width: 40px; height: 40px; }
+  .auth-icon-btn { width: 40px !important; height: 40px !important; }
 }
 
 /* ────────────────────────────────────────
@@ -562,7 +574,7 @@
   .sidebar-nav-label { padding: 10px 16px 6px; font-size: 0.7rem; }
   .sidebar-nav-footer { padding: 14px 16px; }
   .navbar-right { gap: 0.3rem; }
-  .auth-icon-btn { width: 44px; height: 44px; }
+  .auth-icon-btn { width: 44px !important; height: 44px !important; }
 }
 
 /* ────────────────────────────────────────

@@ -105,7 +105,7 @@ export default function Navbar() {
       {/* Top bar */}
       <div className="navbar-topbar">
         <span>
-          <Sparkles size={16} style={{display:'inline',marginRight:4,verticalAlign:'text-bottom'}} /> Welcome to {store.name} — {store.tagline}
+          <Sparkles size={16} style={{display:'inline',marginRight:4,verticalAlign:'text-top'}} /> Welcome to {store.name} — {store.tagline}
         </span>
       </div>
 
@@ -196,8 +196,7 @@ export default function Navbar() {
             title="Cart"
             style={{ position: "relative" }}
           >
-            <ShoppingCart size={20} />
-            {itemCount > 0 && (
+            <ShoppingCart size={20} />{itemCount > 0 && (
               <span className="cart-nav-badge" aria-live="polite">{itemCount > 99 ? "99+" : itemCount}</span>
             )}
           </button>
