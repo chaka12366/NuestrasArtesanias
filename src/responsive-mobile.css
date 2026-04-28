@@ -326,6 +326,14 @@
     max-width: 100% !important;
   }
 
+  .pp-search-icon {
+    width: 16px !important;
+    height: 16px !important;
+    left: 0.75rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+  }
+
   .pp-grid-wrap {
     padding: 0 0.75rem !important;
     width: 100% !important;
