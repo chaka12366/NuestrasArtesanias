@@ -59,7 +59,6 @@ export default function Footer() {
           <div className="footer-col">
             <h4>Follow Us</h4>
             <a href={getWaLink()} target="_blank" rel="noreferrer">Whatsapp</a>
-            <a href="https://www.facebook.com/nuestrasartesanias" target="_blank" rel="noreferrer">Facebook</a>
             <a href={getIgLink()} target="_blank" rel="noreferrer">Instagram</a>
           </div>
         </div>
