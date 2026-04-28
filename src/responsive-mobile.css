@@ -986,16 +986,36 @@
 
   .slider-dots,
   .cg-dots {
-    flex-wrap: nowrap !important;
-    gap: 6px !important;
-    align-items: center !important;
     display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    align-items: center !important;
     justify-content: center !important;
+    min-height: 20px !important;
+    margin-top: 1rem !important;
   }
 
-  .slider-dot {
-    width: auto !important;
-    min-height: auto !important;
+  .slider-dot,
+  .cg-dot {
+    width: 20px !important;
+    height: 6px !important;
+    min-height: 6px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    background: #e0d0e8 !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    outline: none !important;
+  }
+
+  .slider-dot.active,
+  .cg-dot.active {
+    width: 32px !important;
+    background: #8b4513 !important;
   }
 
   .slider-card {
