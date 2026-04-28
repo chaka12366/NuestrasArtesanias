@@ -204,21 +204,27 @@ export default function CartPage() {
                 />
 
                 {/* Product Info */}
-                <div className="cart-page-item-content">
-                  <div className="cart-page-item-header">
-                    <h3 className="cart-page-item-name">{item.name}</h3>
-                    {item.description && (
-                      <p className="cart-page-item-description">{item.description}</p>
-                    )}
-                    {(() => {
-                      const stock = item.stock ?? 99;
-                      if (stock <= 0) return <p className="cart-page-item-status out"><AlertTriangle size={12} /> Out of Stock</p>;
-                      if (stock <= 4) return <p className="cart-page-item-status low">Only {stock} left</p>;
-                      return <p className="cart-page-item-status">In Stock</p>;
-                    })()}
+                <div className="cart-page-item-details">
+                  <div className="cart-page-item-top">
+                    <div className="cart-page-item-top-left">
+                      <h3 className="cart-page-item-name">{item.name}</h3>
+                      {item.description && (
+                        <p className="cart-page-item-description">{item.description}</p>
+                      )}
+                      {(() => {
+                        const stock = item.stock ?? 99;
+                        if (stock <= 0) return <p className="cart-page-item-status out"><AlertTriangle size={12} /> Out of Stock</p>;
+                        if (stock <= 4) return <p className="cart-page-item-status low">Only {stock} left</p>;
+                        return <p className="cart-page-item-status">In Stock</p>;
+                      })()}
+                    </div>
+                    <div className="cart-page-item-price desktop-only">
+                      <p className="cart-page-item-total">${(item.price * item.qty).toFixed(2)}</p>
+                      <p className="cart-page-unit-price">${item.price.toFixed(2)} each</p>
+                    </div>
                   </div>
 
-                  <div className="cart-page-item-actions">
+                  <div className="cart-page-item-bottom">
                     <div className="cart-page-qty-group">
                       <button 
                         className="cart-page-qty-btn" 
@@ -247,7 +253,7 @@ export default function CartPage() {
                       </button>
                     </div>
 
-                    <div className="cart-page-item-btns">
+                    <div className="cart-page-item-actions-right">
                       <button 
                         className="cart-page-action-btn delete-btn" 
                         onClick={() => {
@@ -256,19 +262,17 @@ export default function CartPage() {
                           setTimeout(() => setDisabledAction(null), 200);
                         }} 
                         disabled={disabledAction === item.key}
-                        aria-label="Delete item"
+                        aria-label="Remove item"
                       >
                         <Trash2 size={16} />
-                        Delete
+                        <span className="delete-text">Remove</span>
                       </button>
+                      
+                      <div className="cart-page-item-price mobile-only">
+                        <p className="cart-page-item-total">${(item.price * item.qty).toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Price */}
-                <div className="cart-page-item-price">
-                  <p className="cart-page-unit-price">${item.price.toFixed(2)}</p>
-                  <p className="cart-page-item-total">${(item.price * item.qty).toFixed(2)}</p>
                 </div>
               </div>
             ))}
