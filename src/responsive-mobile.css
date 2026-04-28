@@ -34,8 +34,8 @@
   }
 
   /* ── GLOBAL: Flex containers wrap properly ── */
-  [style*="display: flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right),
-  [style*="display:flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right) {
+  [style*="display: flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right):not(.slider-dots):not(.cg-dots),
+  [style*="display:flex"]:not(.hamburger):not(.navbar-nav):not(.navbar-right):not(.slider-dots):not(.cg-dots) {
     flex-wrap: wrap !important;
   }
 
@@ -982,6 +982,17 @@
     justify-content: center !important;
     width: 100% !important;
     max-width: 100% !important;
+  }
+
+  .slider-dots,
+  .cg-dots {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+
+  .slider-dot {
+    width: auto !important;
+    min-height: auto !important;
   }
 
   .slider-card {
