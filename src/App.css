@@ -260,29 +260,41 @@ button:disabled, .ap-btn:disabled {
     top: 16px !important;
     right: 16px !important;
     left: auto !important;
-    width: 90vw !important;
+    width: calc(100vw - 32px) !important;
     max-width: 320px !important;
   }
 
   /* Make toast smaller and more compact on mobile */
   .Toastify__toast {
-    padding: 12px 16px !important;
+    padding: 12px 14px !important;
     border-radius: 8px !important;
     font-size: 0.8rem !important;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
     z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
   }
 
-  /* Compact toast body */
+  /* Compact toast body with proper text wrapping */
   .Toastify__toast-body {
     font-size: 0.8rem !important;
+    flex: 1 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    overflow: hidden !important;
   }
 
   /* Smaller icon on mobile */
   .Toastify__toast-icon {
     width: 24px !important;
     height: 24px !important;
-    margin-right: 8px !important;
+    min-width: 24px !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
   }
 
   .Toastify__toast-icon svg {
@@ -290,9 +302,13 @@ button:disabled, .ap-btn:disabled {
     height: 12px !important;
   }
 
-  /* Close button adjustments */
+  /* Close button adjustments - fixed positioning at top right */
   .Toastify__close-button {
-    margin-left: 8px !important;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    flex-shrink: 0 !important;
+    align-self: flex-start !important;
+    padding: 4px !important;
   }
 
   /* Smooth fade and slide animation for mobile */
