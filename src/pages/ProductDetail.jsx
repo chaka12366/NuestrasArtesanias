@@ -495,6 +495,25 @@ export default function ProductDetail() {
               ))}
             </div>
 
+            {/* Dot indicators */}
+            {hasMultipleImages && (
+              <div className="pd-swipe-dots">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`pd-swipe-dot ${idx === currentImageIndex ? 'active' : ''}`}
+                    onClick={() => {
+                      const container = mobileSwipeRef.current;
+                      if (container) {
+                        container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
+                      }
+                    }}
+                    aria-label={`View image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+
 
 
 
