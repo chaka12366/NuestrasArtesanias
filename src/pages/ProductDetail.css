@@ -928,39 +928,6 @@
     background: #fff;
   }
 
-  /* Small like button for mobile */
-  .pd-mobile-like-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: #fff;
-    border: 1px solid #e8dfd5;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    min-width: 28px;
-    min-height: 28px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s, background 0.2s;
-    z-index: 4;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .pd-mobile-like-btn:active:not(:disabled) {
-    transform: scale(0.95);
-  }
-  .pd-mobile-like-btn:hover:not(:disabled) {
-    border-color: #e05454;
-    background: #fff5f5;
-  }
-  .pd-mobile-like-btn.liked {
-    border-color: #e05454;
-    background: #fff5f5;
-  }
-
   /* ── Info Column ── */
   .pd-info-col {
     order: 2;
