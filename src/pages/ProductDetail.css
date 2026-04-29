@@ -209,6 +209,11 @@
   backdrop-filter: blur(4px);
 }
 
+/* ── Mobile Swipe Gallery (hidden on desktop) ──────────── */
+.pd-swipe-gallery {
+  display: none;
+}
+
 /* ── Mobile Horizontal Thumbnails ──────────────────────── */
 .pd-thumb-strip-mobile {
   display: none;
@@ -718,6 +723,123 @@
     min-width: 52px;
     min-height: 52px;
     padding: 0;
+  }
+
+  /* Hide desktop single-image card on mobile */
+  .pd-img-card-desktop {
+    display: none !important;
+  }
+
+  /* ── Mobile Swipeable Gallery ── */
+  .pd-swipe-gallery {
+    display: block;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #ede8e2;
+    background: #faf5f0;
+  }
+
+  .pd-swipe-track {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    touch-action: pan-y;
+    cursor: grab;
+  }
+  .pd-swipe-track::-webkit-scrollbar {
+    display: none;
+  }
+  .pd-swipe-track:active {
+    cursor: grabbing;
+  }
+
+  .pd-swipe-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    aspect-ratio: 1;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #faf5f0;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .pd-swipe-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 12px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Overlay elements */
+  .pd-swipe-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+  }
+  .pd-swipe-wish {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+  }
+  .pd-swipe-counter {
+    position: absolute;
+    bottom: 42px;
+    right: 12px;
+    z-index: 5;
+  }
+
+  /* Dot indicators */
+  .pd-swipe-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 5;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .pd-swipe-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.45);
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 8px !important;
+    min-height: 8px !important;
+  }
+  .pd-swipe-dot.active {
+    width: 20px !important;
+    border-radius: 10px;
+    background: #fff;
   }
 
   /* ── Info Column ── */

@@ -1,5 +1,5 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { fetchProductById } from "../lib/products.js";
 import { useCart } from "../contexts/CartContext.jsx";
 import {
@@ -55,6 +55,13 @@ export default function ProductDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imgFading, setImgFading] = useState(false);
   const thumbContainerRef = useRef(null);
+  const mobileSwipeRef = useRef(null);
+  const isScrollSyncing = useRef(false);
+  
+  // Drag state for mouse interaction
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
 
   // Fetch product from Supabase
   useEffect(() => {
@@ -226,6 +233,76 @@ export default function ProductDetail() {
     container.scrollBy({ top: direction === 'up' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
   }
 
+  // Mobile swipe: detect which image is snapped into view
+  const handleMobileScroll = useCallback(() => {
+    const container = mobileSwipeRef.current;
+    if (!container || isScrollSyncing.current) return;
+    const scrollLeft = container.scrollLeft;
+    const itemWidth = container.offsetWidth;
+    if (itemWidth === 0) return;
+    const newIndex = Math.round(scrollLeft / itemWidth);
+    const clamped = Math.max(0, Math.min(newIndex, images.length - 1));
+    if (clamped !== currentImageIndex) {
+      setCurrentImageIndex(clamped);
+    }
+  }, [images.length, currentImageIndex]);
+
+  // Sync mobile swipe container when index changes from thumbnails/arrows
+  useEffect(() => {
+    const container = mobileSwipeRef.current;
+    if (!container) return;
+    const targetScroll = currentImageIndex * container.offsetWidth;
+    // Only scroll if the container isn't already at the right position
+    if (Math.abs(container.scrollLeft - targetScroll) > 2) {
+      isScrollSyncing.current = true;
+      container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      // Reset the sync flag after the scroll animation completes
+      setTimeout(() => { isScrollSyncing.current = false; }, 400);
+    }
+  }, [currentImageIndex]);
+
+  // Mouse drag handlers for desktop
+  const handleMouseDown = (e) => {
+    const container = mobileSwipeRef.current;
+    if (!container) return;
+    isDragging.current = true;
+    startX.current = e.pageX - container.offsetLeft;
+    scrollLeftStart.current = container.scrollLeft;
+    // Temporarily disable scroll snapping so it drags freely
+    container.style.scrollSnapType = 'none';
+  };
+
+  const handleMouseLeave = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const container = mobileSwipeRef.current;
+    if (container) container.style.scrollSnapType = 'x mandatory';
+  };
+
+  const handleMouseUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const container = mobileSwipeRef.current;
+    if (container) {
+      container.style.scrollSnapType = 'x mandatory';
+      // Snap to nearest item based on new scroll position
+      const itemWidth = container.offsetWidth;
+      const newIndex = Math.round(container.scrollLeft / itemWidth);
+      const clamped = Math.max(0, Math.min(newIndex, images.length - 1));
+      container.scrollTo({ left: clamped * itemWidth, behavior: 'smooth' });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return;
+    e.preventDefault();
+    const container = mobileSwipeRef.current;
+    if (!container) return;
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX.current) * 1.5; // Drag sensitivity
+    container.scrollLeft = scrollLeftStart.current - walk;
+  };
+
   /* Handlers */
   function handleAddToCart() {
     if (isOutOfStock || addingToCart) {
@@ -329,8 +406,8 @@ export default function ProductDetail() {
               </div>
             )}
 
-            {/* Main image card */}
-            <div className="pd-img-card">
+            {/* Main image card (desktop: single image with fade) */}
+            <div className="pd-img-card pd-img-card-desktop">
               {product.tag && <span className="pd-badge">{product.tag}</span>}
               <button
                 className={`pd-wish-btn ${wished ? "wished" : ""}`}
@@ -367,6 +444,75 @@ export default function ProductDetail() {
 
           </div>
 
+          {/* ── Mobile Swipeable Gallery ── */}
+          <div className="pd-swipe-gallery">
+            {/* Overlays */}
+            {product.tag && <span className="pd-badge pd-swipe-badge">{product.tag}</span>}
+            <button
+              className={`pd-wish-btn pd-swipe-wish ${wished ? "wished" : ""}`}
+              onClick={() => {
+                if (wished) { toast.info("Removed from wishlist"); }
+                else { toast.success("Added to wishlist"); }
+                setWished(!wished);
+              }}
+              aria-label="Add to wishlist"
+            >
+              <Heart size={18} fill={wished ? "#e05454" : "none"} color={wished ? "#e05454" : "#aaa"} />
+            </button>
+
+            {/* Scrollable image strip */}
+            <div
+              className="pd-swipe-track"
+              ref={mobileSwipeRef}
+              onScroll={handleMobileScroll}
+              onMouseDown={handleMouseDown}
+              onMouseLeave={handleMouseLeave}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+            >
+              {images.map((img, idx) => (
+                <div className="pd-swipe-slide" key={img.id ?? idx}>
+                  <img
+                    src={(img.image_url?.startsWith('data:') || img.image_url?.startsWith('http')) ? img.image_url : `/${img.image_url}`}
+                    alt={`${product.name} - ${idx + 1}`}
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    draggable={false}
+                    onError={e => { e.target.src = "/logo.png"; }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Dot indicators */}
+            {hasMultipleImages && (
+              <div className="pd-swipe-dots">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    className={`pd-swipe-dot ${idx === currentImageIndex ? 'active' : ''}`}
+                    onClick={() => {
+                      setCurrentImageIndex(idx);
+                      const container = mobileSwipeRef.current;
+                      if (container) {
+                        isScrollSyncing.current = true;
+                        container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
+                        setTimeout(() => { isScrollSyncing.current = false; }, 400);
+                      }
+                    }}
+                    aria-label={`Go to image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Image counter pill */}
+            {hasMultipleImages && (
+              <div className="pd-img-counter pd-swipe-counter">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            )}
+          </div>
+
           {/* Horizontal thumbnail strip (mobile only) */}
           {hasMultipleImages && (
             <div className="pd-thumb-strip-mobile">
@@ -374,7 +520,15 @@ export default function ProductDetail() {
                 <button
                   key={img.id ?? idx}
                   className={`pd-thumb ${idx === currentImageIndex ? 'active' : ''}`}
-                  onClick={() => switchImage(idx)}
+                  onClick={() => {
+                    switchImage(idx);
+                    const container = mobileSwipeRef.current;
+                    if (container) {
+                      isScrollSyncing.current = true;
+                      container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
+                      setTimeout(() => { isScrollSyncing.current = false; }, 400);
+                    }
+                  }}
                   aria-label={`View image ${idx + 1}`}
                 >
                   <img
