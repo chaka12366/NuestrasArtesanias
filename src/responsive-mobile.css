@@ -761,10 +761,13 @@
     gap: 0.75rem !important;
   }
 
+  .ap-search-wrapper,
   .ap-search {
     max-width: 100% !important;
     min-width: 0 !important;
     width: 100% !important;
+  }
+  .ap-search {
     min-height: 48px !important;
     font-size: 16px !important;
   }

@@ -132,9 +132,10 @@ export default function Customers() {
 
       {/* Filters/Controls */}
       <div className="ap-filters">
-        <div className="ap-search-box">
-          <Search size={18} />
+        <div className="ap-search-wrapper">
+          <Search className="ap-search-icon" size={16} />
           <input
+            className="ap-search"
             type="text"
             placeholder="Search customers..."
             value={search}

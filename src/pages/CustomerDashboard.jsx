@@ -303,8 +303,8 @@ function MyOrders({ orders, onViewOrder }) {
 
       <div className="cd-filter-row" style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 180, position: "relative" }}>
-          <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 1 }} />
-          <input type="text" placeholder="Search by order ID or item..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: "100%", paddingLeft: 34, boxSizing: "border-box", minHeight: 44, position: "relative", zIndex: 10 }} />
+          <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />
+          <input type="text" placeholder="Search by order ID or item..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: "100%", paddingLeft: 34, boxSizing: "border-box", minHeight: 44, position: "relative", zIndex: 20 }} />
         </div>
         <div style={{ position: "relative", flex: 1, minWidth: 140, zIndex: 20 }}>
           <Filter size={12} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />

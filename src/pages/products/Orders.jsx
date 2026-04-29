@@ -371,8 +371,11 @@ export default function Orders() {
 
       {/* Filters */}
       <div className="ap-filters">
-        <input className="ap-search" placeholder="Search order, customer, item…"
-          value={search} onChange={e => setSearch(e.target.value)} />
+        <div className="ap-search-wrapper">
+          <Search className="ap-search-icon" size={16} />
+          <input className="ap-search" placeholder="Search order, customer, item…"
+            value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
         <div className="ap-cat-tabs">
           {["all", "pending", "in-progress", "ready", "delivered", "cancelled"].map(s => (
             <button key={s} className={`ap-range-tab ${statusFilter === s ? "active" : ""}`}

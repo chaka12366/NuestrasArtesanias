@@ -109,6 +109,7 @@
   width: 17px; height: 17px;
   color: #aaa;
   pointer-events: none;
+  z-index: 2;
 }
 
 .pp-search {
@@ -123,6 +124,8 @@
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
   min-height: 44px;
+  position: relative;
+  z-index: 1;
 }
 
 @media (max-width: 480px) {

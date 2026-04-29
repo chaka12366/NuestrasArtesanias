@@ -277,8 +277,11 @@ export default function Products() {
       </div>
 
       <div className="ap-filters">
-        <input className="ap-search" placeholder="Search products…"
-          value={search} onChange={e=>setSearch(e.target.value)}/>
+        <div className="ap-search-wrapper">
+          <Search className="ap-search-icon" size={16} />
+          <input className="ap-search" placeholder="Search products…"
+            value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
         <div className="ap-cat-tabs">
           {categories.map(c=>(
             <button key={c.id || "all"} className={`ap-range-tab ${(catFilter===c.slug || (catFilter==="All" && c.id===null))?"active":""}`}

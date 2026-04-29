@@ -323,6 +323,22 @@ export default function Navbar() {
           )}
         </div>
       </div>
+
+      {/* Floating Mobile Cart Button */}
+      <button 
+        className="mobile-fab-cart"
+        onClick={() => {
+          navigate("/cart");
+          setMenuOpen(false);
+        }}
+        aria-label={`View shopping cart with ${itemCount} items`}
+        title="View Cart"
+      >
+        <ShoppingCart size={24} />
+        {itemCount > 0 && (
+          <span className="mobile-fab-badge">{itemCount > 99 ? "99+" : itemCount}</span>
+        )}
+      </button>
     </>
   );
 }
