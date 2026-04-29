@@ -5,7 +5,7 @@ import EmptyState from "../../components/EmptyState.jsx";
 import { fetchAllOrders, updateOrderStatus, cancelOrder, cancelOrderItem } from "../../lib/dashboard.js";
 import { updatePaymentStatus } from "../../lib/orders.js";
 import { sendCustomerStatusEmail, sendCancelItemEmail } from "../../lib/emailNotification.js";
-import { Clock, Truck, CheckCircle2, DollarSign, MapPin, ChevronUp, ChevronDown, X, AlertCircle, Trash2, MessageCircle } from "lucide-react";
+import { Clock, Truck, CheckCircle2, DollarSign, MapPin, ChevronUp, ChevronDown, X, AlertCircle, Trash2, MessageCircle, Search } from "lucide-react";
 import { validatePhone, getWhatsAppLink, generateOrderMessage } from "../../lib/whatsapp.js";
 import { toast } from "react-toastify";
 import { useDebounce } from "../../utils/useDebounce.js";
