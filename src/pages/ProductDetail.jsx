@@ -63,6 +63,23 @@ export default function ProductDetail() {
   const startX = useRef(0);
   const scrollLeftStart = useRef(0);
 
+  // Mobile swipe: detect which image is snapped into view
+  // MUST be defined before any conditional returns (Rules of Hooks)
+  const handleMobileScroll = useCallback(() => {
+    const container = mobileSwipeRef.current;
+    if (!container || isScrollSyncing.current) return;
+    const scrollLeft = container.scrollLeft;
+    const itemWidth = container.offsetWidth;
+    if (itemWidth === 0) return;
+    // Use product?.images safely - will be empty array initially
+    const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
+    const newIndex = Math.round(scrollLeft / itemWidth);
+    const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
+    if (clamped !== currentImageIndex) {
+      setCurrentImageIndex(clamped);
+    }
+  }, [currentImageIndex, product]);
+
   // Fetch product from Supabase
   useEffect(() => {
     console.log("Product ID (Detail):", id);
@@ -232,20 +249,6 @@ export default function ProductDetail() {
     const scrollAmount = 80;
     container.scrollBy({ top: direction === 'up' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
   }
-
-  // Mobile swipe: detect which image is snapped into view
-  const handleMobileScroll = useCallback(() => {
-    const container = mobileSwipeRef.current;
-    if (!container || isScrollSyncing.current) return;
-    const scrollLeft = container.scrollLeft;
-    const itemWidth = container.offsetWidth;
-    if (itemWidth === 0) return;
-    const newIndex = Math.round(scrollLeft / itemWidth);
-    const clamped = Math.max(0, Math.min(newIndex, images.length - 1));
-    if (clamped !== currentImageIndex) {
-      setCurrentImageIndex(clamped);
-    }
-  }, [images.length, currentImageIndex]);
 
   // Sync mobile swipe container when index changes from thumbnails/arrows
   useEffect(() => {
