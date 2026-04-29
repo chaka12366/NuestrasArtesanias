@@ -10,7 +10,7 @@ import {
   LayoutDashboard, ShoppingBag, History,
   CheckCircle2, Circle,
   Search, Package, Filter, Star, AlertCircle,
-  TrendingUp, Clock, ChevronRight, Sparkles, X, User, Eye, EyeOff, Key, Loader,
+  TrendingUp, Clock, ChevronRight, ChevronDown, Sparkles, X, User, Eye, EyeOff, Key, Loader,
 } from "lucide-react";
 
 /* ─── CONSTANTS ─────────────────────────────────────────────── */
@@ -303,18 +303,20 @@ function MyOrders({ orders, onViewOrder }) {
 
       <div className="cd-filter-row" style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 180, position: "relative" }}>
-          <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-          <input type="text" placeholder="Search by order ID or item..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: "100%", paddingLeft: 34, boxSizing: "border-box" }} />
+          <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 1 }} />
+          <input type="text" placeholder="Search by order ID or item..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ ...inp, width: "100%", paddingLeft: 34, boxSizing: "border-box", minHeight: 44, position: "relative", zIndex: 10 }} />
         </div>
-        <div style={{ position: "relative" }}>
-          <Filter size={12} color={T.muted} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ ...inp, paddingLeft: 30, appearance: "none", cursor: "pointer" }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 140, zIndex: 20 }}>
+          <Filter size={12} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />
+          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={{ ...inp, paddingLeft: 32, appearance: "none", cursor: "pointer", width: "100%", boxSizing: "border-box", minHeight: 44, position: "relative", zIndex: 20 }}>
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
             <option value="in-progress">In Progress</option>
             <option value="ready">Ready for Pickup</option>
             <option value="delivered">Delivered</option>
           </select>
+          {/* Custom Arrow for select */}
+          <ChevronDown size={14} color={T.muted} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />
         </div>
       </div>
 
@@ -408,10 +410,10 @@ function OrderHistory({ orders }) {
         ))}
       </div>
 
-      <div style={{ position: "relative", marginBottom: 18 }}>
-        <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+      <div style={{ position: "relative", marginBottom: 18, zIndex: 20 }}>
+        <Search size={13} color={T.muted} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />
         <input type="text" placeholder="Search by order ID, item, or date..." value={search} onChange={(e) => setSearch(e.target.value)}
-          style={{ width: "100%", padding: "10px 14px 10px 34px", borderRadius: 10, fontSize: 13, border: "1px solid rgba(201,149,106,0.25)", background: "#fff", color: T.text, outline: "none", boxSizing: "border-box", fontFamily: T.sans }} />
+          style={{ width: "100%", padding: "10px 14px 10px 34px", borderRadius: 10, fontSize: 13, border: "1px solid rgba(201,149,106,0.25)", background: "#fff", color: T.text, outline: "none", boxSizing: "border-box", fontFamily: T.sans, minHeight: 44, position: "relative", zIndex: 20 }} />
       </div>
 
       {filtered.length === 0 ? (
