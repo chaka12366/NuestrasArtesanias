@@ -371,44 +371,6 @@ export default function ProductDetail() {
         <div className="pd-img-col">
           <div className="pd-gallery">
 
-            {/* Vertical thumbnail strip (desktop) */}
-            {hasMultipleImages && (
-              <div className="pd-thumb-strip">
-                <button
-                  className="pd-thumb-scroll-btn"
-                  onClick={() => handleThumbScroll('up')}
-                  aria-label="Scroll thumbnails up"
-                >
-                  <ChevronUp size={16} />
-                </button>
-                <div className="pd-thumb-list" ref={thumbContainerRef}>
-                  {images.map((img, idx) => (
-                    <button
-                      key={img.id ?? idx}
-                      className={`pd-thumb ${idx === currentImageIndex ? 'active' : ''}`}
-                      onClick={() => switchImage(idx)}
-                      onMouseEnter={() => switchImage(idx)}
-                      aria-label={`View image ${idx + 1}`}
-                    >
-                      <img
-                        src={(img.image_url?.startsWith('data:') || img.image_url?.startsWith('http')) ? img.image_url : `/${img.image_url}`}
-                        alt={`${product.name} - ${idx + 1}`}
-                        loading="lazy"
-                        onError={e => { e.target.src = "/logo.png"; }}
-                      />
-                    </button>
-                  ))}
-                </div>
-                <button
-                  className="pd-thumb-scroll-btn"
-                  onClick={() => handleThumbScroll('down')}
-                  aria-label="Scroll thumbnails down"
-                >
-                  <ChevronDown size={16} />
-                </button>
-              </div>
-            )}
-
             {/* Main image card (desktop: single image with fade) */}
             <div className="pd-img-card pd-img-card-desktop">
               {product.tag && <span className="pd-badge">{product.tag}</span>}
@@ -437,12 +399,7 @@ export default function ProductDetail() {
                 />
               </div>
 
-              {/* Image counter pill */}
-              {hasMultipleImages && (
-                <div className="pd-img-counter">
-                  {currentImageIndex + 1} / {images.length}
-                </div>
-              )}
+
             </div>
 
           </div>
@@ -486,63 +443,12 @@ export default function ProductDetail() {
               ))}
             </div>
 
-            {/* Dot indicators */}
-            {hasMultipleImages && (
-              <div className="pd-swipe-dots">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    className={`pd-swipe-dot ${idx === currentImageIndex ? 'active' : ''}`}
-                    onClick={() => {
-                      setCurrentImageIndex(idx);
-                      const container = mobileSwipeRef.current;
-                      if (container) {
-                        isScrollSyncing.current = true;
-                        container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
-                        setTimeout(() => { isScrollSyncing.current = false; }, 400);
-                      }
-                    }}
-                    aria-label={`Go to image ${idx + 1}`}
-                  />
-                ))}
-              </div>
-            )}
 
-            {/* Image counter pill */}
-            {hasMultipleImages && (
-              <div className="pd-img-counter pd-swipe-counter">
-                {currentImageIndex + 1} / {images.length}
-              </div>
-            )}
+
+
           </div>
 
-          {/* Horizontal thumbnail strip (mobile only) */}
-          {hasMultipleImages && (
-            <div className="pd-thumb-strip-mobile">
-              {images.map((img, idx) => (
-                <button
-                  key={img.id ?? idx}
-                  className={`pd-thumb ${idx === currentImageIndex ? 'active' : ''}`}
-                  onClick={() => {
-                    switchImage(idx);
-                    const container = mobileSwipeRef.current;
-                    if (container) {
-                      isScrollSyncing.current = true;
-                      container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
-                      setTimeout(() => { isScrollSyncing.current = false; }, 400);
-                    }
-                  }}
-                  aria-label={`View image ${idx + 1}`}
-                >
-                  <img
-                    src={(img.image_url?.startsWith('data:') || img.image_url?.startsWith('http')) ? img.image_url : `/${img.image_url}`}
-                    alt={`${product.name} - ${idx + 1}`}
-                    onError={e => { e.target.src = "/logo.png"; }}
-                  />
-                </button>
-              ))}
-            </div>
-          )}
+
         </div>
 
         {/* ── Col 2: Info ──────────────────────────────── */}
