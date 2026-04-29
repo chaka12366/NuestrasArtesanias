@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js'
-import { sendOrderNotification, sendLowStockAlert } from './emailNotification.js'
+import { sendOrderNotification, sendLowStockAlert, sendCustomerStatusEmail } from './emailNotification.js'
 
 const LOW_STOCK_THRESHOLD = 6
 
@@ -301,6 +301,13 @@ export async function fetchOrderById(orderId) {
  * @returns {Promise<boolean>}
  */
 export async function updatePaymentStatus(orderId, status) {
+  // Check previous status
+  const { data: previousOrder } = await supabase
+    .from('orders')
+    .select('payment_status')
+    .eq('id', orderId)
+    .single()
+
   const { error } = await supabase
     .from('orders')
     .update({ payment_status: status })
@@ -310,5 +317,70 @@ export async function updatePaymentStatus(orderId, status) {
     console.error('Error updating payment status:', error)
     return false
   }
+
+  // Trigger email ONLY when status becomes "paid" and was previously NOT "paid"
+  if (status === 'paid' && previousOrder?.payment_status !== 'paid') {
+    try {
+      const { data: fullOrder } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          profiles ( first_name, last_name, email, phone ),
+          order_items ( * )
+        `)
+        .eq('id', orderId)
+        .single();
+
+      if (fullOrder) {
+        const customerName = fullOrder.profiles
+          ? `${fullOrder.profiles.first_name || ''} ${fullOrder.profiles.last_name || ''}`.trim()
+          : (fullOrder.guest_name || fullOrder.delivery_name || 'Guest');
+        const customerEmail = fullOrder.profiles?.email || fullOrder.guest_email || '';
+
+        if (customerEmail) {
+          const items = fullOrder.order_items || [];
+          
+          // Helper to safely format price
+          const formatPrice = (val) => val ? `$${Number(val).toFixed(2)} BZD` : '';
+          
+          const orderData = {
+            customer_name: customerName,
+            customer_email: customerEmail,
+            order_id: fullOrder.id,
+            order_date: new Date(fullOrder.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+            order_total: formatPrice(fullOrder.total),
+            payment_method: fullOrder.payment_method || '',
+            transaction_id: fullOrder.transaction_id || '', // safely handled if missing
+            subtotal: formatPrice(fullOrder.subtotal),
+            tax: formatPrice(fullOrder.tax), // safely handled if missing
+            
+            // Map items dynamically, safely handling missing items up to 3
+            item_1_name: items[0]?.product_name || '',
+            item_1_qty: items[0]?.quantity?.toString() || '',
+            item_1_price: formatPrice(items[0]?.unit_price),
+            item_1_total: items[0] ? formatPrice(items[0].unit_price * items[0].quantity) : '',
+            
+            item_2_name: items[1]?.product_name || '',
+            item_2_qty: items[1]?.quantity?.toString() || '',
+            item_2_price: formatPrice(items[1]?.unit_price),
+            item_2_total: items[1] ? formatPrice(items[1].unit_price * items[1].quantity) : '',
+            
+            item_3_name: items[2]?.product_name || '',
+            item_3_qty: items[2]?.quantity?.toString() || '',
+            item_3_price: formatPrice(items[2]?.unit_price),
+            item_3_total: items[2] ? formatPrice(items[2].unit_price * items[2].quantity) : '',
+          };
+
+          // Async, non-blocking email call
+          sendCustomerStatusEmail('paid', orderData).catch(err => {
+            console.error("EmailJS Paid Email Error:", err);
+          });
+        }
+      }
+    } catch (e) {
+      console.error("EmailJS Paid Email Error:", e);
+    }
+  }
+
   return true
 }

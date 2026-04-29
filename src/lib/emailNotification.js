@@ -133,6 +133,42 @@ export const sendEmailNotification = async (type, data) => {
         message: 'Your order is out for delivery and will arrive soon.',
         date: new Date().toLocaleDateString(),
       };
+    } else if (type === 'paid') {
+      serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID_3 || serviceId;
+      publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY_3 || publicKey;
+
+      if (!data.customerName || !data.customerEmail || !data.orderNumber) {
+        throw new Error('Missing required paid data: customerName, customerEmail, orderNumber');
+      }
+      templateId = import.meta.env.VITE_EMAILJS_PAID_TEMPLATE_ID_3;
+      templateParams = {
+        to_email: data.customerEmail,
+        customer_email: data.customerEmail,
+        email: data.customerEmail,
+        customer_name: data.customerName,
+        order_number: data.orderNumber,
+        order_date: data.orderDate || new Date().toLocaleDateString(),
+        order_total: data.orderTotal || 'N/A',
+        payment_method: data.paymentMethod || '',
+        transaction_id: data.transactionId || '',
+        subtotal: data.subtotal || '',
+        tax: data.tax || '',
+        item_1_name: data.item_1_name || '',
+        item_1_qty: data.item_1_qty || '',
+        item_1_price: data.item_1_price || '',
+        item_1_total: data.item_1_total || '',
+        item_2_name: data.item_2_name || '',
+        item_2_qty: data.item_2_qty || '',
+        item_2_price: data.item_2_price || '',
+        item_2_total: data.item_2_total || '',
+        item_3_name: data.item_3_name || '',
+        item_3_qty: data.item_3_qty || '',
+        item_3_price: data.item_3_price || '',
+        item_3_total: data.item_3_total || '',
+        store_name: data.storeName || 'Nuestras Artesanías',
+        store_address: data.storeAddress || 'Corozal Town, Belize',
+        support_email: data.supportEmail || 'benporll13@gmail.com',
+      };
     } else {
       throw new Error(`Unknown notification type: ${type}`);
     }
@@ -199,6 +235,22 @@ export const sendCustomerStatusEmail = async (status, orderData) => {
     orderItems: orderData.order_items,
     orderTotal: orderData.order_total,
     deliveryMethod: orderData.delivery_method,
+    paymentMethod: orderData.payment_method,
+    transactionId: orderData.transaction_id,
+    subtotal: orderData.subtotal,
+    tax: orderData.tax,
+    item_1_name: orderData.item_1_name,
+    item_1_qty: orderData.item_1_qty,
+    item_1_price: orderData.item_1_price,
+    item_1_total: orderData.item_1_total,
+    item_2_name: orderData.item_2_name,
+    item_2_qty: orderData.item_2_qty,
+    item_2_price: orderData.item_2_price,
+    item_2_total: orderData.item_2_total,
+    item_3_name: orderData.item_3_name,
+    item_3_qty: orderData.item_3_qty,
+    item_3_price: orderData.item_3_price,
+    item_3_total: orderData.item_3_total,
     storeName: orderData.store_name,
     storeAddress: orderData.store_address,
     supportEmail: orderData.support_email,
