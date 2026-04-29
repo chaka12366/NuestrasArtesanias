@@ -4,7 +4,7 @@ import { useAuth } from "../contexts/auth.js";
 import { fetchDashboardStats, fetchNotifications } from "../lib/dashboard.js";
 import { getStoreSettings, getStoreSettingsSync } from "../utils/storeSettingsCache.js";
 import "./Dashboard.css";
-import { ShoppingBag, Star, Package, Bell, DollarSign, Flower, TrendingUp, ShoppingCart, Sparkles, Wallet, Package2, Users } from "lucide-react";
+import { ShoppingBag, Star, Package, Bell, DollarSign, Flower, TrendingUp, ShoppingCart, Sparkles, Wallet, Package2, Users, LogOut } from "lucide-react";
 
 /* ── tiny hook: count up animation ── */
 function useCountUp(target, duration = 1200, start = false) {
@@ -142,9 +142,9 @@ export default function OwnerDashboard() {
             <div className="dash-avatar" title={user?.email}>
               {user?.email?.[0]?.toUpperCase() ?? "O"}
             </div>
-            <button className="dash-logout-btn" onClick={handleLogout}>
-              <span>Logout</span>
-              <span className="logout-icon-arrow">↗</span>
+            <button className="dash-logout-btn" onClick={handleLogout} title="Logout" aria-label="Logout">
+              <span className="logout-text">Logout</span>
+              <LogOut size={16} className="logout-icon-arrow" strokeWidth={2.5} />
             </button>
           </div>
         </div>

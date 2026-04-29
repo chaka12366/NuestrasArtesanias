@@ -154,11 +154,13 @@
   box-shadow: 0 6px 20px rgba(192, 57, 43, 0.45);
 }
 .logout-icon-arrow {
-  font-size: 0.95rem;
   transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .dash-logout-btn:hover .logout-icon-arrow {
-  transform: translate(2px, -2px);
+  transform: translateX(3px);
 }
 
 /* ── MAIN ── */
@@ -581,7 +583,8 @@
 @media (max-width: 599px) {
   .dash-header-inner  { height: 54px; padding: 0 1rem; }
   .dash-avatar        { width: 34px; height: 34px; font-size: 0.85rem; }
-  .dash-logout-btn    { padding: 0.35rem 0.75rem; font-size: 0.78rem; gap: 0.3rem; }
+  .dash-logout-btn    { width: 34px; height: 34px; padding: 0; border-radius: 50%; justify-content: center; gap: 0; }
+  .logout-text        { display: none; }
 
   .dash-main          { padding: 1.25rem 1rem 1.75rem; }
 
@@ -614,7 +617,8 @@
 @media (max-width: 479px) {
   .dash-header-inner  { height: 50px; padding: 0 0.85rem; }
   .dash-avatar        { width: 32px; height: 32px; font-size: 0.8rem; }
-  .dash-logout-btn    { padding: 0.3rem 0.65rem; font-size: 0.74rem; }
+  .dash-logout-btn    { width: 32px; height: 32px; padding: 0; border-radius: 50%; justify-content: center; gap: 0; }
+  .logout-text        { display: none; }
 
   .dash-main          { padding: 1rem 0.75rem 1.5rem; }
 
