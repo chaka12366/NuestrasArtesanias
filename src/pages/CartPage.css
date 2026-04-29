@@ -876,7 +876,7 @@
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
-    padding: 16px 16px 240px;
+    padding: 16px;
     margin-top: 0;
     box-sizing: border-box;
   }
@@ -1056,16 +1056,12 @@
 
   /* 5. Bottom Summary Section */
   .cart-summary-section {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+    position: relative;
     background: #fff;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.1);
-    border-top: 1px solid #f0ebe3;
-    border-radius: 24px 24px 0 0;
-    padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #f0ebe3;
+    padding: 16px;
     margin: 0;
   }
 
