@@ -369,7 +369,26 @@ export async function cancelOrderItem(itemId, productId, quantity) {
         .eq('id', productId)
     }
 
-    return { success: true, message: 'Item cancelled and stock restored' }
+    // 4. Check if ALL items in the order are now cancelled → auto-cancel order
+    let allCancelled = false
+    if (cancelledItem) {
+      const { data: siblingItems, error: siblingsError } = await supabase
+        .from('order_items')
+        .select('id, status')
+        .eq('order_id', cancelledItem.order_id)
+
+      if (!siblingsError && siblingItems) {
+        allCancelled = siblingItems.every(si => si.status === 'cancelled')
+        if (allCancelled) {
+          await supabase
+            .from('orders')
+            .update({ status: 'cancelled' })
+            .eq('id', cancelledItem.order_id)
+        }
+      }
+    }
+
+    return { success: true, message: 'Item cancelled and stock restored', allCancelled }
   } catch (err) {
     console.error('Error in cancelOrderItem:', err)
     return { success: false, message: err.message }

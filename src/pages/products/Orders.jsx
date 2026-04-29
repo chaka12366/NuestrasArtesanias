@@ -198,6 +198,8 @@ export default function Orders() {
           item: allItemsStr,
           itemsDetail: itemsDetailStr,
           total: newTotal,
+          // If all items are cancelled, sync parent order status
+          status: result.allCancelled ? 'cancelled' : o.status,
         };
       }));
       toast.success(`✓ "${productName}" cancelled. Stock restored.`);
