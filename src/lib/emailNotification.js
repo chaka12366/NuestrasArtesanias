@@ -169,6 +169,49 @@ export const sendEmailNotification = async (type, data) => {
         store_address: data.storeAddress || 'Corozal Town, Belize',
         support_email: data.supportEmail || 'benporll13@gmail.com',
       };
+    } else if (type === 'cancel') {
+      serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID_4 || serviceId;
+      publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY_4 || publicKey;
+
+      if (!data.customerName || !data.customerEmail || !data.orderNumber) {
+        throw new Error('Missing required cancel data: customerName, customerEmail, orderNumber');
+      }
+
+      // Auto-derive plural suffix from count
+      const count = Number(data.cancelledItemCount) || 1;
+      const plural = count > 1 ? 's' : '';
+
+      templateId = import.meta.env.VITE_EMAILJS_CANCEL_TEMPLATE_ID_4;
+      templateParams = {
+        to_email: data.customerEmail,
+        customer_email: data.customerEmail,
+        email: data.customerEmail,
+        customer_name: data.customerName,
+        order_number: data.orderNumber,
+        cancelled_item_count: count,
+        cancelled_item_count_plural: plural,
+        cancelled_item_name: data.cancelledItemName || '',
+        cancelled_item_qty: data.cancelledItemQty || '',
+        cancelled_item_price: data.cancelledItemPrice || '',
+        cancelled_item_total: data.cancelledItemTotal || '',
+        cancel_reason: data.cancelReason || 'Cancelled by store owner',
+        item_1_name: data.item_1_name || '',
+        item_1_qty: data.item_1_qty || '',
+        item_1_price: data.item_1_price || '',
+        item_1_total: data.item_1_total || '',
+        item_2_name: data.item_2_name || '',
+        item_2_qty: data.item_2_qty || '',
+        item_2_price: data.item_2_price || '',
+        item_2_total: data.item_2_total || '',
+        item_3_name: data.item_3_name || '',
+        item_3_qty: data.item_3_qty || '',
+        item_3_price: data.item_3_price || '',
+        item_3_total: data.item_3_total || '',
+        new_order_total: data.newOrderTotal || '$0.00',
+        store_name: data.storeName || 'Nuestras Artesanías',
+        store_address: data.storeAddress || 'Corozal Town, Belize',
+        support_email: data.supportEmail || 'benporll13@gmail.com',
+      };
     } else {
       throw new Error(`Unknown notification type: ${type}`);
     }
@@ -254,5 +297,46 @@ export const sendCustomerStatusEmail = async (status, orderData) => {
     storeName: orderData.store_name,
     storeAddress: orderData.store_address,
     supportEmail: orderData.support_email,
+  });
+};
+
+/**
+ * Send partial cancellation email to customer
+ * @param {object} cancelData - Cancellation and order information
+ *   Required: customer_name, customer_email, order_id
+ *   Cancelled item: cancelled_item_name, cancelled_item_qty, cancelled_item_price, cancelled_item_total
+ *   Remaining items: item_1_name/qty/price/total, item_2_..., item_3_...
+ *   Totals: new_order_total, cancelled_item_count
+ *   Optional: cancel_reason, store_name, store_address, support_email
+ *   Note: cancelled_item_count_plural is auto-derived — do not pass it.
+ * @returns {Promise<object>}
+ */
+export const sendCancelItemEmail = async (cancelData) => {
+  return sendEmailNotification('cancel', {
+    customerName: cancelData.customer_name,
+    customerEmail: cancelData.customer_email,
+    orderNumber: cancelData.order_id,
+    cancelledItemCount: cancelData.cancelled_item_count,
+    cancelledItemName: cancelData.cancelled_item_name,
+    cancelledItemQty: cancelData.cancelled_item_qty,
+    cancelledItemPrice: cancelData.cancelled_item_price,
+    cancelledItemTotal: cancelData.cancelled_item_total,
+    cancelReason: cancelData.cancel_reason,
+    item_1_name: cancelData.item_1_name,
+    item_1_qty: cancelData.item_1_qty,
+    item_1_price: cancelData.item_1_price,
+    item_1_total: cancelData.item_1_total,
+    item_2_name: cancelData.item_2_name,
+    item_2_qty: cancelData.item_2_qty,
+    item_2_price: cancelData.item_2_price,
+    item_2_total: cancelData.item_2_total,
+    item_3_name: cancelData.item_3_name,
+    item_3_qty: cancelData.item_3_qty,
+    item_3_price: cancelData.item_3_price,
+    item_3_total: cancelData.item_3_total,
+    newOrderTotal: cancelData.new_order_total,
+    storeName: cancelData.store_name,
+    storeAddress: cancelData.store_address,
+    supportEmail: cancelData.support_email,
   });
 };

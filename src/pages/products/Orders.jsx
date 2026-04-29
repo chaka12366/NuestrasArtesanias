@@ -4,7 +4,7 @@ import OrderStatus from "./OrderStatus.jsx";
 import EmptyState from "../../components/EmptyState.jsx";
 import { fetchAllOrders, updateOrderStatus, cancelOrder, cancelOrderItem } from "../../lib/dashboard.js";
 import { updatePaymentStatus } from "../../lib/orders.js";
-import { sendCustomerStatusEmail } from "../../lib/emailNotification.js";
+import { sendCustomerStatusEmail, sendCancelItemEmail } from "../../lib/emailNotification.js";
 import { Clock, Truck, CheckCircle2, DollarSign, MapPin, ChevronUp, ChevronDown, X, AlertCircle, Trash2, MessageCircle } from "lucide-react";
 import { validatePhone, getWhatsAppLink, generateOrderMessage } from "../../lib/whatsapp.js";
 import { toast } from "react-toastify";
@@ -228,6 +228,51 @@ export default function Orders() {
       }));
       setCancelItemConfirm(null);
       toast.success(`✓ Cancelled ${qtyToCancel}x "${item.product_name}". Stock restored.`);
+
+      // Send cancellation email to customer (non-blocking)
+      const order = orders.find(o => o.id === orderId);
+      if (order && order.email) {
+        try {
+          const formatPrice = (val) => `$${Number(val).toFixed(2)} BZD`;
+          // Get remaining active items after this cancellation
+          const updatedOrder = orders.find(o => o.id === orderId);
+          const remainingRaw = (updatedOrder?.rawItems || []).filter(ri => ri.id !== item.id && ri.status !== 'cancelled');
+          // If partial cancel, the original item is still active with reduced qty
+          if (qtyToCancel < item.quantity) {
+            remainingRaw.unshift({ ...item, quantity: item.quantity - qtyToCancel });
+          }
+
+          const cancelledTotal = Number(item.unit_price) * qtyToCancel;
+          const newOrderTotal = Math.max(0, (Number(order.total) || 0) - cancelledTotal);
+
+          await sendCancelItemEmail({
+            customer_name: order.customer,
+            customer_email: order.email,
+            order_id: orderId,
+            cancelled_item_count: 1,
+            cancelled_item_name: item.product_name,
+            cancelled_item_qty: qtyToCancel.toString(),
+            cancelled_item_price: formatPrice(item.unit_price),
+            cancelled_item_total: formatPrice(cancelledTotal),
+            cancel_reason: 'Cancelled by store owner',
+            item_1_name: remainingRaw[0]?.product_name || '',
+            item_1_qty: remainingRaw[0]?.quantity?.toString() || '',
+            item_1_price: remainingRaw[0] ? formatPrice(remainingRaw[0].unit_price) : '',
+            item_1_total: remainingRaw[0] ? formatPrice(remainingRaw[0].unit_price * remainingRaw[0].quantity) : '',
+            item_2_name: remainingRaw[1]?.product_name || '',
+            item_2_qty: remainingRaw[1]?.quantity?.toString() || '',
+            item_2_price: remainingRaw[1] ? formatPrice(remainingRaw[1].unit_price) : '',
+            item_2_total: remainingRaw[1] ? formatPrice(remainingRaw[1].unit_price * remainingRaw[1].quantity) : '',
+            item_3_name: remainingRaw[2]?.product_name || '',
+            item_3_qty: remainingRaw[2]?.quantity?.toString() || '',
+            item_3_price: remainingRaw[2] ? formatPrice(remainingRaw[2].unit_price) : '',
+            item_3_total: remainingRaw[2] ? formatPrice(remainingRaw[2].unit_price * remainingRaw[2].quantity) : '',
+            new_order_total: formatPrice(newOrderTotal),
+          });
+        } catch (emailError) {
+          console.error('Failed to send cancellation email:', emailError);
+        }
+      }
     } else {
       toast.error(`✗ ${result.message}`);
     }
