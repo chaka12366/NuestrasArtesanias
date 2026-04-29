@@ -36,6 +36,8 @@ export default function Orders() {
   const [cancellingItemId, setCancellingItemId] = useState(null);
   const [cancelItemConfirm, setCancelItemConfirm] = useState(null);
   const [cancelItemQuantity, setCancelItemQuantity] = useState(1);
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
+  const [updatingPaymentId, setUpdatingPaymentId] = useState(null);
 
   // Fetch real orders from Supabase on component mount
   useEffect(() => {
@@ -93,63 +95,99 @@ export default function Orders() {
 
   /* ── Status Update Handler ── */
   const handleStatusChange = async (orderId, newStatus) => {
-    // Get the order to validate status flow
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Validate that new status follows the sequence
+    // Prevent status regression (only forward movement)
     const currentStatusIndex = STATUS_FLOW.indexOf(order.status);
     const newStatusIndex = STATUS_FLOW.indexOf(newStatus);
-
-    // Only allow moving to the next status in the flow
+    if (newStatusIndex <= currentStatusIndex) {
+      toast.error('Status cannot go backwards.');
+      return;
+    }
     if (newStatusIndex !== currentStatusIndex + 1) {
       const nextStatus = STATUS_FLOW[currentStatusIndex + 1];
       toast.error(`You must complete "${nextStatus}" before proceeding.`);
       return;
     }
 
-    const success = await updateOrderStatus(orderId, newStatus);
-    if (success) {
-      setOrders(os => os.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-      toast.success(`Order status updated to ${newStatus}`);
-      
-      // Send email notification for specific statuses
-      if (newStatus === "in-progress" || newStatus === "ready" || newStatus === "delivered") {
-        const orderToUpdate = orders.find(o => o.id === orderId);
-        if (orderToUpdate && orderToUpdate.email) {
-          // Map statuses to match emailNotification.js types
-          let emailStatus = newStatus;
-          if (newStatus === "in-progress") emailStatus = "processing";
-          if (newStatus === "delivered") emailStatus = "delivery";
-          
-          try {
-            await sendCustomerStatusEmail(emailStatus, {
-              customer_name: orderToUpdate.customer,
-              customer_email: orderToUpdate.email,
-              order_id: orderToUpdate.id,
-              order_date: orderToUpdate.date,
-              order_items: orderToUpdate.itemsDetail,
-              order_total: `$${Number(orderToUpdate.total).toFixed(2)} BZD`,
-              delivery_method: orderToUpdate.city !== 'N/A' && orderToUpdate.city ? `Delivery to ${orderToUpdate.city}, ${orderToUpdate.district}` : 'Pickup'
-            });
-          } catch (error) {
-            console.error("Failed to send status update email:", error);
+    // Frontend guard: block delivery if unpaid
+    if (newStatus === 'delivered' && order.paymentStatus !== 'paid') {
+      toast.error('⚠ Order must be paid before delivery.');
+      return;
+    }
+
+    setUpdatingStatusId(orderId);
+    try {
+      const result = await updateOrderStatus(orderId, newStatus);
+
+      // Backend may return { blocked: true, message } for unpaid delivery
+      if (result && result.blocked) {
+        toast.error(`⚠ ${result.message}`);
+        return;
+      }
+
+      if (result === true) {
+        setOrders(os => os.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        const labels = { 'in-progress': 'In Progress', ready: 'Ready', delivered: 'Delivered', pending: 'Pending' };
+        toast.success(`✓ Order marked as ${labels[newStatus] || newStatus}`);
+        
+        if (newStatus === "in-progress" || newStatus === "ready" || newStatus === "delivered") {
+          const orderToUpdate = orders.find(o => o.id === orderId);
+          if (orderToUpdate && orderToUpdate.email) {
+            let emailStatus = newStatus;
+            if (newStatus === "in-progress") emailStatus = "processing";
+            if (newStatus === "delivered") emailStatus = "delivery";
+            try {
+              await sendCustomerStatusEmail(emailStatus, {
+                customer_name: orderToUpdate.customer,
+                customer_email: orderToUpdate.email,
+                order_id: orderToUpdate.id,
+                order_date: orderToUpdate.date,
+                order_items: orderToUpdate.itemsDetail,
+                order_total: `$${Number(orderToUpdate.total).toFixed(2)} BZD`,
+                delivery_method: orderToUpdate.city !== 'N/A' && orderToUpdate.city ? `Delivery to ${orderToUpdate.city}, ${orderToUpdate.district}` : 'Pickup'
+              });
+            } catch (error) {
+              console.error("Failed to send status update email:", error);
+            }
           }
         }
+      } else {
+        toast.error('Failed to update order status');
       }
-    } else {
-      console.error('Failed to update order status');
+    } catch (err) {
+      console.error('Status update error:', err);
       toast.error('Failed to update order status');
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
   const handlePaymentStatusChange = async (orderId, newStatus) => {
-    const success = await updatePaymentStatus(orderId, newStatus);
-    if (success) {
-      setOrders(os => os.map(o => o.id === orderId ? { ...o, paymentStatus: newStatus } : o));
-      toast.success(`Payment status updated to ${newStatus}`);
-    } else {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    // Prevent reverting paid → unpaid
+    if (order.paymentStatus === 'paid' && newStatus === 'unpaid') {
+      toast.error('⚠ Paid orders cannot be reverted to unpaid.');
+      return;
+    }
+
+    setUpdatingPaymentId(orderId);
+    try {
+      const success = await updatePaymentStatus(orderId, newStatus);
+      if (success) {
+        setOrders(os => os.map(o => o.id === orderId ? { ...o, paymentStatus: newStatus } : o));
+        toast.success(newStatus === 'paid' ? '✓ Order marked as Paid' : 'Payment status updated');
+      } else {
+        toast.error('Failed to update payment status');
+      }
+    } catch (err) {
+      console.error('Payment update error:', err);
       toast.error('Failed to update payment status');
+    } finally {
+      setUpdatingPaymentId(null);
     }
   };
 
@@ -389,18 +427,19 @@ export default function Orders() {
                     <h4 className="ap-section-title">Customer Info</h4>
                     <div className="ap-info-row">
                       <span className="ap-info-label">Email:</span>
-                      <span className="ap-info-value">{o.email}</span>
+                      <span className="ap-info-value">{o.email || 'Not provided'}</span>
                     </div>
                     <div className="ap-info-row">
                       <span className="ap-info-label">Phone:</span>
                       <div className="ap-phone-wrap">
-                        <span className="ap-info-value">{o.phone}</span>
+                        <span className="ap-info-value">{o.phone || 'Not provided'}</span>
                         {(() => {
                           const isValid = validatePhone(o.phone);
+                          if (!isValid) return null;
                           const msg = generateOrderMessage(o.customer, o.id, o.status, o.itemsDetail, o.total);
-                          const link = isValid ? getWhatsAppLink(o.phone, msg) : null;
+                          const link = getWhatsAppLink(o.phone, msg);
                           return (
-                            <a href={link || "#"} target={isValid ? "_blank" : undefined} rel={isValid ? "noopener noreferrer" : undefined} onClick={(e) => { e.stopPropagation(); if (!isValid) e.preventDefault(); }} className={`ap-wa-btn ${isValid ? 'valid' : 'invalid'}`} title={isValid ? "Send WhatsApp Message" : "Invalid Phone Number"}>
+                            <a href={link} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="ap-wa-btn valid" title="Send WhatsApp Message">
                               <MessageCircle size={14} />
                               <span>WhatsApp</span>
                             </a>
@@ -457,7 +496,7 @@ export default function Orders() {
                             {isCancelled ? (
                               <span style={{ fontSize: 11, background: '#fee2e2', color: '#991b1b', padding: '2px 8px', borderRadius: 10, fontWeight: 500, whiteSpace: 'nowrap' }}>Cancelled</span>
                             ) : (
-                              o.status !== 'cancelled' && o.status !== 'delivered' && (
+                              o.status !== 'cancelled' && o.status !== 'delivered' && o.status !== 'ready' ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); showCancelItemConfirm(o.id, ri); }}
                                   disabled={cancellingItemId === ri.id}
@@ -472,6 +511,10 @@ export default function Orders() {
                                 >
                                   {cancellingItemId === ri.id ? '...' : '✕ Cancel'}
                                 </button>
+                              ) : (
+                                (o.status === 'ready' || o.status === 'delivered') && (
+                                  <span style={{ fontSize: 10, color: '#999', fontStyle: 'italic', whiteSpace: 'nowrap' }}>Locked</span>
+                                )
                               )
                             )}
                           </li>
@@ -491,23 +534,35 @@ export default function Orders() {
                       <button 
                         onClick={(e) => { e.stopPropagation(); handlePaymentStatusChange(o.id, 'paid'); }}
                         className={`ap-pay-btn ${o.paymentStatus === 'paid' ? 'active-paid' : ''}`}
+                        disabled={updatingPaymentId === o.id || o.paymentStatus === 'paid'}
+                        style={o.paymentStatus === 'paid' ? { cursor: 'default' } : {}}
                       >
                         Paid
                       </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handlePaymentStatusChange(o.id, 'unpaid'); }}
                         className={`ap-pay-btn ${o.paymentStatus === 'unpaid' ? 'active-unpaid' : ''}`}
+                        disabled={updatingPaymentId === o.id || o.paymentStatus === 'paid'}
+                        title={o.paymentStatus === 'paid' ? 'Paid orders cannot be reverted' : ''}
+                        style={o.paymentStatus === 'paid' && o.paymentStatus !== 'unpaid' ? { opacity: 0.4, cursor: 'not-allowed' } : {}}
                       >
                         Unpaid
                       </button>
                     </div>
+                    {o.paymentStatus === 'paid' && (
+                      <p style={{ fontSize: 10, color: '#27ae60', margin: '-4px 0 6px 2px', fontWeight: 500 }}>✓ Payment confirmed</p>
+                    )}
 
                     <h4 className="ap-section-title" style={{ marginTop: '1.25rem' }}>Order Status</h4>
+                    {(o.status === 'ready' || o.status === 'delivered') && (
+                      <p style={{ fontSize: 10, color: '#6b4423', margin: '0 0 6px 2px', fontStyle: 'italic' }}>Items cannot be modified after order is ready</p>
+                    )}
                     <div className="ap-status-wrapper">
                       <OrderStatus
                         currentStatus={o.status}
                         orderId={o.id}
                         onStatusChange={handleStatusChange}
+                        paymentStatus={o.paymentStatus}
                         isCompact={window.innerWidth <= 768}
                       />
                     </div>

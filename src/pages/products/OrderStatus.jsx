@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Clock, Truck, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, Truck, CheckCircle2, Lock } from "lucide-react";
 import "./OrderStatus.css";
 
 /* ── Status Configuration ── */
@@ -44,36 +44,16 @@ const STATUS_FLOW = ["pending", "in-progress", "ready", "delivered"];
  * - currentStatus: string (pending, in-progress, ready, delivered)
  * - orderId: string (for identifying which order to update)
  * - onStatusChange: function(orderId, newStatus)
+ * - paymentStatus: string ('paid' | 'unpaid') — gates delivery
  * - isCompact: boolean (optional, for mobile view)
  */
-export default function OrderStatus({ currentStatus, orderId, onStatusChange, isCompact = false }) {
+export default function OrderStatus({ currentStatus, orderId, onStatusChange, paymentStatus = 'unpaid', isCompact = false }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStatusChange = async (newStatus) => {
     if (newStatus === currentStatus || isLoading) return;
 
     setIsLoading(true);
-
-    // TODO: Connect to API here in the future
-    // Example structure:
-    // try {
-    //   const response = await fetch(`/api/orders/${orderId}/status`, {
-    //     method: "PATCH",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ status: newStatus }),
-    //   });
-    //   if (response.ok) {
-    //     onStatusChange(orderId, newStatus);
-    //   } else {
-    //     console.error("Failed to update status");
-    //   }
-    // } catch (error) {
-    //   console.error("Error updating status:", error);
-    // } finally {
-    //   setIsLoading(false);
-    // }
-
-    // For now, update immediately (local state)
     onStatusChange(orderId, newStatus);
     setIsLoading(false);
   };
@@ -85,6 +65,7 @@ export default function OrderStatus({ currentStatus, orderId, onStatusChange, is
         orderId={orderId}
         onStatusChange={handleStatusChange}
         isLoading={isLoading}
+        paymentStatus={paymentStatus}
       />
     );
   }
@@ -95,6 +76,7 @@ export default function OrderStatus({ currentStatus, orderId, onStatusChange, is
       orderId={orderId}
       onStatusChange={handleStatusChange}
       isLoading={isLoading}
+      paymentStatus={paymentStatus}
     />
   );
 }
@@ -102,9 +84,10 @@ export default function OrderStatus({ currentStatus, orderId, onStatusChange, is
 /**
  * Horizontal status controls (Desktop view)
  */
-function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoading }) {
+function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoading, paymentStatus }) {
   const currentStatusIndex = STATUS_FLOW.indexOf(currentStatus);
   const nextStatusIndex = currentStatusIndex + 1;
+  const isUnpaid = paymentStatus !== 'paid';
   
   return (
     <div className="order-status-container">
@@ -116,17 +99,28 @@ function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoadi
           const isPast = STATUS_FLOW.indexOf(status) < currentStatusIndex;
           const isNext = STATUS_FLOW.indexOf(status) === nextStatusIndex;
           const isFuture = STATUS_FLOW.indexOf(status) > currentStatusIndex;
+          
+          // Block "Delivered" if unpaid
+          const isDeliveryBlocked = status === 'delivered' && isUnpaid && isNext;
+          const isDisabled = isLoading || isDeliveryBlocked || (!isActive && !isNext);
+
+          let title = config.description;
+          if (isDeliveryBlocked) {
+            title = '🔒 Order must be paid before delivery';
+          } else if (isFuture && !isNext) {
+            title = `Complete "${STATUS_FLOW[nextStatusIndex]}" first`;
+          }
 
           return (
             <button
               key={status}
-              className={`order-status-btn ${isActive ? "active" : ""} ${isPast ? "past" : ""} ${isNext ? "next" : ""} ${isFuture && !isNext ? "disabled-future" : ""}`}
+              className={`order-status-btn ${isActive ? "active" : ""} ${isPast ? "past" : ""} ${isNext && !isDeliveryBlocked ? "next" : ""} ${isFuture && !isNext ? "disabled-future" : ""} ${isDeliveryBlocked ? "blocked" : ""}`}
               onClick={() => onStatusChange(status)}
-              disabled={isLoading || !isActive && !isNext}
-              title={isFuture && !isNext ? `Complete "${STATUS_FLOW[nextStatusIndex]}" first` : config.description}
+              disabled={isDisabled}
+              title={title}
               style={{ "--status-color": config.color }}
             >
-              <Icon size={16} className="order-status-icon" />
+              {isDeliveryBlocked ? <Lock size={14} className="order-status-icon" /> : <Icon size={16} className="order-status-icon" />}
               <span className="order-status-label">{config.label}</span>
             </button>
           );
@@ -135,7 +129,13 @@ function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoadi
       <div className="order-status-indicator">
         <span className="order-status-current">{STATUS_CONFIG[currentStatus].label}</span>
         {nextStatusIndex < STATUS_FLOW.length && (
-          <span className="order-status-next-hint">→ Next: {STATUS_CONFIG[STATUS_FLOW[nextStatusIndex]].label}</span>
+          STATUS_FLOW[nextStatusIndex] === 'delivered' && isUnpaid ? (
+            <span className="order-status-blocked-hint">
+              <Lock size={11} /> Must be paid first
+            </span>
+          ) : (
+            <span className="order-status-next-hint">→ Next: {STATUS_CONFIG[STATUS_FLOW[nextStatusIndex]].label}</span>
+          )
         )}
       </div>
     </div>
@@ -145,13 +145,15 @@ function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoadi
 /**
  * Compact status controls (Mobile view / Dropdown)
  */
-function OrderStatusCompact({ currentStatus, orderId, onStatusChange, isLoading }) {
+function OrderStatusCompact({ currentStatus, orderId, onStatusChange, isLoading, paymentStatus }) {
   const [isOpen, setIsOpen] = useState(false);
   const currentConfig = STATUS_CONFIG[currentStatus];
   const currentStatusIndex = STATUS_FLOW.indexOf(currentStatus);
   const nextStatusIndex = currentStatusIndex + 1;
   const canProgress = nextStatusIndex < STATUS_FLOW.length;
   const nextStatus = canProgress ? STATUS_FLOW[nextStatusIndex] : null;
+  const isUnpaid = paymentStatus !== 'paid';
+  const isDeliveryBlocked = nextStatus === 'delivered' && isUnpaid;
 
   const CurrentIcon = currentConfig.icon;
   const nextConfig = nextStatus ? STATUS_CONFIG[nextStatus] : null;
@@ -163,7 +165,7 @@ function OrderStatusCompact({ currentStatus, orderId, onStatusChange, isLoading 
         className="order-status-dropdown-btn"
         onClick={() => setIsOpen(!isOpen)}
         disabled={isLoading || !canProgress}
-        title={!canProgress ? "Order is already delivered" : "Change order status"}
+        title={!canProgress ? "Order is already delivered" : isDeliveryBlocked ? "Must be paid before delivery" : "Change order status"}
       >
         <CurrentIcon size={14} />
         <span>{currentConfig.label}</span>
@@ -183,20 +185,29 @@ function OrderStatusCompact({ currentStatus, orderId, onStatusChange, isLoading 
 
       {isOpen && canProgress && nextConfig && NextIcon && (
         <div className="order-status-dropdown-menu">
-          <div className="order-status-dropdown-hint">
-            Next step: {nextConfig.label}
-          </div>
-          <button
-            className="order-status-dropdown-item"
-            onClick={() => {
-              onStatusChange(nextStatus);
-              setIsOpen(false);
-            }}
-            disabled={isLoading}
-          >
-            <NextIcon size={14} color={nextConfig.color} />
-            <span>{nextConfig.label}</span>
-          </button>
+          {isDeliveryBlocked ? (
+            <div className="order-status-dropdown-blocked">
+              <Lock size={12} />
+              <span>Order must be paid before delivery</span>
+            </div>
+          ) : (
+            <>
+              <div className="order-status-dropdown-hint">
+                Next step: {nextConfig.label}
+              </div>
+              <button
+                className="order-status-dropdown-item"
+                onClick={() => {
+                  onStatusChange(nextStatus);
+                  setIsOpen(false);
+                }}
+                disabled={isLoading}
+              >
+                <NextIcon size={14} color={nextConfig.color} />
+                <span>{nextConfig.label}</span>
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

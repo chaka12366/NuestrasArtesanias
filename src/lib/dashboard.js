@@ -76,21 +76,47 @@ export async function fetchAllOrders() {
 
 /**
  * Update an order's status (owner only).
+ * 
+ * SAFETY: Blocks transition to 'delivered' if payment_status !== 'paid'.
+ * 
  * @param {string} orderId   e.g. "NA-1001"
  * @param {string} newStatus 'pending' | 'in-progress' | 'ready' | 'delivered' | 'cancelled'
- * @returns {Promise<boolean>}
+ * @returns {Promise<boolean|{blocked:boolean, message:string}>}
  */
 export async function updateOrderStatus(orderId, newStatus) {
-  const { error } = await supabase
-    .from('orders')
-    .update({ status: newStatus })
-    .eq('id', orderId)
+  try {
+    // Backend guard: prevent delivery of unpaid orders
+    if (newStatus === 'delivered') {
+      const { data: order, error: fetchError } = await supabase
+        .from('orders')
+        .select('payment_status')
+        .eq('id', orderId)
+        .single()
 
-  if (error) {
-    console.error('Error updating order status:', error)
+      if (fetchError) {
+        console.error('Error checking payment status:', fetchError)
+        return false
+      }
+
+      if (order.payment_status !== 'paid') {
+        return { blocked: true, message: 'Order must be paid before delivery' }
+      }
+    }
+
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId)
+
+    if (error) {
+      console.error('Error updating order status:', error)
+      return false
+    }
+    return true
+  } catch (err) {
+    console.error('Error in updateOrderStatus:', err)
     return false
   }
-  return true
 }
 
 /**

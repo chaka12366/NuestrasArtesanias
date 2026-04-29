@@ -251,6 +251,46 @@
   font-size: 14px;
 }
 
+/* Blocked (delivery gate — unpaid) */
+.order-status-btn.blocked {
+  background: #fee2e2;
+  color: #991b1b;
+  opacity: 0.7;
+  cursor: not-allowed;
+  border-color: #fca5a5;
+}
+.order-status-btn.blocked:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+.order-status-btn.blocked .order-status-icon {
+  opacity: 0.8;
+}
+
+.order-status-blocked-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #991b1b;
+  padding: 6px 10px;
+  background: #fee2e2;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.order-status-dropdown-blocked {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #991b1b;
+  background: #fee2e2;
+}
+
 /* ── ANIMATIONS ── */
 
 @keyframes slideDown {
