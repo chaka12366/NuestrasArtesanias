@@ -514,9 +514,6 @@ export default function ProductDetail() {
               </div>
             )}
 
-
-
-
           </div>
 
 
@@ -618,6 +615,13 @@ export default function ProductDetail() {
                 <><ShoppingCart size={18} /> {added ? "Added to Cart ✓" : "Add to Cart"}</>
               )}
             </button>
+
+            {/* Payment info notice */}
+            <div className="pd-payment-info">
+              <p className="pd-payment-note">
+                <strong>No online payments</strong> — Orders confirmed directly with the owner
+              </p>
+            </div>
 
             {/* Continue Shopping */}
             <button

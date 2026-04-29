@@ -901,17 +901,17 @@
     transform: translateX(-50%);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
     z-index: 5;
-    padding: 6px 12px;
+    padding: 4px 8px;
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 20px;
+    border-radius: 16px;
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
   .pd-swipe-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     border: none;
     background: rgba(255, 255, 255, 0.45);
@@ -919,12 +919,12 @@
     cursor: pointer;
     transition: all 0.25s ease;
     -webkit-tap-highlight-color: transparent;
-    min-width: 8px !important;
-    min-height: 8px !important;
+    min-width: 6px !important;
+    min-height: 6px !important;
   }
   .pd-swipe-dot.active {
-    width: 20px !important;
-    border-radius: 10px;
+    width: 14px !important;
+    border-radius: 7px;
     background: #fff;
   }
 
