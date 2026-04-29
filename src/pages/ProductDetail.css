@@ -834,7 +834,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    touch-action: pan-y;
+    touch-action: pan-x;
     cursor: grab;
   }
   .pd-swipe-track::-webkit-scrollbar {

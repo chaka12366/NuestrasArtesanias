@@ -481,10 +481,6 @@ export default function ProductDetail() {
               className="pd-swipe-track"
               ref={mobileSwipeRef}
               onScroll={handleMobileScroll}
-              onMouseDown={handleMouseDown}
-              onMouseLeave={handleMouseLeave}
-              onMouseUp={handleMouseUp}
-              onMouseMove={handleMouseMove}
             >
               {images.map((img, idx) => (
                 <div className="pd-swipe-slide" key={img.id ?? idx}>
