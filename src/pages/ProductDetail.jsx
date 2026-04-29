@@ -128,6 +128,20 @@ export default function ProductDetail() {
     }
   }, []);
 
+  // Sync mobile swipe container when index changes from thumbnails/arrows
+  useEffect(() => {
+    const container = mobileSwipeRef.current;
+    if (!container) return;
+    const targetScroll = currentImageIndex * container.offsetWidth;
+    // Only scroll if the container isn't already at the right position
+    if (Math.abs(container.scrollLeft - targetScroll) > 2) {
+      isScrollSyncing.current = true;
+      container.scrollTo({ left: targetScroll, behavior: 'smooth' });
+      // Reset the sync flag after the scroll animation completes
+      setTimeout(() => { isScrollSyncing.current = false; }, 400);
+    }
+  }, [currentImageIndex]);
+
   if (loadingProduct) return (
     showLoading ? (
       <main className="pd-root">
@@ -249,20 +263,6 @@ export default function ProductDetail() {
     const scrollAmount = 80;
     container.scrollBy({ top: direction === 'up' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
   }
-
-  // Sync mobile swipe container when index changes from thumbnails/arrows
-  useEffect(() => {
-    const container = mobileSwipeRef.current;
-    if (!container) return;
-    const targetScroll = currentImageIndex * container.offsetWidth;
-    // Only scroll if the container isn't already at the right position
-    if (Math.abs(container.scrollLeft - targetScroll) > 2) {
-      isScrollSyncing.current = true;
-      container.scrollTo({ left: targetScroll, behavior: 'smooth' });
-      // Reset the sync flag after the scroll animation completes
-      setTimeout(() => { isScrollSyncing.current = false; }, 400);
-    }
-  }, [currentImageIndex]);
 
   // Mouse drag handlers for desktop
   const handleMouseDown = (e) => {
