@@ -141,21 +141,21 @@
 /* Desktop scrollable track */
 .pd-desktop-scroll-track {
   display: flex;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: hidden;
   width: 100%;
   height: 100%;
-  scroll-snap-type: none;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
   touch-action: pan-y;
-  cursor: default;
+  cursor: grab;
 }
 .pd-desktop-scroll-track::-webkit-scrollbar {
   display: none;
 }
 .pd-desktop-scroll-track:active {
-  cursor: default;
+  cursor: grabbing;
 }
 
 .pd-desktop-scroll-slide {
