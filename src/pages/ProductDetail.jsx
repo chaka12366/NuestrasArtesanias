@@ -53,9 +53,11 @@ export default function ProductDetail() {
   const [addedTimeoutId, setAddedTimeoutId] = useState(null);
   const [contactInfo, setContactInfo] = useState(DEFAULT_CONTACT);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [desktopImageIndex, setDesktopImageIndex] = useState(0);
   const [imgFading, setImgFading] = useState(false);
   const thumbContainerRef = useRef(null);
   const mobileSwipeRef = useRef(null);
+  const desktopScrollRef = useRef(null);
   const isScrollSyncing = useRef(false);
   
   // Drag state for mouse interaction
@@ -79,6 +81,22 @@ export default function ProductDetail() {
       setCurrentImageIndex(clamped);
     }
   }, [currentImageIndex, product]);
+
+  // Desktop scroll: detect which image is snapped into view
+  const handleDesktopScroll = useCallback(() => {
+    const container = desktopScrollRef.current;
+    if (!container) return;
+    const scrollLeft = container.scrollLeft;
+    const itemWidth = container.offsetWidth;
+    if (itemWidth === 0) return;
+    // Get images array
+    const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
+    const newIndex = Math.round(scrollLeft / itemWidth);
+    const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
+    if (clamped !== desktopImageIndex) {
+      setDesktopImageIndex(clamped);
+    }
+  }, [desktopImageIndex, product]);
 
   // Fetch product from Supabase
   useEffect(() => {
@@ -266,7 +284,7 @@ export default function ProductDetail() {
 
   // Mouse drag handlers for desktop
   const handleMouseDown = (e) => {
-    const container = mobileSwipeRef.current;
+    const container = e.currentTarget; // Use the element that triggered the event
     if (!container) return;
     isDragging.current = true;
     startX.current = e.pageX - container.offsetLeft;
@@ -278,28 +296,34 @@ export default function ProductDetail() {
   const handleMouseLeave = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    const container = mobileSwipeRef.current;
-    if (container) container.style.scrollSnapType = 'x mandatory';
+    // Re-enable scroll snapping on the currently dragged container
+    const containers = [desktopScrollRef.current, mobileSwipeRef.current];
+    containers.forEach(container => {
+      if (container) container.style.scrollSnapType = 'x mandatory';
+    });
   };
 
   const handleMouseUp = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    const container = mobileSwipeRef.current;
-    if (container) {
+    const containers = [desktopScrollRef.current, mobileSwipeRef.current];
+    containers.forEach(container => {
+      if (!container) return;
       container.style.scrollSnapType = 'x mandatory';
+      // Get images count from product
+      const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
       // Snap to nearest item based on new scroll position
       const itemWidth = container.offsetWidth;
       const newIndex = Math.round(container.scrollLeft / itemWidth);
-      const clamped = Math.max(0, Math.min(newIndex, images.length - 1));
+      const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
       container.scrollTo({ left: clamped * itemWidth, behavior: 'smooth' });
-    }
+    });
   };
 
   const handleMouseMove = (e) => {
     if (!isDragging.current) return;
     e.preventDefault();
-    const container = mobileSwipeRef.current;
+    const container = e.currentTarget;
     if (!container) return;
     const x = e.pageX - container.offsetLeft;
     const walk = (x - startX.current) * 1.5; // Drag sensitivity
@@ -371,7 +395,7 @@ export default function ProductDetail() {
         <div className="pd-img-col">
           <div className="pd-gallery">
 
-            {/* Main image card (desktop: single image with fade) */}
+            {/* Main image card (desktop: scrollable gallery) */}
             <div className="pd-img-card pd-img-card-desktop">
               {product.tag && <span className="pd-badge">{product.tag}</span>}
               <button
@@ -389,15 +413,47 @@ export default function ProductDetail() {
                 <Heart size={18} fill={wished ? "#e05454" : "none"} color={wished ? "#e05454" : "#aaa"} />
               </button>
 
-              <div className="pd-main-img-wrapper">
-                <img
-                  src={(currentImageUrl?.startsWith('data:') || currentImageUrl?.startsWith('http')) ? currentImageUrl : `/${currentImageUrl}`}
-                  alt={product.name}
-                  className={`pd-main-img ${imgFading ? 'fading' : ''}`}
-                  loading="lazy"
-                  onError={e => { e.target.src = "/logo.png"; }}
-                />
+              {/* Desktop scrollable track */}
+              <div
+                className="pd-desktop-scroll-track"
+                ref={desktopScrollRef}
+                onScroll={handleDesktopScroll}
+                onMouseDown={handleMouseDown}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+              >
+                {images.map((img, idx) => (
+                  <div className="pd-desktop-scroll-slide" key={img.id ?? idx}>
+                    <img
+                      src={(img.image_url?.startsWith('data:') || img.image_url?.startsWith('http')) ? img.image_url : `/${img.image_url}`}
+                      alt={`${product.name} - ${idx + 1}`}
+                      loading={idx === 0 ? "eager" : "lazy"}
+                      draggable={false}
+                      onError={e => { e.target.src = "/logo.png"; }}
+                    />
+                  </div>
+                ))}
               </div>
+
+              {/* Dot indicators */}
+              {hasMultipleImages && (
+                <div className="pd-desktop-dots">
+                  {images.map((_, idx) => (
+                    <button
+                      key={idx}
+                      className={`pd-desktop-dot ${idx === desktopImageIndex ? 'active' : ''}`}
+                      onClick={() => {
+                        const container = desktopScrollRef.current;
+                        if (container) {
+                          container.scrollTo({ left: idx * container.offsetWidth, behavior: 'smooth' });
+                        }
+                      }}
+                      aria-label={`View image ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
 
 
             </div>

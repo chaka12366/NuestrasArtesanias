@@ -54,7 +54,7 @@ export default function About() {
           </p>
 
           <div className="about-highlight">
-            <p>NUESTRAS ARTESANÍAS — BEADED BEAUTY, CULTURAL PRIDE, &amp; TIMELESS ARTISTRY!</p>
+            <p>NUESTRAS ARTESANÍAS — BEADED BEAUTY, CULTURAL PRIDE, & TIMELESS ARTISTRY!</p>
           </div>
 
           <Link to="/bracklets" className="about-cta">Explore Our Beaded Collection →</Link>

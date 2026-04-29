@@ -63,7 +63,7 @@ export default function Home() {
           </h1>
           <p className="hero-sub">
             Bracelets, Anklets, Waist Chains, Necklaces
- &amp; Earrings — handcrafted with love from Belize.
+ & Earrings — handcrafted with love from Belize.
           </p>
           <div className="hero-ctas">
             <Link to={categories.length > 0 ? `/${categories[0].slug}` : "/"} className="btn-primary">Shop Now</Link>
@@ -137,7 +137,7 @@ export default function Home() {
           <div className="why-card">
             <div className="why-icon"><Truck size={32} color="#c9956a" /></div>
             <h3>Countrywide Shipping</h3>
-            <p>We ship anywhere in Belize — retail &amp; wholesale.</p>
+            <p>We ship anywhere in Belize — retail & wholesale.</p>
           </div>
           <div className="why-card">
             <div className="why-icon"><Star size={32} color="#c9956a" /></div>

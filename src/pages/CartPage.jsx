@@ -327,8 +327,8 @@ export default function CartPage() {
 
             <div className="cart-summary-benefits">
               <div className="benefit"><Truck size={24} className="benefit-icon" /><p>Free shipping on orders over $50</p></div>
-              <div className="benefit"><Lock size={24} className="benefit-icon" /><p>Secure &amp; encrypted checkout</p></div>
-              <div className="benefit"><RotateCcw size={24} className="benefit-icon" /><p>30-day returns &amp; exchanges</p></div>
+              <div className="benefit"><Lock size={24} className="benefit-icon" /><p>Secure & encrypted checkout</p></div>
+              <div className="benefit"><RotateCcw size={24} className="benefit-icon" /><p>30-day returns & exchanges</p></div>
             </div>
 
             {items.length > 1 && (

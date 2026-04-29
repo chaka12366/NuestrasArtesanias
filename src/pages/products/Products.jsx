@@ -442,7 +442,7 @@ export default function Products() {
                 <div className="ap-upload-placeholder">
                   <Image size={32} className="ap-upload-icon" />
                   <p className="ap-upload-text"><strong>Tap to choose from gallery</strong></p>
-                  <p className="ap-upload-hint">or drag &amp; drop · JPG, PNG, WebP</p>
+                  <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (newP.images?.length || 0)} slot(s) remaining</p>
                 </div>
                 <input ref={addFileRef} type="file" accept="image/*" multiple
@@ -539,7 +539,7 @@ export default function Products() {
                 <div className="ap-upload-placeholder">
                   <Image size={32} className="ap-upload-icon" />
                   <p className="ap-upload-text"><strong>Tap to choose from gallery</strong></p>
-                  <p className="ap-upload-hint">or drag &amp; drop · JPG, PNG, WebP</p>
+                  <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (editModalP.images?.length || 0)} slot(s) remaining</p>
                 </div>
                 <input ref={editFileRef} type="file" accept="image/*" multiple
