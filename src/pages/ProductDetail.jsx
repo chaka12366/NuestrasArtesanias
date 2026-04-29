@@ -49,6 +49,7 @@ export default function ProductDetail() {
   const [qty,     setQty]     = useState(1);
   const [added,   setAdded]   = useState(false);
   const [wished,  setWished]  = useState(false);
+  const [liked,   setLiked]   = useState(false);
   const [addingToCart, setAddingToCart] = useState(false); // Prevent double-click
   const [addedTimeoutId, setAddedTimeoutId] = useState(null);
   const [contactInfo, setContactInfo] = useState(DEFAULT_CONTACT);
@@ -495,9 +496,21 @@ export default function ProductDetail() {
               ))}
             </div>
 
-
-
-
+            {/* Small like button for mobile */}
+            <button
+              className={`pd-mobile-like-btn ${liked ? "liked" : ""}`}
+              onClick={() => {
+                if (liked) {
+                  toast.info("Removed from likes");
+                } else {
+                  toast.success("Added to likes");
+                }
+                setLiked(!liked);
+              }}
+              aria-label="Like product"
+            >
+              <Heart size={14} fill={liked ? "#e05454" : "none"} color={liked ? "#e05454" : "#aaa"} />
+            </button>
           </div>
 
 
