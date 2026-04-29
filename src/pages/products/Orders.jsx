@@ -34,6 +34,8 @@ export default function Orders() {
   const [cancelConfirm, setCancelConfirm] = useState(null);
   const [cancelling, setCancelling] = useState(false);
   const [cancellingItemId, setCancellingItemId] = useState(null);
+  const [cancelItemConfirm, setCancelItemConfirm] = useState(null);
+  const [cancelItemQuantity, setCancelItemQuantity] = useState(1);
 
   // Fetch real orders from Supabase on component mount
   useEffect(() => {
@@ -168,27 +170,50 @@ export default function Orders() {
   };
 
   /* ── Cancel Single Item Handler ── */
-  const handleCancelItem = async (orderId, itemId, productId, quantity, productName) => {
-    setCancellingItemId(itemId);
-    const result = await cancelOrderItem(itemId, productId, quantity);
+  const showCancelItemConfirm = (orderId, ri) => {
+    setCancelItemConfirm({ orderId, item: ri });
+    setCancelItemQuantity(ri.quantity); // Default to full quantity
+  };
+
+  const handleCancelItem = async () => {
+    if (!cancelItemConfirm) return;
+    const { orderId, item } = cancelItemConfirm;
+    const qtyToCancel = Number(cancelItemQuantity);
+
+    if (qtyToCancel < 1 || qtyToCancel > item.quantity) {
+      toast.error('Invalid quantity to cancel.');
+      return;
+    }
+
+    setCancellingItemId(item.id);
+    const result = await cancelOrderItem(item.id, item.product_id, qtyToCancel);
     setCancellingItemId(null);
 
     if (result.success) {
       setOrders(os => os.map(o => {
         if (o.id !== orderId) return o;
         
-        // Update rawItems
-        const updatedRawItems = o.rawItems.map(ri => ri.id === itemId ? { ...ri, status: 'cancelled' } : ri);
+        let updatedRawItems = [...o.rawItems];
+
+        if (qtyToCancel === item.quantity) {
+           // Full cancellation
+           updatedRawItems = updatedRawItems.map(ri => ri.id === item.id ? { ...ri, status: 'cancelled' } : ri);
+        } else {
+           // Partial cancellation
+           updatedRawItems = updatedRawItems.map(ri => ri.id === item.id ? { ...ri, quantity: item.quantity - qtyToCancel } : ri);
+           if (result.newCancelledItem) {
+             updatedRawItems.push(result.newCancelledItem);
+           }
+        }
         
         // Recalculate summary fields for consistent UI
         const activeItems = updatedRawItems.filter(ri => ri.status !== 'cancelled');
-        const itemsQty = activeItems.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        const itemsQty = activeItems.reduce((sum, ri) => sum + ri.quantity, 0) || 0;
         const allItemsStr = activeItems.map(i => i.product_name).join(", ") || (updatedRawItems.length > 0 ? 'Cancelled Items' : 'Order');
         const itemsDetailStr = activeItems.map(i => `${i.product_name} ×${i.quantity}`).join(", ") || '';
         
         // Subtract subtotal from total
-        const itemToCancel = o.rawItems.find(ri => ri.id === itemId);
-        const subToSubtract = itemToCancel ? Number(itemToCancel.unit_price) * Number(itemToCancel.quantity) : 0;
+        const subToSubtract = Number(item.unit_price) * qtyToCancel;
         const newTotal = Math.max(0, (Number(o.total) || 0) - subToSubtract);
 
         return {
@@ -198,11 +223,11 @@ export default function Orders() {
           item: allItemsStr,
           itemsDetail: itemsDetailStr,
           total: newTotal,
-          // If all items are cancelled, sync parent order status
           status: result.allCancelled ? 'cancelled' : o.status,
         };
       }));
-      toast.success(`✓ "${productName}" cancelled. Stock restored.`);
+      setCancelItemConfirm(null);
+      toast.success(`✓ Cancelled ${qtyToCancel}x "${item.product_name}". Stock restored.`);
     } else {
       toast.error(`✗ ${result.message}`);
     }
@@ -389,7 +414,7 @@ export default function Orders() {
                             ) : (
                               o.status !== 'cancelled' && o.status !== 'delivered' && (
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); handleCancelItem(o.id, ri.id, ri.product_id, ri.quantity, ri.product_name); }}
+                                  onClick={(e) => { e.stopPropagation(); showCancelItemConfirm(o.id, ri); }}
                                   disabled={cancellingItemId === ri.id}
                                   style={{
                                     fontSize: 11, padding: '3px 10px', borderRadius: 8,
@@ -550,6 +575,105 @@ export default function Orders() {
       )}
 
 
+
+      {/* ── CANCEL ITEM CONFIRMATION MODAL ── */}
+      {cancelItemConfirm && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(4px)',
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: 14,
+            padding: '24px',
+            width: 'min(400px, 90vw)',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
+            border: '1px solid #ede8e2',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 10, background: '#fdecea', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AlertCircle size={20} color='#e74c3c' />
+              </div>
+              <h3 style={{ fontFamily: '"Playfair Display", serif', fontSize: 18, fontWeight: 700, color: '#2a1810', margin: 0 }}>
+                Cancel Item?
+              </h3>
+            </div>
+            
+            <p style={{ fontSize: 14, color: '#6b4423', marginBottom: 16, lineHeight: 1.5 }}>
+              How many <strong>{cancelItemConfirm.item.product_name}</strong> do you want to cancel and restore to stock?
+            </p>
+
+            {cancelItemConfirm.item.quantity > 1 && (
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a3018', marginBottom: 6 }}>Quantity to Cancel (Max: {cancelItemConfirm.item.quantity})</label>
+                <input 
+                  type="number" 
+                  min="1" 
+                  max={cancelItemConfirm.item.quantity} 
+                  value={cancelItemQuantity} 
+                  onChange={(e) => setCancelItemQuantity(Number(e.target.value))}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #dcd3c6',
+                    fontSize: 14,
+                    fontFamily: 'inherit',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setCancelItemConfirm(null)}
+                disabled={cancellingItemId === cancelItemConfirm.item.id}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 6,
+                  border: '1px solid #ede8e2',
+                  background: '#fff',
+                  color: '#6b4423',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s',
+                  opacity: cancellingItemId === cancelItemConfirm.item.id ? 0.5 : 1,
+                }}
+              >
+                Keep Item
+              </button>
+              <button
+                onClick={handleCancelItem}
+                disabled={cancellingItemId === cancelItemConfirm.item.id}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 6,
+                  border: '1px solid #e74c3c',
+                  background: '#e74c3c',
+                  color: '#fff',
+                  cursor: cancellingItemId === cancelItemConfirm.item.id ? 'not-allowed' : 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '13px',
+                  fontWeight: '500',
+                  transition: 'all 0.2s',
+                  opacity: cancellingItemId === cancelItemConfirm.item.id ? 0.7 : 1,
+                }}
+              >
+                {cancellingItemId === cancelItemConfirm.item.id ? 'Cancelling...' : 'Confirm Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes slideInRight {

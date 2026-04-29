@@ -304,12 +304,12 @@ export async function cancelOrder(orderId) {
  * @param {number} quantity    - quantity to restore
  * @returns {Promise<{ success: boolean, message: string }>}
  */
-export async function cancelOrderItem(itemId, productId, quantity) {
+export async function cancelOrderItem(itemId, productId, quantityToCancel) {
   try {
-    // 1. Fetch current item status to prevent double-cancel
+    // 1. Fetch current item info
     const { data: item, error: itemError } = await supabase
       .from('order_items')
-      .select('status')
+      .select('*')
       .eq('id', itemId)
       .single()
 
@@ -322,73 +322,126 @@ export async function cancelOrderItem(itemId, productId, quantity) {
       return { success: false, message: 'Item is already cancelled' }
     }
 
-    // 2. Mark item as cancelled
-    const { data: cancelledItem, error: updateError } = await supabase
-      .from('order_items')
-      .update({ status: 'cancelled' })
-      .eq('id', itemId)
-      .select('order_id, subtotal')
-      .single()
-
-    if (updateError) {
-      console.error('Error cancelling order item:', updateError)
-      return { success: false, message: updateError.message }
+    if (quantityToCancel <= 0 || quantityToCancel > item.quantity) {
+      return { success: false, message: 'Invalid quantity to cancel' }
     }
 
-    // 2b. Update the parent order total
-    if (cancelledItem) {
-      const { data: orderData } = await supabase
-        .from('orders')
-        .select('total')
-        .eq('id', cancelledItem.order_id)
-        .single()
+    let allCancelled = false;
+    let newCancelledItemSubtotal = item.unit_price * quantityToCancel;
+    let newCancelledItem = null;
+    let updatedActiveItem = null;
 
-      if (orderData) {
-        const newTotal = Math.max(0, (Number(orderData.total) || 0) - (Number(cancelledItem.subtotal) || 0))
-        await supabase
-          .from('orders')
-          .update({ total: newTotal })
-          .eq('id', cancelledItem.order_id)
+    if (quantityToCancel === item.quantity) {
+      // Cancel the entire row
+      const { data, error: updateError } = await supabase
+        .from('order_items')
+        .update({ status: 'cancelled' })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+      if (updateError) {
+        return { success: false, message: updateError.message };
       }
+      newCancelledItem = data;
+    } else {
+      // Partial cancellation:
+      // 1. Reduce quantity of existing item
+      const newActiveQuantity = item.quantity - quantityToCancel;
+      const newActiveSubtotal = item.unit_price * newActiveQuantity;
+      
+      const { data: updatedItem, error: updateError } = await supabase
+        .from('order_items')
+        .update({ quantity: newActiveQuantity, subtotal: newActiveSubtotal })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+      if (updateError) {
+        return { success: false, message: updateError.message };
+      }
+      updatedActiveItem = updatedItem;
+
+      // 2. Insert a new cancelled item row for the cancelled portion
+      const { data: insertedItem, error: insertError } = await supabase
+        .from('order_items')
+        .insert({
+          order_id: item.order_id,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          product_image: item.product_image,
+          unit_price: item.unit_price,
+          quantity: quantityToCancel,
+          subtotal: newCancelledItemSubtotal,
+          status: 'cancelled'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+         console.error('Error creating cancelled order item:', insertError);
+      } else {
+         newCancelledItem = insertedItem;
+      }
+    }
+
+    // Update parent order total
+    const { data: orderData } = await supabase
+      .from('orders')
+      .select('total')
+      .eq('id', item.order_id)
+      .single();
+
+    if (orderData) {
+      const newTotal = Math.max(0, (Number(orderData.total) || 0) - (Number(newCancelledItemSubtotal) || 0));
+      await supabase
+        .from('orders')
+        .update({ total: newTotal })
+        .eq('id', item.order_id);
     }
 
     // 3. Restore stock for this product
-    const { data: product, error: prodError } = await supabase
-      .from('products')
-      .select('stock')
-      .eq('id', productId)
-      .single()
-
-    if (!prodError && product) {
-      const newStock = (Number(product.stock) || 0) + quantity
-      const newStatus = newStock === 0 ? 'out' : newStock <= 6 ? 'low' : 'active'
-
-      await supabase
+    if (productId) {
+      const { data: product, error: prodError } = await supabase
         .from('products')
-        .update({ stock: newStock, status: newStatus })
+        .select('stock')
         .eq('id', productId)
-    }
+        .single()
 
-    // 4. Check if ALL items in the order are now cancelled → auto-cancel order
-    let allCancelled = false
-    if (cancelledItem) {
-      const { data: siblingItems, error: siblingsError } = await supabase
-        .from('order_items')
-        .select('id, status')
-        .eq('order_id', cancelledItem.order_id)
+      if (!prodError && product) {
+        const newStock = (Number(product.stock) || 0) + quantityToCancel;
+        const newStatus = newStock === 0 ? 'out' : newStock <= 6 ? 'low' : 'active';
 
-      if (!siblingsError && siblingItems) {
-        allCancelled = siblingItems.every(si => si.status === 'cancelled')
-        if (allCancelled) {
-          await supabase
-            .from('orders')
-            .update({ status: 'cancelled' })
-            .eq('id', cancelledItem.order_id)
-        }
+        await supabase
+          .from('products')
+          .update({ stock: newStock, status: newStatus })
+          .eq('id', productId)
       }
     }
 
-    return { success: true, message: 'Item cancelled and stock restored', allCancelled }
+    // 4. Check if ALL items in the order are now cancelled → auto-cancel order
+    const { data: siblingItems, error: siblingsError } = await supabase
+      .from('order_items')
+      .select('id, status')
+      .eq('order_id', item.order_id)
+
+    if (!siblingsError && siblingItems) {
+      allCancelled = siblingItems.every(si => si.status === 'cancelled')
+      if (allCancelled) {
+        await supabase
+          .from('orders')
+          .update({ status: 'cancelled' })
+          .eq('id', item.order_id)
+      }
+    }
+
+    return { 
+      success: true, 
+      message: 'Item cancelled and stock restored', 
+      allCancelled,
+      updatedActiveItem,
+      newCancelledItem
+    }
   } catch (err) {
     console.error('Error in cancelOrderItem:', err)
     return { success: false, message: err.message }
