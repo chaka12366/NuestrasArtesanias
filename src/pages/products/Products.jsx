@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import { X, Image, Trash2, Edit } from "lucide-react";
+import { X, Image, Trash2, Edit, Search } from "lucide-react";
 import { fetchAllProducts, createProduct, updateProduct, deleteProduct, uploadProductImage, fetchCategories, addProductImage, syncProductImages, fetchProductImages } from "../../lib/products.js";
 import { toast } from "react-toastify";
 import EmptyState from "../../components/EmptyState.jsx";
