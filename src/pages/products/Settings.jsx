@@ -392,12 +392,6 @@ export default function Settings() {
               <><Key size={14} style={{display:'inline', marginRight: 6}} /> Update Password</>
             )}
           </button>
-
-          <div className="ap-danger-zone">
-            <h4>Danger Zone</h4>
-            <p>Permanently delete your store and all data.</p>
-            <button className="ap-danger-btn">Delete Store</button>
-          </div>
         </div>
 
       </div>
