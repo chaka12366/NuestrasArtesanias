@@ -94,14 +94,35 @@ Nuestras Artesanías is a full-featured eCommerce platform designed specifically
    The app will be available at `http://localhost:5173`
 
 ## 🔐 Environment Variables
+VITE_SUPABASE_URL=https://ehqyfcehyoofygcncuwp.supabase.co
+VITE_SUPABASE_ANON_KEY=sb_publishable_zvzGryS_oO4SJJoiFLXVfg_CzFTXSh3
 
-| Variable | Description |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | Your Supabase project URL |
-| `VITE_SUPABASE_ANON_KEY` | Your Supabase anonymous API key |
-| `VITE_EMAILJS_SERVICE_ID` | EmailJS service ID for sending emails |
-| `VITE_EMAILJS_TEMPLATE_ID` | EmailJS template ID for order notifications |
-| `VITE_EMAILJS_PUBLIC_KEY` | EmailJS public API key |
+#email 1 low stack and order
+VITE_EMAILJS_PUBLIC_KEY=Za0hm2vI33mN4ziKZ
+VITE_EMAILJS_SERVICE_ID=service_w28idsf
+VITE_EMAILJS_ORDER_TEMPLATE_ID=template_sxz9upr
+VITE_EMAILJS_LOW_STOCK_TEMPLATE_ID=template_vzej8ht
+VITE_BUSINESS_EMAIL=adrianaban706@gmail.com
+
+#email 2 processing and ready
+VITE_EMAILJS_PUBLIC_KEY_2=vM__BrbfC6GYUBrkM
+VITE_EMAILJS_SERVICE_ID_2=service_w6t9pye
+VITE_EMAILJS_PROCESSING_TEMPLATE_ID_2=template_06m1dkj
+VITE_EMAILJS_READY_TEMPLATE_ID_2=template_uwjf2fi
+VITE_BUSINESS_EMAIL_2=benporll13@gmail.com
+
+#email 3 delivery and paid
+VITE_EMAILJS_PUBLIC_KEY_3=Dth1R7K09739Apip2
+VITE_EMAILJS_SERVICE_ID_3=service_bk6okhg
+VITE_EMAILJS_DELIVERY_TEMPLATE_ID_3=template_yxoadp5
+VITE_EMAILJS_PAID_TEMPLATE_ID_3=template_ic09lsh
+VITE_BUSINESS_EMAIL_3=yeng102207@gmail.com
+
+#email 4 cancel
+VITE_EMAILJS_PUBLIC_KEY_4=Dth1R7K09739Apip2
+VITE_EMAILJS_SERVICE_ID_4=service_ay7t7me
+VITE_EMAILJS_CANCEL_TEMPLATE_ID_4=template_sqk64tp
+VITE_BUSINESS_EMAIL_4=work77052@gmail.com
 
 ## 📁 Project Structure
 
@@ -236,5 +257,8 @@ Benjamin Portillo
 Jimael Cobb
 
 ---
+
+## Live Production Link
+https://nuestras-artesanias.vercel.app/
 
 For questions or support, please contact the development team or submit an issue in the repository.
