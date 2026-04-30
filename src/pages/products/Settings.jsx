@@ -35,7 +35,6 @@ export default function Settings() {
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  // Load settings from database on mount
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -44,13 +43,13 @@ export default function Settings() {
         const settings = await fetchStoreSettings();
         if (settings) {
           setStore(settings);
-          // Also save to localStorage as backup
+
           localStorage.setItem("storeSettings", JSON.stringify(settings));
         }
       } catch (err) {
         console.error('Failed to load settings:', err);
         setError('Could not load settings. Using cached version.');
-        // Fall back to localStorage
+
         const cached = localStorage.getItem("storeSettings");
         if (cached) {
           setStore(JSON.parse(cached));
@@ -76,9 +75,9 @@ export default function Settings() {
         const fullSettings = {
           ...store,
         };
-        // Also save to localStorage as backup
+
         localStorage.setItem("storeSettings", JSON.stringify(fullSettings));
-        invalidateStoreSettings(); // Refresh global cache
+        invalidateStoreSettings();
 
         setSaved(true);
         toast.success("Profile updated successfully");
@@ -95,10 +94,9 @@ export default function Settings() {
   };
 
   const handleUpdatePassword = async () => {
-    // Reset error
+
     setPasswordError("");
 
-    // Validation
     if (!password.current || !password.next || !password.confirm) {
       setPasswordError("All fields are required");
       return;
@@ -117,7 +115,6 @@ export default function Settings() {
     try {
       setPasswordLoading(true);
 
-      // Update password in Supabase
       const { error: updateError } = await supabase.auth.updateUser({
         password: password.next
       });
@@ -142,8 +139,8 @@ export default function Settings() {
     <div className="ap-field">
       <label className="ap-label">{label}</label>
       <div style={{ position: 'relative' }}>
-        <input 
-          className="ap-input" 
+        <input
+          className="ap-input"
           type={showPasswords[field] ? "text" : "password"}
           value={password[field] || ""}
           onChange={e => setPassword({...password, [field]: e.target.value})}
@@ -187,7 +184,6 @@ export default function Settings() {
   return (
     <div className="ap-root">
 
-
       {error && (
         <div style={{
           backgroundColor: '#fee2e2',
@@ -209,8 +205,8 @@ export default function Settings() {
           <h1 className="ap-page-title">Settings</h1>
           <p className="ap-page-sub">Configure your store</p>
         </div>
-        <button 
-          className={`ap-primary-btn ${saved?"saved":""}`} 
+        <button
+          className={`ap-primary-btn ${saved?"saved":""}`}
           onClick={handleSave}
           disabled={loading || saving}
           style={{
@@ -225,7 +221,7 @@ export default function Settings() {
 
       <div className="ap-settings-grid">
 
-        {/* Store Info */}
+        {}
         <div className="ap-card ap-settings-card">
           <div className="ap-settings-card-header">
             <Store size={24} className="ap-settings-icon" />
@@ -249,7 +245,7 @@ export default function Settings() {
 
         </div>
 
-        {/* Security */}
+        {}
         <div className="ap-card ap-settings-card">
           <div className="ap-settings-card-header">
             <Lock size={24} className="ap-settings-icon" />
@@ -258,8 +254,8 @@ export default function Settings() {
           <div className="ap-field">
             <label className="ap-label">Current Password</label>
             <div style={{ position: 'relative' }}>
-              <input 
-                className="ap-input" 
+              <input
+                className="ap-input"
                 type={showPasswords.current ? "text" : "password"}
                 value={password.current || ""}
                 onChange={e => setPassword({...password, current: e.target.value})}
@@ -291,12 +287,12 @@ export default function Settings() {
               </button>
             </div>
           </div>
-          
+
           <div className="ap-field">
             <label className="ap-label">New Password</label>
             <div style={{ position: 'relative' }}>
-              <input 
-                className="ap-input" 
+              <input
+                className="ap-input"
                 type={showPasswords.next ? "text" : "password"}
                 value={password.next || ""}
                 onChange={e => setPassword({...password, next: e.target.value})}
@@ -328,12 +324,12 @@ export default function Settings() {
               </button>
             </div>
           </div>
-          
+
           <div className="ap-field">
             <label className="ap-label">Confirm Password</label>
             <div style={{ position: 'relative' }}>
-              <input 
-                className="ap-input" 
+              <input
+                className="ap-input"
                 type={showPasswords.confirm ? "text" : "password"}
                 value={password.confirm || ""}
                 onChange={e => setPassword({...password, confirm: e.target.value})}
@@ -365,7 +361,7 @@ export default function Settings() {
               </button>
             </div>
           </div>
-          
+
           {passwordError && (
             <div style={{
               backgroundColor: '#fee2e2',
@@ -384,8 +380,8 @@ export default function Settings() {
             </div>
           )}
 
-          <button 
-            className="ap-primary-btn" 
+          <button
+            className="ap-primary-btn"
             style={{marginTop:"0.5rem"}}
             onClick={handleUpdatePassword}
             disabled={passwordLoading}

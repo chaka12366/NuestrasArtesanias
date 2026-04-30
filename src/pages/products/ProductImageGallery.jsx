@@ -13,7 +13,7 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
 
   const handleFileSelect = async (files) => {
     if (!files.length) return;
-    
+
     setUploading(true);
     let successCount = 0;
 
@@ -26,7 +26,7 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
           const addResult = await addProductImage(
             productId,
             uploadResult.url,
-            localImages.length === 0 // Set as primary if first image
+            localImages.length === 0
           );
           if (addResult.success) {
             setLocalImages(prev => [...prev, {
@@ -52,7 +52,7 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
 
   const handleDelete = async (imageId) => {
     if (!confirm("Delete this image?")) return;
-    
+
     const success = await deleteProductImage(imageId);
     if (success) {
       setLocalImages(prev => prev.filter(img => img.id !== imageId));
@@ -97,11 +97,9 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
 
     if (draggedIndex === -1 || targetIndex === -1) return;
 
-    // Reorder locally
     const newImages = [...localImages];
     [newImages[draggedIndex], newImages[targetIndex]] = [newImages[targetIndex], newImages[draggedIndex]];
 
-    // Update display_order
     const reordered = newImages.map((img, idx) => ({
       ...img,
       display_order: idx,
@@ -110,7 +108,6 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
     setLocalImages(reordered);
     setDraggedImageId(null);
 
-    // Save to database
     const imageIds = reordered.map(img => img.id);
     await reorderProductImages(productId, imageIds);
     toast.success("✓ Images reordered");
@@ -121,7 +118,7 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
     <div className="pga-container">
       <h4 className="pga-title">Product Images (Drag to reorder)</h4>
 
-      {/* Upload Area */}
+      {}
       <div
         className={`pga-upload-zone ${draggedOver ? "dragged-over" : ""}`}
         onDragOver={handleDragOver}
@@ -137,18 +134,9 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
           ref={fileInputRef}
           type="file"
           multiple
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={(e) => handleFileSelect(e.target.files)}
-        />
-        <div className="pga-upload-content">
-          <span className="pga-icon">📸</span>
-          <p className="pga-text">Drag images here or click to upload</p>
-          <p className="pga-subtext">JPG, PNG, WebP • Max 5MB each</p>
-        </div>
-      </div>
-
-      {/* Gallery Grid */}
+          accept="image
+}
+}
       <div className="pga-gallery">
         {localImages.map((image) => (
           <div
@@ -162,14 +150,14 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
           >
             <img src={image.image_url} alt="Product" className="pga-image" />
 
-            {/* Primary Badge */}
+            {}
             {image.is_primary && (
               <div className="pga-primary-badge">
                 <Star size={14} fill="currentColor" /> Primary
               </div>
             )}
 
-            {/* Actions */}
+            {}
             <div className="pga-actions">
               {!image.is_primary && (
                 <button
@@ -189,13 +177,13 @@ export default function ProductImageGallery({ productId, images = [], onImagesCh
               </button>
             </div>
 
-            {/* Drag Indicator */}
+            {}
             <div className="pga-drag-hint">⋮⋮</div>
           </div>
         ))}
       </div>
 
-      {/* Count */}
+      {}
       <p className="pga-count">{localImages.length} image(s)</p>
     </div>
   );

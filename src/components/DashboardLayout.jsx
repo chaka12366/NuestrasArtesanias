@@ -17,12 +17,10 @@ export default function DashboardLayout() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
-  // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  // Determine active sidebar item based on current path
   const getActiveItem = () => {
     if (pathname === "/dashboard") return "dashboard";
     if (pathname === "/analytics") return "analytics";
@@ -65,7 +63,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-container dashboard-container--admin">
-      {/* Fixed Sidebar */}
+      {}
       <Sidebar
         variant="admin"
         items={sidebarItems}
@@ -77,9 +75,9 @@ export default function DashboardLayout() {
         showBranding={true}
       />
 
-      {/* Main Content Area */}
+      {}
       <main className="dashboard-main dashboard-main--admin">
-        {/* Page Content */}
+        {}
         <div className="dashboard-content">
           <Outlet />
         </div>

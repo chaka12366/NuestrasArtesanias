@@ -1,64 +1,53 @@
-/**
- * THEME CONFIGURATION - Nuestras Artesanías
- * Extracted from brand logo - unified design system
- */
+
 
 export const themeColors = {
-  // Primary Palette (Warm Earth Tones - from Logo)
+
   primary: {
-    darkest: '#5C2D0E',    // Deep chocolate brown
-    dark: '#6B4423',       // Main brand brown (logo text)
-    mid: '#8B4513',        // Rich saddle brown
-    light: '#A0522D',      // Warm sienna
-    lighter: '#C9956A',    // Light tan
-    lightest: '#D4A574',   // Pale tan
+    darkest: '#5C2D0E',
+    dark: '#6B4423',
+    mid: '#8B4513',
+    light: '#A0522D',
+    lighter: '#C9956A',
+    lightest: '#D4A574',
   },
 
-  // Backgrounds & Neutrals
   background: {
-    canvas: '#E8D5C4',     // Warm sand (from logo bg)
-    primary: '#FFFDF9',    // Parchment/cream (from logo lines)
-    secondary: '#FAF5F0',  // Off-white
-    tertiary: '#F5F0EB',   // Light cream
-    hover: '#F9F3ED',      // Subtle hover bg
+    canvas: '#E8D5C4',
+    primary: '#FFFDF9',
+    secondary: '#FAF5F0',
+    tertiary: '#F5F0EB',
+    hover: '#F9F3ED',
   },
 
-  // Text Colors
   text: {
-    primary: '#2D1A0E',    // Near black (for best readability)
-    secondary: '#6B4423',  // Brown text
-    tertiary: '#9A7060',   // Muted brown
-    light: '#B8A89C',      // Light gray-brown
-    muted: '#888888',      // Gray
-    inverse: '#FFFDF9',    // Text on dark backgrounds
+    primary: '#2D1A0E',
+    secondary: '#6B4423',
+    tertiary: '#9A7060',
+    light: '#B8A89C',
+    muted: '#888888',
+    inverse: '#FFFDF9',
   },
 
-  // Semantic Colors
   semantic: {
-    success: '#27AE60',    // Green
-    error: '#E74C3C',      // Red
-    warning: '#F39C12',    // Orange
-    info: '#3498DB',       // Blue
+    success: '#27AE60',
+    error: '#E74C3C',
+    warning: '#F39C12',
+    info: '#3498DB',
   },
 
-  // Borders & Dividers
   border: {
-    primary: 'rgba(107, 68, 35, 0.15)',   // Brown tint
-    light: 'rgba(107, 68, 35, 0.08)',    // Lighter brown
-    lighter: 'rgba(107, 68, 35, 0.04)',  // Very light
+    primary: 'rgba(107, 68, 35, 0.15)',
+    light: 'rgba(107, 68, 35, 0.08)',
+    lighter: 'rgba(107, 68, 35, 0.04)',
   },
 
-  // Accents & Highlights
   accent: {
-    gold: '#C9956A',       // Warm accent
-    goldLight: '#E8C49A',  // Light gold
-    goldLighter: '#F5E6D3', // Pale gold
+    gold: '#C9956A',
+    goldLight: '#E8C49A',
+    goldLighter: '#F5E6D3',
   },
 };
 
-/**
- * Component-Specific Theme Objects
- */
 export const componentThemes = {
   button: {
     primary: {
@@ -125,9 +114,6 @@ export const componentThemes = {
   },
 };
 
-/**
- * CSS Variables Export (for JS access)
- */
 export const getCSSVariables = () => {
   const vars = {};
   Object.entries(themeColors).forEach(([key, value]) => {

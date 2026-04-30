@@ -6,7 +6,6 @@ import { getStoreSettings, getStoreSettingsSync } from "../utils/storeSettingsCa
 import "./Dashboard.css";
 import { ShoppingBag, Star, Package, Bell, DollarSign, Flower, TrendingUp, ShoppingCart, Sparkles, Wallet, Package2, Users, LogOut } from "lucide-react";
 
-/* ── tiny hook: count up animation ── */
 function useCountUp(target, duration = 1200, start = false) {
   const [value, setValue] = useState(0);
   useEffect(() => {
@@ -24,7 +23,6 @@ function useCountUp(target, duration = 1200, start = false) {
   return value;
 }
 
-/* ── stat card ── */
 function StatCard({ icon, label, value, prefix = "", suffix = "", color, delay, animate }) {
   const count = useCountUp(value, 1400, animate);
   return (
@@ -39,7 +37,6 @@ function StatCard({ icon, label, value, prefix = "", suffix = "", color, delay, 
   );
 }
 
-/* ── nav item ── */
 function NavItem({ icon, label, desc, to, delay, onClick }) {
   return (
     <button
@@ -57,7 +54,6 @@ function NavItem({ icon, label, desc, to, delay, onClick }) {
   );
 }
 
-/* ── recent activity (loaded from Supabase) ── */
 const activityIcons = {
   new_order:  <ShoppingBag size={20} />,
   low_stock:  <Sparkles size={20} />,
@@ -84,12 +80,10 @@ export default function OwnerDashboard() {
     else if (h < 18) setGreeting("Good afternoon");
     else setGreeting("Good evening");
 
-    // Fetch store settings (uses shared cache)
     getStoreSettings().then(data => {
       if (data && data.name) setStoreName(data.name);
     });
 
-    // Fetch real data from Supabase (static imports, no dynamic import)
     fetchDashboardStats().then(data => {
       if (data && data.monthlyRevenue) {
         const totalRevenue = data.monthlyRevenue.reduce((s, m) => s + Number(m.revenue || 0), 0);
@@ -99,7 +93,7 @@ export default function OwnerDashboard() {
         setStats({ revenue: 0, orders: 0, products: 0 });
       }
     }).catch(err => {
-      // Silently handle - stats will show 0
+
       setStats({ revenue: 0, orders: 0, products: 0 });
     });
 
@@ -126,12 +120,12 @@ export default function OwnerDashboard() {
 
   return (
     <div className="dash-root">
-      {/* Background orbs */}
+      {}
       <div className="dash-orb dash-orb-1" />
       <div className="dash-orb dash-orb-2" />
       <div className="dash-orb dash-orb-3" />
 
-      {/* Header */}
+      {}
       <header className="dash-header">
         <div className="dash-header-inner">
           <div className="dash-logo">
@@ -152,7 +146,7 @@ export default function OwnerDashboard() {
 
       <main className="dash-main">
 
-        {/* Hero welcome */}
+        {}
         <section className="dash-hero" ref={heroRef}>
           <div className="dash-hero-text">
             <p className="dash-greeting">{greeting},</p>
@@ -170,7 +164,7 @@ export default function OwnerDashboard() {
           </div>
         </section>
 
-        {/* Stats row */}
+        {}
         <section className="dash-stats">
           <StatCard icon={<Wallet size={28} />} label="Revenue (BZD)"  value={stats.revenue}  prefix="$" color="#8b4513" delay={0}   animate={animate} />
           <StatCard icon={<Package2 size={28} />} label="Total Orders"   value={stats.orders}              color="#a0522d" delay={80}  animate={animate} />
@@ -178,10 +172,10 @@ export default function OwnerDashboard() {
           <StatCard icon={<Star size={28} />} label="Avg Rating"     value={48}   suffix="/50" color="#d2691e" delay={240} animate={animate} />
         </section>
 
-        {/* Main grid */}
+        {}
         <div className="dash-grid">
 
-          {/* Activity feed - removed Quick Access section since navigation is now in sidebar */}
+          {}
           <section className="dash-activity-section dash-activity-full">
             <h2 className="dash-section-title">
               Recent Activity
@@ -215,7 +209,7 @@ export default function OwnerDashboard() {
 
         </div>
 
-        {/* Footer note */}
+        {}
         <p className="dash-footer-note">
           Handcrafted with love from Corozal, Belize 🌺
         </p>

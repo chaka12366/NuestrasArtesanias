@@ -1,14 +1,11 @@
-/**
- * EXAMPLE 1: Sending Order Notification After Inserting Order to Supabase
- * This example shows how to integrate email notification with order creation
- */
+
 
 import { sendOrderNotification } from '../lib/emailNotification';
 import { supabase } from '../lib/supabase';
 
 export const createOrderWithNotification = async (orderData) => {
   try {
-    // Insert order into Supabase
+
     const { data, error } = await supabase
       .from('orders')
       .insert([
@@ -31,7 +28,6 @@ export const createOrderWithNotification = async (orderData) => {
 
     console.log('Order created successfully:', data);
 
-    // Send email notification to business owner
     try {
       await sendOrderNotification({
         customer_name: data.customer_name,
@@ -42,7 +38,7 @@ export const createOrderWithNotification = async (orderData) => {
       });
       console.log('Order notification email sent');
     } catch (emailError) {
-      // Log email error but don't fail the order creation
+
       console.error('Failed to send order notification:', emailError.message);
     }
 
@@ -53,18 +49,13 @@ export const createOrderWithNotification = async (orderData) => {
   }
 };
 
-/**
- * EXAMPLE 2: Triggering Low Stock Alert
- * This example shows how to check inventory and send alert if stock is low
- */
-
 import { sendLowStockAlert } from '../lib/emailNotification';
 
-const LOW_STOCK_THRESHOLD = 10; // Alert if quantity falls below 10
+const LOW_STOCK_THRESHOLD = 10;
 
 export const checkAndAlertLowStock = async (productId) => {
   try {
-    // Fetch product inventory
+
     const { data, error } = await supabase
       .from('products')
       .select('id, product_name, stock_quantity')
@@ -75,11 +66,9 @@ export const checkAndAlertLowStock = async (productId) => {
       throw new Error(`Database error: ${error.message}`);
     }
 
-    // Check if stock is low
     if (data.stock_quantity < LOW_STOCK_THRESHOLD) {
       console.log(`Low stock detected for ${data.product_name}`);
 
-      // Send low stock alert
       try {
         await sendLowStockAlert({
           product_name: data.product_name,
@@ -99,18 +88,11 @@ export const checkAndAlertLowStock = async (productId) => {
   }
 };
 
-/**
- * EXAMPLE 3: Auto-check stock after order (inventory deduction)
- * This example shows how to automatically trigger low stock alerts
- * after reducing inventory from an order
- */
-
 export const processOrderAndCheckStock = async (orderData, productId) => {
   try {
-    // Create order
+
     const newOrder = await createOrderWithNotification(orderData);
 
-    // Deduct from inventory
     const { data: product, error: fetchError } = await supabase
       .from('products')
       .select('stock_quantity')
@@ -128,7 +110,6 @@ export const processOrderAndCheckStock = async (orderData, productId) => {
 
     if (updateError) throw updateError;
 
-    // Check and alert if low stock
     await checkAndAlertLowStock(productId);
 
     return newOrder;
@@ -137,10 +118,6 @@ export const processOrderAndCheckStock = async (orderData, productId) => {
     throw error;
   }
 };
-
-/**
- * EXAMPLE 4: Using in a React Component (CheckoutForm or similar)
- */
 
 import React, { useState } from 'react';
 
@@ -167,7 +144,7 @@ export const OrderSubmitExample = () => {
   };
 
   return (
-    <button onClick={() => handleOrderSubmit(/* form data */)} disabled={loading}>
+    <button onClick={() => handleOrderSubmit()} disabled={loading}>
       {loading ? 'Processing...' : 'Place Order'}
     </button>
   );

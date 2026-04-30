@@ -25,15 +25,14 @@ export default function Analytics() {
       fetchDashboardStats(),
       fetchRevenueByCategory(),
     ]).then(([dashStats, catStats]) => {
-      // Process monthly revenue and orders
+
       const monthlyData = dashStats.monthlyRevenue || [];
       const revData = monthlyData.map(m => Number(m.revenue || 0));
       const ordData = monthlyData.map(m => Number(m.order_count || 0));
-      
+
       setRevenueData(revData);
       setOrdersData(ordData);
 
-      // Process top products
       const products = (dashStats.topProducts || []).slice(0, 5).map(p => ({
         name: p.product_name,
         sales: Number(p.order_count || 0),
@@ -42,7 +41,6 @@ export default function Analytics() {
       }));
       setTopProducts(products);
 
-      // Process category data
       const totalCatRev = (catStats || []).reduce((s, c) => s + Number(c.revenue || 0), 0);
       const categories = (catStats || []).map(c => ({
         label: c.category_name,
@@ -51,7 +49,6 @@ export default function Analytics() {
       }));
       setCatData(categories);
 
-      // Calculate KPI stats
       const totalRev = revData.reduce((s, r) => s + r, 0);
       const totalOrders = ordData.reduce((s, o) => s + o, 0);
       const avgOrder = totalOrders > 0 ? totalRev / totalOrders : 0;
@@ -85,7 +82,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* KPI row */}
+      {}
       <div className="ap-kpi-row">
         {[
           { icon:<Wallet size={24} />, label:"Total Revenue",   val:`$${kpiStats.totalRev.toLocaleString()}`,  sub:"+12% vs last period", pos:true },
@@ -102,9 +99,9 @@ export default function Analytics() {
         ))}
       </div>
 
-      {/* Charts row */}
+      {}
       <div className="ap-charts-row">
-        {/* Revenue bar chart */}
+        {}
         <div className="ap-card ap-chart-card">
           <h3 className="ap-card-title">Monthly Revenue (BZD)</h3>
           <div className="ap-bar-chart">
@@ -132,7 +129,7 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Category donut */}
+        {}
         <div className="ap-card ap-donut-card">
           <h3 className="ap-card-title">Sales by Category</h3>
           <div className="ap-donut-wrap">
@@ -175,7 +172,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      {/* Top products + orders sparkline */}
+      {}
       <div className="ap-bottom-row">
         <div className="ap-card">
           <h3 className="ap-card-title">Top Products</h3>
@@ -204,7 +201,7 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* Orders sparkline */}
+        {}
         <div className="ap-card ap-sparkline-card">
           <h3 className="ap-card-title">Orders / Month</h3>
           <div className="ap-spark-wrap">

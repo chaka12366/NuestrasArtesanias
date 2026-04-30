@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import EmptyState from "../components/EmptyState.jsx";
 import "./CartPage.css";
 
-/* ── Swipeable Image Gallery ── */
 function CartItemGallery({ item, images, loading }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
@@ -48,7 +47,7 @@ function CartItemGallery({ item, images, loading }) {
 
   return (
     <div className="cg-root">
-      {/* Main image with swipe */}
+      {}
       <div
         className="cg-img-wrap"
         onPointerDown={e => { dragStartX.current = e.clientX; }}
@@ -76,7 +75,7 @@ function CartItemGallery({ item, images, loading }) {
           />
         </AnimatePresence>
 
-        {/* Arrows */}
+        {}
         {total > 1 && (
           <>
             <button className="cg-btn cg-btn-left" onClick={() => go(-1)} aria-label="Previous image">
@@ -90,7 +89,7 @@ function CartItemGallery({ item, images, loading }) {
         )}
       </div>
 
-      {/* Dot indicators */}
+      {}
       {total > 1 && (
         <div className="cg-dots">
           {allImages.map((_, i) => (
@@ -104,7 +103,7 @@ function CartItemGallery({ item, images, loading }) {
         </div>
       )}
 
-      {/* Thumbnail strip */}
+      {}
       {total > 1 && (
         <div className="cg-thumbs">
           {allImages.map((url, i) => (
@@ -128,9 +127,9 @@ export default function CartPage() {
   const { items, itemCount, total, updateQty, removeFromCart, clearCart } = useCart();
   const [productImages, setProductImages] = useState({});
   const [loadingImages, setLoadingImages] = useState({});
-  const [disabledAction, setDisabledAction] = useState(null); // Prevent double-clicks on same item
-  const [checkoutInProgress, setCheckoutInProgress] = useState(false); // Prevent double checkout click
-  const [clearConfirm, setClearConfirm] = useState(false); // Two-step clear cart confirmation
+  const [disabledAction, setDisabledAction] = useState(null);
+  const [checkoutInProgress, setCheckoutInProgress] = useState(false);
+  const [clearConfirm, setClearConfirm] = useState(false);
   const fetchedIdsRef = useRef(new Set());
 
   useEffect(() => {
@@ -140,13 +139,11 @@ export default function CartPage() {
 
     if (idsToFetch.length === 0) return;
 
-    // Mark as fetching immediately to prevent duplicate requests
     idsToFetch.forEach(id => {
       fetchedIdsRef.current.add(id);
       setLoadingImages(prev => ({ ...prev, [id]: true }));
     });
 
-    // Batch fetch all images in ONE query instead of N individual queries
     fetchProductImagesBatch(idsToFetch)
       .then(batchedImages => {
         setProductImages(prev => ({ ...prev, ...batchedImages }));
@@ -155,7 +152,7 @@ export default function CartPage() {
         });
       })
       .catch(err => {
-        // Silently handle error - images will show logo.png fallback
+
         idsToFetch.forEach(id => {
           setLoadingImages(prev => ({ ...prev, [id]: false }));
         });
@@ -191,19 +188,19 @@ export default function CartPage() {
       </div>
 
       <div className="cart-page-container">
-        {/* Left: Items List */}
+        {}
         <div className="cart-items-section">
           <div className="cart-items-list" role="list">
             {items.map(item => (
               <div key={item.key} className="cart-page-item" role="listitem">
-                {/* Swipeable Image Gallery */}
+                {}
                 <CartItemGallery
                   item={item}
                   images={productImages[item.id]}
                   loading={loadingImages[item.id] === true}
                 />
 
-                {/* Product Info */}
+                {}
                 <div className="cart-page-item-details">
                   <div className="cart-page-item-top">
                     <div className="cart-page-item-top-left">
@@ -226,13 +223,13 @@ export default function CartPage() {
 
                   <div className="cart-page-item-bottom">
                     <div className="cart-page-qty-group">
-                      <button 
-                        className="cart-page-qty-btn" 
+                      <button
+                        className="cart-page-qty-btn"
                         onClick={() => {
                           setDisabledAction(item.key);
                           updateQty(item.key, item.qty - 1);
                           setTimeout(() => setDisabledAction(null), 200);
-                        }} 
+                        }}
                         disabled={disabledAction === item.key}
                         aria-label="Decrease quantity"
                       >
@@ -254,20 +251,20 @@ export default function CartPage() {
                     </div>
 
                     <div className="cart-page-item-actions-right">
-                      <button 
-                        className="cart-page-action-btn delete-btn" 
+                      <button
+                        className="cart-page-action-btn delete-btn"
                         onClick={() => {
                           setDisabledAction(item.key);
                           removeFromCart(item.key);
                           setTimeout(() => setDisabledAction(null), 200);
-                        }} 
+                        }}
                         disabled={disabledAction === item.key}
                         aria-label="Remove item"
                       >
                         <Trash2 size={16} />
                         <span className="delete-text">Remove</span>
                       </button>
-                      
+
                       <div className="cart-page-item-price mobile-only">
                         <p className="cart-page-item-total">${(item.price * item.qty).toFixed(2)}</p>
                       </div>
@@ -284,7 +281,7 @@ export default function CartPage() {
           </div>
         </div>
 
-        {/* Right: Order Summary */}
+        {}
         <div className="cart-summary-section">
           <div className="cart-summary-card">
             <h2 className="cart-summary-title">Order Summary</h2>
@@ -312,8 +309,8 @@ export default function CartPage() {
               </div>
             </div>
 
-            <button 
-              className="cart-checkout-cta" 
+            <button
+              className="cart-checkout-cta"
               onClick={() => {
                 setCheckoutInProgress(true);
                 setTimeout(() => navigate("/checkout"), 100);
@@ -337,7 +334,7 @@ export default function CartPage() {
                 onClick={() => {
                   if (!clearConfirm) {
                     setClearConfirm(true);
-                    // Auto-reset after 3s if user doesn't confirm
+
                     setTimeout(() => setClearConfirm(false), 3000);
                   } else {
                     setClearConfirm(false);

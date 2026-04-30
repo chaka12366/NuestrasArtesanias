@@ -61,13 +61,12 @@ export default function Contact() {
   const [socials, setSocials] = useState(DEFAULT_SOCIALS);
 
   useEffect(() => {
-    // Check localStorage for instant loading
+
     const cached = localStorage.getItem("storeSettings");
     if (cached) {
       applyStoreSettings(JSON.parse(cached));
     }
-    
-    // Fetch fresh from Supabase
+
     fetchStoreSettings().then(data => {
       if (data) {
         applyStoreSettings(data);
@@ -76,35 +75,30 @@ export default function Contact() {
     }).catch(console.error);
   }, []);
 
-  // Helper to extract a clean display handle from a potential URL
   const getCleanHandle = (input, type) => {
     if (!input) return "";
     let clean = input.trim();
-    
-    // Remove protocol and www
+
     clean = clean.replace(/^(https?:\/\/)?(www\.)?/, '');
-    
+
     if (type === "instagram" || type === "facebook") {
-      // Strip domains
-      clean = clean.replace(/instagram\.com\//i, '').replace(/facebook\.com\//i, '');
-      // Strip trailing slashes and query params
+      clean = clean.replace(/instagram\.com\//i, '');
+      clean = clean.replace(/facebook\.com\//i, '');
       clean = clean.replace(/\/$/, '').split('?')[0];
-      // Ensure '@' prefix
+
       return clean.startsWith('@') ? clean : `@${clean}`;
     }
-    return input; // return original for email/phone
+    return input;
   };
 
-  // Helper to build the correct href URL
   const getHrefUrl = (input, type) => {
     if (!input) return "";
     const cleanInput = input.trim();
-    
-    // If it's already a full valid URL, return it directly
+
     if (cleanInput.startsWith('http://') || cleanInput.startsWith('https://')) {
       return cleanInput;
     }
-    
+
     if (type === "instagram") {
       const handle = cleanInput.replace('@', '');
       return `https://www.instagram.com/${handle}`;
@@ -143,7 +137,7 @@ export default function Contact() {
 
   return (
     <main className="contact-root">
-      {/* Hero */}
+      {}
       <section className="contact-hero">
         <div className="contact-hero-inner">
           <p className="contact-eyebrow">Get In Touch</p>
@@ -158,7 +152,7 @@ export default function Contact() {
       </section>
 
       <div className="contact-body">
-        {/* Social cards */}
+        {}
         <section className="contact-section">
           <h2 className="contact-section-title">Follow Us</h2>
           <p className="contact-section-sub">Stay connected on our social platforms</p>

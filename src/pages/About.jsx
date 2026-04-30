@@ -6,7 +6,7 @@ export default function About() {
   return (
     <main className="about-root">
 
-      {/* Hero */}
+      {}
       <section className="about-hero">
         <div className="about-hero-inner">
           <p className="about-eyebrow">Est. 2021 · Belize</p>
@@ -19,7 +19,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Main content */}
+      {}
       <section className="about-body">
         <div className="about-card">
           <div className="about-badge"><Gem size={32} /></div>
@@ -27,29 +27,29 @@ export default function About() {
 
           <p className="about-text">
             At <strong>Nuestras Artesanías</strong>, we create exquisite{" "}
-            <strong>handmade beaded jewelry</strong> that tells the story of Belize. 
-            Each piece is carefully crafted with meaningful beads that represent the 
-            rich cultural heritage, ancient Mayan traditions, and vibrant history of 
+            <strong>handmade beaded jewelry</strong> that tells the story of Belize.
+            Each piece is carefully crafted with meaningful beads that represent the
+            rich cultural heritage, ancient Mayan traditions, and vibrant history of
             our beloved country.
           </p>
 
           <p className="about-text">
-            Our <strong>artisanal jewelry collection</strong> features intricate designs 
-            using authentic beads selected for their beauty and cultural significance. 
-            From traditional Mayan-inspired patterns to contemporary styles, every 
+            Our <strong>artisanal jewelry collection</strong> features intricate designs
+            using authentic beads selected for their beauty and cultural significance.
+            From traditional Mayan-inspired patterns to contemporary styles, every
             bracelet, anklet, necklace, and earring celebrates Belizean pride and craftsmanship.
           </p>
 
           <p className="about-text">
-            Since <strong>2021</strong>, we've been passionate about preserving Belizean 
-            culture through our handcrafted beaded creations. Each piece is made with 
-            dedication and love, honoring the traditions passed down through generations 
+            Since <strong>2021</strong>, we've been passionate about preserving Belizean
+            culture through our handcrafted beaded creations. Each piece is made with
+            dedication and love, honoring the traditions passed down through generations
             of Belizean artisans.
           </p>
 
           <p className="about-text">
-            Whether you're looking for a meaningful gift or a personal treasure, our 
-            beaded jewelry carries the spirit of Belize. <strong>We ship CountryWide</strong>, 
+            Whether you're looking for a meaningful gift or a personal treasure, our
+            beaded jewelry carries the spirit of Belize. <strong>We ship CountryWide</strong>,
             so you can wear a piece of Belizean heritage wherever you are!
           </p>
 
@@ -60,7 +60,7 @@ export default function About() {
           <Link to="/bracklets" className="about-cta">Explore Our Beaded Collection →</Link>
         </div>
 
-        {/* Stats */}
+        {}
         <div className="about-stats">
           <div className="about-stat">
             <span className="stat-num">2021</span>

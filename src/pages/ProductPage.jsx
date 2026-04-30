@@ -43,7 +43,6 @@ export default function ProductPage({ title, subtitle, products, category, loadi
     p.name.toLowerCase().includes(debouncedSearch.toLowerCase())
   ), [products, debouncedSearch]);
 
-  // Empty products fallback (no search but category has no items)
   const hasNoProducts = !loading && !search && (!products || products.length === 0);
 
   return (
@@ -62,7 +61,7 @@ export default function ProductPage({ title, subtitle, products, category, loadi
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      {/* Hero banner */}
+      {}
       <section className="pp-hero">
         <div className="pp-hero-inner">
           <p className="pp-hero-eyebrow">Artesanias Collection</p>
@@ -76,7 +75,7 @@ export default function ProductPage({ title, subtitle, products, category, loadi
         </div>
       </section>
 
-      {/* Controls */}
+      {}
       <div className="pp-controls">
         <div className="pp-search-wrap">
           <svg className="pp-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -98,7 +97,7 @@ export default function ProductPage({ title, subtitle, products, category, loadi
         </p>
       </div>
 
-      {/* Grid */}
+      {}
       <div className="pp-grid-wrap">
         {loading ? (
           showLoading ? (

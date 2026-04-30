@@ -23,14 +23,15 @@ export default function Footer() {
     const val = store.instagram || "_nuestrasartesanias_";
     if (val.startsWith('http://') || val.startsWith('https://')) return val;
     let clean = val.replace(/^(https?:\/\/)?(www\.)?/, '');
-    clean = clean.replace(/instagram\.com\//i, '').replace(/\/$/, '').split('?')[0].replace('@', '');
+    clean = clean.replace(/instagram\.com\//i, '');
+    clean = clean.replace(/\/$/, '').split('?')[0];
     return `https://www.instagram.com/${clean}`;
   };
 
   return (
     <footer className="footer">
       <div className="footer-inner">
-        {/* Brand */}
+        {}
         <div className="footer-brand">
           <div className="footer-logo-circle">
             <img src={logo} alt={store.name} />
@@ -41,7 +42,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Links */}
+        {}
         <div className="footer-cols">
           <div className="footer-col">
             <h4>Shop</h4>

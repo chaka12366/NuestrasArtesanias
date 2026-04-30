@@ -13,7 +13,6 @@ import {
   TrendingUp, Clock, ChevronRight, ChevronDown, Sparkles, X, User, Eye, EyeOff, Key, Loader,
 } from "lucide-react";
 
-/* ─── CONSTANTS ─────────────────────────────────────────────── */
 const STATUS_CONFIG = {
   pending:       { label: "Pending",     color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
   "in-progress": { label: "In Progress", color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
@@ -21,7 +20,6 @@ const STATUS_CONFIG = {
   delivered:     { label: "Delivered",   color: "#4b5563", bg: "#f3f4f6", dot: "#9ca3af" },
 };
 
-/* ─── HELPERS ───────────────────────────────────────────────── */
 const fmtDate = (d) =>
   new Date(d).toLocaleDateString("en-BZ", { year: "numeric", month: "short", day: "numeric" });
 const fmtMoney = (n) => `BZD $${Number(n).toFixed(2)}`;
@@ -32,7 +30,6 @@ const getGreeting = () => {
   return "Good evening";
 };
 
-/* ─── DESIGN TOKENS ─────────────────────────────────────────── */
 const T = {
   brown:      "#7c3d26",
   brownLight: "#a0522d",
@@ -50,7 +47,6 @@ const T = {
 const STAT_BG    = { pending: "#fef3c7", inprog: "#dbeafe", ready: "#d1fae5", delivered: "#f3f4f6" };
 const STAT_COLOR = { pending: "#92400e", inprog: "#1e40af", ready: "#065f46", delivered: "#4b5563" };
 
-/* ─── SMALL REUSABLE BITS ────────────────────────────────────── */
 function StatusBadge({ status }) {
   const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
   return (
@@ -79,7 +75,6 @@ function PayBadge({ status }) {
   );
 }
 
-/* ─── STATUS TIMELINE ────────────────────────────────────────── */
 function StatusTimeline({ current }) {
   const steps = ["pending", "in-progress", "ready", "delivered"];
   const currentIdx = steps.indexOf(current);
@@ -107,7 +102,6 @@ function StatusTimeline({ current }) {
   );
 }
 
-/* ─── ORDER DETAIL MODAL ─────────────────────────────────────── */
 function OrderModal({ order, onClose }) {
   if (!order) return null;
   return (
@@ -187,7 +181,6 @@ function OrderModal({ order, onClose }) {
   );
 }
 
-/* ─── SECTION: OVERVIEW ─────────────────────────────────────── */
 function Overview({ orders, onViewOrder, user }) {
   const counts = orders.reduce((acc, o) => { acc[o.status] = (acc[o.status] || 0) + 1; return acc; }, {});
   const active = orders.filter((o) => o.status !== "delivered");
@@ -203,7 +196,7 @@ function Overview({ orders, onViewOrder, user }) {
 
   return (
     <div>
-      {/* Welcome Banner */}
+      {}
       <div className="cd-banner" style={{ background: "#fff", borderRadius: 20, padding: "26px 28px", marginBottom: 24, border: "1px solid rgba(201,149,106,0.18)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", right: -30, top: -40, width: 180, height: 180, borderRadius: "50%", background: "radial-gradient(circle, rgba(232,196,154,0.22) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", right: 100, bottom: -50, width: 120, height: 120, borderRadius: "50%", background: "radial-gradient(circle, rgba(247,168,158,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
@@ -224,7 +217,7 @@ function Overview({ orders, onViewOrder, user }) {
         </div>
       </div>
 
-      {/* Stat cards */}
+      {}
       <div className="cd-stats" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 30 }}>
         {stats.map(({ key, label, val, Icon }) => (
           <div key={key} style={{ background: STAT_BG[key], borderRadius: 16, padding: "18px 16px" }}>
@@ -239,7 +232,7 @@ function Overview({ orders, onViewOrder, user }) {
         ))}
       </div>
 
-      {/* Active orders */}
+      {}
       {active.length > 0 && (
         <>
           <SectionTitle>Active Orders</SectionTitle>
@@ -262,7 +255,7 @@ function Overview({ orders, onViewOrder, user }) {
         </>
       )}
 
-      {/* Recent activity */}
+      {}
       <SectionTitle>Recent Activity</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {recent.map((o) => (
@@ -284,7 +277,6 @@ function Overview({ orders, onViewOrder, user }) {
   );
 }
 
-/* ─── SECTION: MY ORDERS ─────────────────────────────────────── */
 function MyOrders({ orders, onViewOrder }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -315,7 +307,7 @@ function MyOrders({ orders, onViewOrder }) {
             <option value="ready">Ready for Pickup</option>
             <option value="delivered">Delivered</option>
           </select>
-          {/* Custom Arrow for select */}
+          {}
           <ChevronDown size={14} color={T.muted} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", zIndex: 21 }} />
         </div>
       </div>
@@ -378,7 +370,6 @@ function MyOrders({ orders, onViewOrder }) {
   );
 }
 
-/* ─── SECTION: ORDER HISTORY ─────────────────────────────────── */
 function OrderHistory({ orders }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -466,7 +457,6 @@ function OrderHistory({ orders }) {
   );
 }
 
-/* ─── SECTION: MY PROFILE ────────────────────────────────────── */
 function MyProfile({ user }) {
   const [profile, setProfile] = useState({
     first_name: "",
@@ -491,14 +481,14 @@ function MyProfile({ user }) {
       setErrorMsg("");
       const { data: authData } = await supabase.auth.getUser();
       const authUser = authData?.user;
-      
+
       if (authUser) {
         const { data, error } = await supabase
           .from('profiles')
           .select('first_name, last_name, email, phone, address')
           .eq('id', authUser.id)
           .single();
-          
+
         if (data && !error) {
           setProfile({
             first_name: data.first_name || user?.firstName || "",
@@ -508,7 +498,7 @@ function MyProfile({ user }) {
             address: data.address || ""
           });
         } else {
-          // Fallback to user object if profile data not found
+
           setProfile({
             first_name: user?.firstName || "",
             last_name: user?.lastName || "",
@@ -532,7 +522,7 @@ function MyProfile({ user }) {
     e.preventDefault();
     setErrorMsg("");
     setSuccessMsg("");
-    
+
     if (!profile.first_name.trim()) {
       setErrorMsg("First name is a required field.");
       return;
@@ -556,9 +546,9 @@ function MyProfile({ user }) {
           address: profile.address
         })
         .eq('id', authData.user.id);
-        
+
       if (error) throw error;
-      
+
       setSuccessMsg("Profile updated successfully");
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch (err) {
@@ -569,10 +559,9 @@ function MyProfile({ user }) {
   };
 
   const handleUpdatePassword = async () => {
-    // Reset error
+
     setPasswordError("");
 
-    // Validation
     if (!password.current || !password.next || !password.confirm) {
       setPasswordError("All fields are required");
       return;
@@ -591,7 +580,6 @@ function MyProfile({ user }) {
     try {
       setPasswordLoading(true);
 
-      // Update password in Supabase
       const { error: updateError } = await supabase.auth.updateUser({
         password: password.next
       });
@@ -624,7 +612,7 @@ function MyProfile({ user }) {
         </div>
       ) : (
         <div className="cd-profile-card" style={{ background: "#fff", border: "1px solid rgba(201,149,106,0.15)", borderRadius: 16, padding: "28px", boxShadow: "0 4px 20px rgba(124, 61, 38, 0.05)" }}>
-          
+
           {errorMsg && (
             <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "12px 16px", borderRadius: 10, marginBottom: 20, fontSize: 14, fontFamily: T.sans, display: "flex", alignItems: "center", gap: 8 }}>
               <AlertCircle size={16} />
@@ -663,8 +651,8 @@ function MyProfile({ user }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid rgba(201,149,106,0.15)", paddingTop: 20 }}>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={saving}
                 style={{ background: T.brown, color: "#fff", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 15, fontWeight: 600, fontFamily: T.sans, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8, opacity: saving ? 0.7 : 1, transition: "all 0.2s" }}
               >
@@ -675,7 +663,7 @@ function MyProfile({ user }) {
         </div>
       )}
 
-      {/* Password Change Section */}
+      {}
       {!loading && (
         <div className="cd-password-card" style={{ background: "#fff", border: "1px solid rgba(201,149,106,0.15)", borderRadius: 16, padding: "28px", boxShadow: "0 4px 20px rgba(124, 61, 38, 0.05)", marginTop: 28 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
@@ -702,11 +690,11 @@ function MyProfile({ user }) {
             </div>
           )}
 
-          {/* Current Password */}
+          {}
           <div style={{ marginBottom: 20 }}>
             <label style={labelStyle}>Current Password</label>
             <div style={{ position: "relative" }}>
-              <input 
+              <input
                 type={showPasswords.current ? "text" : "password"}
                 value={password.current || ""}
                 onChange={e => setPassword({...password, current: e.target.value})}
@@ -739,11 +727,11 @@ function MyProfile({ user }) {
             </div>
           </div>
 
-          {/* New Password */}
+          {}
           <div style={{ marginBottom: 20 }}>
             <label style={labelStyle}>New Password</label>
             <div style={{ position: "relative" }}>
-              <input 
+              <input
                 type={showPasswords.next ? "text" : "password"}
                 value={password.next || ""}
                 onChange={e => setPassword({...password, next: e.target.value})}
@@ -776,11 +764,11 @@ function MyProfile({ user }) {
             </div>
           </div>
 
-          {/* Confirm Password */}
+          {}
           <div style={{ marginBottom: 28 }}>
             <label style={labelStyle}>Confirm Password</label>
             <div style={{ position: "relative" }}>
-              <input 
+              <input
                 type={showPasswords.confirm ? "text" : "password"}
                 value={password.confirm || ""}
                 onChange={e => setPassword({...password, confirm: e.target.value})}
@@ -814,7 +802,7 @@ function MyProfile({ user }) {
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid rgba(201,149,106,0.15)", paddingTop: 20 }}>
-            <button 
+            <button
               onClick={handleUpdatePassword}
               disabled={passwordLoading}
               style={{ background: T.brown, color: "#fff", border: "none", padding: "12px 28px", borderRadius: 10, fontSize: 15, fontWeight: 600, fontFamily: T.sans, cursor: passwordLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 8, opacity: passwordLoading ? 0.7 : 1, transition: "all 0.2s" }}
@@ -832,7 +820,6 @@ function MyProfile({ user }) {
   );
 }
 
-/* ─── MAIN COMPONENT ─────────────────────────────────────────── */
 export default function CustomerDashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -848,28 +835,25 @@ export default function CustomerDashboard() {
     setActiveSection(sectionId);
   };
 
-  const handleLogout = async () => { 
-    await logout(); 
-    navigate("/", { replace: true }); 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/", { replace: true });
   };
 
   const handleReturnShopping = () => {
     navigate("/", { replace: true });
   };
-  
+
   const [myOrders, setMyOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [updateNotification, setUpdateNotification] = useState(null);
 
-  // Fetch real orders from Supabase + set up real-time listener
   useEffect(() => {
     if (!user) return;
-    
-    // 1. Reset state to avoid showing previous user's data
+
     setMyOrders([]);
     setLoadingOrders(true);
 
-    // Initial fetch
     fetchMyOrders().then(data => {
       const transformed = (data || []).map(o => ({
         id: o.id,
@@ -894,7 +878,6 @@ export default function CustomerDashboard() {
       setLoadingOrders(false);
     });
 
-    // Real-time subscription for order updates
     const orderSubscription = supabase
       .channel(`orders_customer_${user.id}`)
       .on(
@@ -906,11 +889,11 @@ export default function CustomerDashboard() {
           filter: `customer_id=eq.${user.id}`
         },
         (payload) => {
-          // When an order is updated (e.g., payment status changed)
+
           if (payload.eventType === 'UPDATE') {
             const oldPaymentStatus = payload.old?.payment_status;
             const newPaymentStatus = payload.new?.payment_status;
-            
+
             setMyOrders(prevOrders =>
               prevOrders.map(order =>
                 order.id === payload.new.id
@@ -924,16 +907,14 @@ export default function CustomerDashboard() {
               )
             );
 
-            // Show notification if payment status changed
             if (oldPaymentStatus !== newPaymentStatus && newPaymentStatus) {
-              const message = newPaymentStatus === 'paid' 
+              const message = newPaymentStatus === 'paid'
                 ? `✓ Order ${payload.new.id} marked as Paid!`
                 : `Order ${payload.new.id} payment status updated`;
               setUpdateNotification(message);
               setTimeout(() => setUpdateNotification(null), 4000);
             }
-            
-            // Show notification if order status changed
+
             if (payload.old?.status !== payload.new?.status) {
               const statusLabel = {
                 pending: 'Pending',
@@ -949,7 +930,6 @@ export default function CustomerDashboard() {
       )
       .subscribe();
 
-    // Cleanup subscription on unmount
     return () => {
       supabase.removeChannel(orderSubscription);
     };
@@ -965,7 +945,6 @@ export default function CustomerDashboard() {
     { id: "profile",  icon: User,            label: "My Profile" },
   ];
 
-  // Safety fallback if activeSection gets stuck on "track" somehow
   useEffect(() => {
     if (activeSection === "track") setActiveSection("orders");
   }, [activeSection]);
@@ -976,8 +955,8 @@ export default function CustomerDashboard() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body, #root { font-family: 'Jost', sans-serif; background: #faf4ee; }
-        
-        .cd-main { 
+
+        .cd-main {
           flex: 1;
           margin-left: 280px;
           height: 100vh;
@@ -988,7 +967,7 @@ export default function CustomerDashboard() {
           -webkit-overflow-scrolling: touch;
           min-height: 0;
         }
-        
+
         @media (max-width: 768px) {
           .cd-main {
             height: auto !important;
@@ -997,41 +976,39 @@ export default function CustomerDashboard() {
             margin-left: 0 !important;
           }
         }
-        
+
         .cd-header {
           animation: slideDown 0.4s ease-out;
         }
-        
+
         .cd-content {
           animation: fadeIn 0.5s ease-out 0.1s backwards;
         }
-        
+
         @keyframes slideDown {
           from { transform: translateY(-10px); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-        
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideInCard {
           from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Section fade-up animation */
+
         .cd-section {
           animation: fadeUp 0.4s ease-out;
         }
-        
-        /* Scrollbar styling */
+
         .cd-main::-webkit-scrollbar { width: 8px; }
         .cd-main::-webkit-scrollbar-track { background: transparent; }
         .cd-main::-webkit-scrollbar-thumb {
@@ -1042,86 +1019,74 @@ export default function CustomerDashboard() {
         .cd-main::-webkit-scrollbar-thumb:hover {
           background: rgba(123, 61, 38, 0.4);
         }
-        
-        /* Banner animation */
+
         .cd-banner {
           animation: slideInCard 0.5s ease-out;
         }
-        
-        /* Stat cards - staggered */
+
         [class*="stat-card"], .cd-stats > div {
           animation: slideInCard 0.4s ease-out;
           animation-fill-mode: both;
         }
-        
+
         .cd-stats > div:nth-child(1) { animation-delay: 0.1s; }
         .cd-stats > div:nth-child(2) { animation-delay: 0.15s; }
         .cd-stats > div:nth-child(3) { animation-delay: 0.2s; }
         .cd-stats > div:nth-child(4) { animation-delay: 0.25s; }
-        
-        /* Order cards - staggered */
+
         .cd-order-item {
           animation: slideInCard 0.4s ease-out;
           animation-fill-mode: both;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .cd-order-item:hover {
           transform: translateY(-2px) !important;
           box-shadow: 0 8px 16px rgba(123, 61, 38, 0.12) !important;
         }
-        
-        /* Recent activity items */
+
         .cd-activity-item {
           animation: slideInCard 0.4s ease-out;
           animation-fill-mode: both;
           transition: all 0.2s ease;
         }
-        
+
         .cd-activity-item:hover {
           transform: translateX(4px);
         }
-        
-        /* Modal animation */
+
         .cd-modal-backdrop {
           animation: fadeIn 0.3s ease-out;
         }
-        
+
         .cd-modal-content {
           animation: slideInCard 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        
-        /* Smooth color transitions */
+
         button, [role="button"], input, select, textarea {
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         @media (max-width: 1024px) {
           .cd-main { margin-left: 240px; }
         }
 
-        /* ── Mobile ── */
         @media (max-width: 768px) {
-          /* Sidebar becomes overlay → main takes full width */
+
           .cd-main { margin-left: 0 !important; }
 
-          /* Header: leave left room for the hamburger toggle (fixed at left:14px, width:42px) */
           .cd-header {
             padding: 0 16px 0 68px !important;
             height: 56px;
           }
 
-          /* Tighten content padding */
           .cd-content { padding: 16px !important; }
 
-          /* Stats: 2 columns */
           .cd-stats { grid-template-columns: repeat(2, 1fr) !important; }
           .cd-hist-stats { grid-template-columns: repeat(2, 1fr) !important; }
 
-          /* Shrink stat number so it doesn't overflow on 2-col */
           .cd-stats > div p:first-of-type { font-size: 26px !important; }
 
-          /* Banner: stack vertically, tighten padding */
           .cd-banner {
             padding: 18px 16px !important;
             flex-direction: column !important;
@@ -1131,19 +1096,16 @@ export default function CustomerDashboard() {
           .cd-banner h2, .cd-banner-title { font-size: 20px !important; line-height: 1.2 !important; }
           .cd-banner p  { font-size: 13px !important; }
 
-          /* Modal: full-width, safe padding */
           .cd-modal-content {
             padding: 20px 16px !important;
             border-radius: 16px !important;
             max-height: 92vh !important;
           }
 
-          /* Disable hover slide on mobile (no hover on touch) */
           .cd-activity-item:hover { transform: none !important; }
           .cd-order-item:hover    { transform: none !important; box-shadow: none !important; }
         }
 
-        /* ── Small phones ── */
         @media (max-width: 480px) {
           .cd-header { padding: 0 12px 0 64px !important; }
           .cd-content { padding: 12px !important; }
@@ -1173,7 +1135,7 @@ export default function CustomerDashboard() {
           }
         `}</style>
 
-        {/* ══ SIDEBAR ══ */}
+        {}
         <Sidebar
           variant="customer"
           items={NAV_ITEMS}
@@ -1185,7 +1147,7 @@ export default function CustomerDashboard() {
           badgeCount={activeSection === "orders" ? pendingCount : 0}
         />
 
-        {/* ══ MAIN ══ */}
+        {}
         <main className="cd-main" style={{ display: "flex", flexDirection: "column" }}>
           <header className="cd-header" style={{ background: "#fff", borderBottom: "1px solid rgba(201,149,106,0.12)", padding: "0 28px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 50, gap: 12 }}>
             <p style={{ fontFamily: T.serif, fontSize: 18, fontWeight: 600, color: T.text, margin: 0 }}>
@@ -1224,7 +1186,7 @@ export default function CustomerDashboard() {
 
       <OrderModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
 
-      {/* Real-time Update Notification Toast */}
+      {}
       {updateNotification && (
         <div
           style={{

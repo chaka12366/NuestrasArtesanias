@@ -4,7 +4,6 @@ import { fetchFeaturedProducts, fetchCategories } from "../lib/products.js";
 import "./Home.css";
 import { Truck, Sparkles, Star, Gift, Gem, Zap, ShoppingBag } from "lucide-react";
 
-// Fallback icons for categories
 const ICON_MAP = {
   bracelets:   <Gem size={32} />,
   bracklets:   <Gem size={32} />,
@@ -23,25 +22,22 @@ export default function Home() {
   const [featuredSlides, setFeaturedSlides] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // Fetch data from Supabase
   useEffect(() => {
     fetchFeaturedProducts()
       .then(data => setFeaturedSlides(data || []))
       .catch(err => {
-        // Silently handle - will show empty featured section
+
         setFeaturedSlides([]);
       });
-      
+
     fetchCategories()
       .then(data => setCategories(data || []))
       .catch(err => {
-        // Silently handle - will show empty categories
+
         setCategories([]);
       });
   }, []);
 
-
-  // Auto-advance slider
   useEffect(() => {
     if (featuredSlides.length === 0) return;
     const t = setInterval(() => setCurrent(c => (c + 1) % featuredSlides.length), 3500);
@@ -53,7 +49,7 @@ export default function Home() {
   return (
     <main className="home-root">
 
-      {/* ── HERO ── */}
+      {}
       <section className="home-hero">
         <div className="hero-content">
           <p className="hero-eyebrow"><Sparkles size={16} style={{display:'inline',marginRight:4}} /> New Arrivals Every Week</p>
@@ -71,13 +67,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Floating decorative circles */}
+        {}
         <div className="hero-deco hero-deco-1" />
         <div className="hero-deco hero-deco-2" />
         <div className="hero-deco hero-deco-3" />
       </section>
 
-      {/* ── FEATURED SLIDER ── */}
+      {}
       {slide && (
         <section className="home-slider-section">
           <div className="slider-label">Featured Products</div>
@@ -99,7 +95,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Dots */}
+          {}
           <div className="slider-dots">
             {featuredSlides.map((_, i) => (
               <button
@@ -113,7 +109,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ── CATEGORIES ── */}
+      {}
       <section className="home-categories">
         <div className="section-header">
           <h2>Browse by Category</h2>
@@ -131,7 +127,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── WHY US ── */}
+      {}
       <section className="home-why">
         <div className="why-inner">
           <div className="why-card">

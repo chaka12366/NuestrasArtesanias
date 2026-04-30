@@ -7,18 +7,6 @@ import "./CreateAccount.css";
 import logo from "../assets/logo.png";
 import TermsAndPrivacyModal from "./TermsAndPrivacyModal";
 
-/**
- * CreateAccount - Account creation form component
- * 
- * Features:
- * - Email/Password registration
- * - First & Last name capture
- * - Phone number collection
- * - Password strength indicator
- * - Terms of service & newsletter opt-in
- * - Form validation with error handling
- */
-
 function pwStrength(val) {
   let s = 0;
   if (val.length >= 8)        s++;
@@ -32,7 +20,6 @@ function pwStrength(val) {
 const PW_COLORS = ["#e74c3c", "#e67e22", "#f1c40f", "#27ae60", "#1e8449"];
 const PW_LABELS = ["Too short", "Weak", "Fair", "Strong", "Very strong"];
 
-/* ── Reusable Field Component ── */
 function Field({ label, required, error, children, half }) {
   return (
     <div className={`ca-field${half ? " ca-field-half" : ""}`}>
@@ -47,9 +34,6 @@ function Field({ label, required, error, children, half }) {
   );
 }
 
-/**
- * Account Creation Form
- */
 function AccountForm({ onSuccess }) {
   const navigate = useNavigate();
   const { register } = useAuth();
@@ -88,7 +72,7 @@ function AccountForm({ onSuccess }) {
     if (!Object.keys(e_obj).length) {
       setSubmitting(true);
       try {
-        // Call register function from AuthContext
+
         const result = await register(
           form.email,
           form.pw,
@@ -100,7 +84,7 @@ function AccountForm({ onSuccess }) {
         );
 
         if (result.success) {
-          // Redirect to login page after successful registration
+
           navigate("/login", { replace: true });
         } else {
           const errorMsg = result.error || "Registration failed. Please try again.";
@@ -125,12 +109,12 @@ function AccountForm({ onSuccess }) {
 
   return (
     <div className="ca-wrapper">
-      {/* Background orbs */}
+      {}
       <div className="ca-orb ca-orb-1" />
       <div className="ca-orb ca-orb-2" />
 
       <div className="ca-inner">
-        {/* Header */}
+        {}
         <div className="ca-header">
           <button className="ca-back-home" onClick={() => navigate(-1)} type="button">
             ← Back
@@ -141,7 +125,7 @@ function AccountForm({ onSuccess }) {
           </div>
         </div>
 
-        {/* Title area */}
+        {}
         <div className="ca-title-area">
           <h1 className="ca-page-title">Create Account</h1>
           <p className="ca-page-sub">
@@ -149,19 +133,17 @@ function AccountForm({ onSuccess }) {
           </p>
         </div>
 
-        {/* Form Card */}
+        {}
         <div className="ca-card">
           <User className="ca-card-icon" size={32} />
           <h2 className="ca-card-title">Your Information</h2>
           <p className="ca-card-sub">Fill in the details below to get started</p>
 
-
-
           <form onSubmit={handleSubmit} noValidate>
-            {/* Error Message */}
+            {}
             {registerError && <p className="ca-error-message">{registerError}</p>}
 
-            {/* Name Fields */}
+            {}
             <div className="ca-row2">
               <Field label="First name" required error={errors.fn}>
                 <input
@@ -185,7 +167,7 @@ function AccountForm({ onSuccess }) {
               </Field>
             </div>
 
-            {/* Email */}
+            {}
             <Field label="Email address" required error={errors.email}>
               <input
                 type="email"
@@ -198,7 +180,7 @@ function AccountForm({ onSuccess }) {
               />
             </Field>
 
-            {/* Phone */}
+            {}
             <Field label="Phone number" required error={errors.phone}>
               <input
                 type="tel"
@@ -211,7 +193,7 @@ function AccountForm({ onSuccess }) {
               />
             </Field>
 
-            {/* Password */}
+            {}
             <Field label="Password" required error={errors.pw}>
               <div className="ca-pw-wrap">
                 <input
@@ -261,7 +243,7 @@ function AccountForm({ onSuccess }) {
               )}
             </Field>
 
-            {/* Confirm Password */}
+            {}
             <Field label="Confirm password" required error={errors.confirmPw}>
               <div className="ca-pw-wrap">
                 <input
@@ -294,7 +276,7 @@ function AccountForm({ onSuccess }) {
               </div>
             </Field>
 
-            {/* Checkboxes */}
+            {}
             <div className="ca-checks">
               <label className="ca-check-row">
                 <input
@@ -310,7 +292,7 @@ function AccountForm({ onSuccess }) {
 
             </div>
 
-            {/* Submit Button */}
+            {}
             <button
               type="submit"
               className="ca-btn-primary"
@@ -328,7 +310,7 @@ function AccountForm({ onSuccess }) {
         <p className="ca-footer-note">Handcrafted with love from Corozal, Belize 🌺</p>
       </div>
 
-      {/* Modal */}
+      {}
       <TermsAndPrivacyModal isOpen={termsAndPrivacyModalOpen} onClose={() => setTermsAndPrivacyModalOpen(false)} />
     </div>
   );
@@ -338,7 +320,7 @@ export default function CreateAccount() {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    // Redirect to home after successful registration
+
     navigate("/", { replace: true });
   };
 

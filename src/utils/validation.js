@@ -1,9 +1,5 @@
-/**
- * Comprehensive validation utilities for forms
- * Provides reusable validation functions with human-friendly messages
- */
 
-// ── EMAIL VALIDATION ──
+
 export const validateEmail = (value) => {
   if (!value || !value.trim()) {
     return "Email is required";
@@ -15,7 +11,6 @@ export const validateEmail = (value) => {
   return null;
 };
 
-// ── PASSWORD VALIDATION ──
 export const validatePassword = (value, minLength = 8) => {
   if (!value) {
     return "Password is required";
@@ -26,7 +21,6 @@ export const validatePassword = (value, minLength = 8) => {
   return null;
 };
 
-// ── PASSWORD STRENGTH ──
 export const calculatePasswordStrength = (value) => {
   let strength = 0;
   if (value.length >= 8) strength++;
@@ -47,7 +41,6 @@ export const getPasswordStrengthColor = (strength) => {
   return colors[strength] || "#e74c3c";
 };
 
-// ── CONFIRM PASSWORD VALIDATION ──
 export const validateConfirmPassword = (password, confirmPassword) => {
   if (!confirmPassword) {
     return "Please confirm your password";
@@ -58,7 +51,6 @@ export const validateConfirmPassword = (password, confirmPassword) => {
   return null;
 };
 
-// ── PHONE VALIDATION ──
 export const validatePhone = (value) => {
   if (!value || !value.trim()) {
     return "Phone number is required";
@@ -70,7 +62,6 @@ export const validatePhone = (value) => {
   return null;
 };
 
-// ── NAME VALIDATION ──
 export const validateName = (value, fieldName = "Name") => {
   if (!value || !value.trim()) {
     return `${fieldName} is required`;
@@ -84,7 +75,6 @@ export const validateName = (value, fieldName = "Name") => {
   return null;
 };
 
-// ── ADDRESS VALIDATION ──
 export const validateAddress = (value) => {
   if (!value || !value.trim()) {
     return "Address is required";
@@ -95,7 +85,6 @@ export const validateAddress = (value) => {
   return null;
 };
 
-// ── CITY/DISTRICT VALIDATION ──
 export const validateCity = (value) => {
   if (!value || !value.trim()) {
     return "City is required";
@@ -110,7 +99,6 @@ export const validateDistrict = (value) => {
   return null;
 };
 
-// ── CHECKBOX VALIDATION (Terms) ──
 export const validateTerms = (isChecked) => {
   if (!isChecked) {
     return "You must agree to the terms and conditions";
@@ -118,7 +106,6 @@ export const validateTerms = (isChecked) => {
   return null;
 };
 
-// ── GENERIC REQUIRED FIELD ──
 export const validateRequired = (value, fieldName = "This field") => {
   if (!value || (typeof value === "string" && !value.trim())) {
     return `${fieldName} is required`;
@@ -126,13 +113,6 @@ export const validateRequired = (value, fieldName = "This field") => {
   return null;
 };
 
-// ── BATCH VALIDATION ──
-/**
- * Validate multiple fields at once
- * @param {Object} formData - Form field values
- * @param {Object} validationRules - Rules mapping fieldName to validation function
- * @returns {Object} - Object with errors by field name
- */
 export const validateForm = (formData, validationRules) => {
   const errors = {};
   Object.entries(validationRules).forEach(([fieldName, validationFn]) => {
@@ -144,12 +124,10 @@ export const validateForm = (formData, validationRules) => {
   return errors;
 };
 
-// ── TRIM WHITESPACE ──
 export const trimValue = (value) => {
   return typeof value === "string" ? value.trim() : value;
 };
 
-// ── FORM STATE HELPERS ──
 export const isFormValid = (errors) => {
   return Object.values(errors).every(error => !error);
 };

@@ -11,13 +11,11 @@ import {
 import { toast } from "react-toastify";
 import "./ProductDetail.css";
 
-/* ── Default Contact Information ───────────────────────── */
 const DEFAULT_CONTACT = {
   whatsapp: "+501-624-3964",
   instagram: "@_nuestrasartesanias_",
 };
 
-/* ── Seeded "random" helpers ───────────────────────────── */
 function seededNum(id, offset, min, max) {
   return min + ((id * 37 + offset) % (max - min + 1));
 }
@@ -37,7 +35,6 @@ function getFeatures(category) {
   return map[category] ?? ["Premium quality", "Handcrafted", "Fast shipping", "30-day returns"];
 }
 
-/* ── Component ─────────────────────────────────────────── */
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate          = useNavigate();
@@ -49,7 +46,7 @@ export default function ProductDetail() {
   const [qty,     setQty]     = useState(1);
   const [added,   setAdded]   = useState(false);
   const [wished,  setWished]  = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false); // Prevent double-click
+  const [addingToCart, setAddingToCart] = useState(false);
   const [addedTimeoutId, setAddedTimeoutId] = useState(null);
   const [contactInfo, setContactInfo] = useState(DEFAULT_CONTACT);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -59,21 +56,18 @@ export default function ProductDetail() {
   const mobileSwipeRef = useRef(null);
   const desktopScrollRef = useRef(null);
   const isScrollSyncing = useRef(false);
-  
-  // Drag state for mouse interaction
+
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeftStart = useRef(0);
 
-  // Mobile swipe: detect which image is snapped into view
-  // MUST be defined before any conditional returns (Rules of Hooks)
   const handleMobileScroll = useCallback(() => {
     const container = mobileSwipeRef.current;
     if (!container || isScrollSyncing.current) return;
     const scrollLeft = container.scrollLeft;
     const itemWidth = container.offsetWidth;
     if (itemWidth === 0) return;
-    // Use product?.images safely - will be empty array initially
+
     const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
     const newIndex = Math.round(scrollLeft / itemWidth);
     const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
@@ -82,14 +76,13 @@ export default function ProductDetail() {
     }
   }, [currentImageIndex, product]);
 
-  // Desktop scroll: detect which image is snapped into view
   const handleDesktopScroll = useCallback(() => {
     const container = desktopScrollRef.current;
     if (!container) return;
     const scrollLeft = container.scrollLeft;
     const itemWidth = container.offsetWidth;
     if (itemWidth === 0) return;
-    // Get images array
+
     const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
     const newIndex = Math.round(scrollLeft / itemWidth);
     const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
@@ -98,7 +91,6 @@ export default function ProductDetail() {
     }
   }, [desktopImageIndex, product]);
 
-  // Fetch product from Supabase
   useEffect(() => {
     console.log("Product ID (Detail):", id);
     setLoadingProduct(true);
@@ -108,7 +100,7 @@ export default function ProductDetail() {
         setLoadingProduct(false);
       })
       .catch(err => {
-        // Silently handle error - show 404 page
+
         setProduct(null);
         setLoadingProduct(false);
       });
@@ -121,14 +113,12 @@ export default function ProductDetail() {
     return () => clearTimeout(timer);
   }, [loadingProduct]);
 
-  // Cleanup timeout on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
       if (addedTimeoutId) clearTimeout(addedTimeoutId);
     };
   }, [addedTimeoutId]);
 
-  // Fetch contact info from store settings
   useEffect(() => {
     try {
       const storeSettings = localStorage.getItem("storeSettings");
@@ -142,20 +132,19 @@ export default function ProductDetail() {
         }
       }
     } catch (err) {
-      // Silently handle - will use default contact info
+
     }
   }, []);
 
-  // Sync mobile swipe container when index changes from thumbnails/arrows
   useEffect(() => {
     const container = mobileSwipeRef.current;
     if (!container) return;
     const targetScroll = currentImageIndex * container.offsetWidth;
-    // Only scroll if the container isn't already at the right position
+
     if (Math.abs(container.scrollLeft - targetScroll) > 2) {
       isScrollSyncing.current = true;
       container.scrollTo({ left: targetScroll, behavior: 'smooth' });
-      // Reset the sync flag after the scroll animation completes
+
       setTimeout(() => { isScrollSyncing.current = false; }, 400);
     }
   }, [currentImageIndex]);
@@ -226,12 +215,11 @@ export default function ProductDetail() {
 
   const catLabel = product.categoryName || (product.category ? product.category.charAt(0).toUpperCase() + product.category.slice(1) : 'Products');
 
-  /* Derived values */
   const stock        = product.stock ?? 0;
   const isOutOfStock = stock <= 0;
   const isLowStock   = stock > 0 && stock <= 5;
   const reviewCount  = seededNum(product.id, 7, 42, 284);
-  const ratingStars  = seededNum(product.id, 3, 4, 5);       // 4 or 5 stars
+  const ratingStars  = seededNum(product.id, 3, 4, 5);
   const ratingDecimal= (ratingStars - 0.1 + (product.id % 3) * 0.1).toFixed(1);
   const originalPrice = +(product.price * 1.2).toFixed(2);
   const savings       = +(originalPrice - product.price).toFixed(2);
@@ -243,16 +231,14 @@ export default function ProductDetail() {
     weekday: "long", month: "long", day: "numeric",
   });
 
-  // Get images array - use product_images if available, otherwise fall back to single image
-  const images = product.images && product.images.length > 0 
-    ? product.images 
+  const images = product.images && product.images.length > 0
+    ? product.images
     : [{ id: 0, image_url: product.image, is_primary: true }];
-  
+
   const currentImage = images[currentImageIndex];
   const currentImageUrl = currentImage?.image_url || product.image || '/logo.png';
   const hasMultipleImages = images.length > 1;
 
-  // Image switch with fade transition
   function switchImage(idx) {
     if (idx === currentImageIndex) return;
     setImgFading(true);
@@ -260,7 +246,7 @@ export default function ProductDetail() {
       setCurrentImageIndex(idx);
       setImgFading(false);
     }, 150);
-    // Scroll thumbnail into view
+
     const thumbEl = thumbContainerRef.current?.children[idx];
     if (thumbEl) {
       thumbEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
@@ -282,21 +268,20 @@ export default function ProductDetail() {
     container.scrollBy({ top: direction === 'up' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
   }
 
-  // Mouse drag handlers for desktop
   const handleMouseDown = (e) => {
-    const container = e.currentTarget; // Use the element that triggered the event
+    const container = e.currentTarget;
     if (!container) return;
     isDragging.current = true;
     startX.current = e.pageX - container.offsetLeft;
     scrollLeftStart.current = container.scrollLeft;
-    // Temporarily disable scroll snapping so it drags freely
+
     container.style.scrollSnapType = 'none';
   };
 
   const handleMouseLeave = () => {
     if (!isDragging.current) return;
     isDragging.current = false;
-    // Re-enable scroll snapping on the currently dragged container
+
     const containers = [desktopScrollRef.current, mobileSwipeRef.current];
     containers.forEach(container => {
       if (container) container.style.scrollSnapType = 'x mandatory';
@@ -310,9 +295,9 @@ export default function ProductDetail() {
     containers.forEach(container => {
       if (!container) return;
       container.style.scrollSnapType = 'x mandatory';
-      // Get images count from product
+
       const imageArray = product?.images?.length > 0 ? product.images : [{ id: 0, image_url: product?.image, is_primary: true }];
-      // Snap to nearest item based on new scroll position
+
       const itemWidth = container.offsetWidth;
       const newIndex = Math.round(container.scrollLeft / itemWidth);
       const clamped = Math.max(0, Math.min(newIndex, imageArray.length - 1));
@@ -326,11 +311,10 @@ export default function ProductDetail() {
     const container = e.currentTarget;
     if (!container) return;
     const x = e.pageX - container.offsetLeft;
-    const walk = (x - startX.current) * 1.5; // Drag sensitivity
+    const walk = (x - startX.current) * 1.5;
     container.scrollLeft = scrollLeftStart.current - walk;
   };
 
-  /* Handlers */
   function handleAddToCart() {
     if (isOutOfStock || addingToCart) {
       if (isOutOfStock) {
@@ -339,7 +323,6 @@ export default function ProductDetail() {
       return;
     }
 
-    // Re-check stock (safety check for race conditions)
     if (qty > stock) {
       const maxPossible = Math.max(1, stock);
       toast.error(`Only ${maxPossible} item${maxPossible !== 1 ? 's' : ''} available in stock`);
@@ -350,7 +333,7 @@ export default function ProductDetail() {
     setAddingToCart(true);
     addToCart(product, qty);
     setAdded(true);
-    // Clear any previous timeout before setting a new one
+
     if (addedTimeoutId) clearTimeout(addedTimeoutId);
     const timeoutId = setTimeout(() => {
       setAdded(false);
@@ -364,13 +347,11 @@ export default function ProductDetail() {
     navigate(`/${product?.category || ''}`);
   }
 
-  // Handle quantity increment with stock cap
   const handleQuantityIncrease = () => {
     if (isOutOfStock || qty >= stock) return;
     setQty(q => Math.min(stock, q + 1));
   };
 
-  // Handle quantity decrement with minimum floor
   const handleQuantityDecrease = () => {
     if (qty <= 1) return;
     setQty(q => Math.max(1, q - 1));
@@ -379,7 +360,7 @@ export default function ProductDetail() {
   return (
     <main className="pd-root">
 
-      {/* Breadcrumb */}
+      {}
       <nav className="pd-breadcrumb" aria-label="breadcrumb">
         <Link to="/">Home</Link>
         <ChevronRight size={13} />
@@ -388,14 +369,14 @@ export default function ProductDetail() {
         <span>{product.name}</span>
       </nav>
 
-      {/* Main layout */}
+      {}
       <div className="pd-layout">
 
-        {/* ── Col 1: Image Gallery (Amazon-style) ───── */}
+        {}
         <div className="pd-img-col">
           <div className="pd-gallery">
 
-            {/* Main image card (desktop: scrollable gallery) */}
+            {}
             <div className="pd-img-card pd-img-card-desktop">
               {product.tag && <span className="pd-badge">{product.tag}</span>}
               <button
@@ -413,7 +394,7 @@ export default function ProductDetail() {
                 <Heart size={18} fill={wished ? "#e05454" : "none"} color={wished ? "#e05454" : "#aaa"} />
               </button>
 
-              {/* Desktop scrollable track */}
+              {}
               <div
                 className="pd-desktop-scroll-track"
                 ref={desktopScrollRef}
@@ -436,7 +417,7 @@ export default function ProductDetail() {
                 ))}
               </div>
 
-              {/* Dot indicators */}
+              {}
               {hasMultipleImages && (
                 <div className="pd-desktop-dots">
                   {images.map((_, idx) => (
@@ -455,14 +436,13 @@ export default function ProductDetail() {
                 </div>
               )}
 
-
             </div>
 
           </div>
 
-          {/* ── Mobile Swipeable Gallery ── */}
+          {}
           <div className="pd-swipe-gallery">
-            {/* Overlays */}
+            {}
             {product.tag && <span className="pd-badge pd-swipe-badge">{product.tag}</span>}
             <button
               className={`pd-wish-btn pd-swipe-wish ${wished ? "wished" : ""}`}
@@ -476,7 +456,7 @@ export default function ProductDetail() {
               <Heart size={18} fill={wished ? "#e05454" : "none"} color={wished ? "#e05454" : "#aaa"} />
             </button>
 
-            {/* Scrollable image strip */}
+            {}
             <div
               className="pd-swipe-track"
               ref={mobileSwipeRef}
@@ -495,7 +475,7 @@ export default function ProductDetail() {
               ))}
             </div>
 
-            {/* Dot indicators */}
+            {}
             {hasMultipleImages && (
               <div className="pd-swipe-dots">
                 {images.map((_, idx) => (
@@ -516,14 +496,13 @@ export default function ProductDetail() {
 
           </div>
 
-
         </div>
 
-        {/* ── Col 2: Info ──────────────────────────────── */}
+        {}
         <div className="pd-info-col">
           <h1 className="pd-name">{product.name}</h1>
 
-          {/* Stars + reviews */}
+          {}
           <div className="pd-stars-row">
             <div className="pd-stars">
               {[1,2,3,4,5].map(s => (
@@ -541,20 +520,20 @@ export default function ProductDetail() {
 
           <hr className="pd-divider" />
 
-          {/* Price block */}
+          {}
           <div className="pd-price-block">
             <span className="pd-price">${product.price.toFixed(2)}</span>
           </div>
 
           <hr className="pd-divider" />
 
-          {/* Description */}
+          {}
           <div className="pd-desc-section">
             <h3>About this item</h3>
             <p className="pd-desc-text">{product.description || 'No description available.'}</p>
           </div>
 
-          {/* Feature bullets */}
+          {}
           <ul className="pd-features">
             {getFeatures(product.category).map((f, i) => (
               <li key={i}>
@@ -564,9 +543,9 @@ export default function ProductDetail() {
             ))}
           </ul>
 
-          {/* ── Mobile-only: Stock + Qty + Add to Cart (inline flow) ── */}
+          {}
           <div className="pd-mobile-inline">
-            {/* Stock */}
+            {}
             <div className={`pd-stock ${isOutOfStock ? "out" : stock <= 4 ? "low" : "ok"}`}>
               {isOutOfStock ? <AlertTriangle size={14} /> : <Package size={14} />}
               {isOutOfStock
@@ -576,7 +555,7 @@ export default function ProductDetail() {
                   : `In Stock — ${stock} units available`}
             </div>
 
-            {/* Quantity */}
+            {}
             <div className="pd-qty-row">
               <label htmlFor="qty-input-mobile">Quantity:</label>
               <div className="pd-qty-ctrl">
@@ -600,7 +579,7 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart (inline, full-width) */}
+            {}
             <button
               className={`pd-add-btn ${added ? "added" : ""}${isOutOfStock || addingToCart ? " disabled" : ""}`}
               onClick={handleAddToCart}
@@ -616,14 +595,14 @@ export default function ProductDetail() {
               )}
             </button>
 
-            {/* Payment info notice */}
+            {}
             <div className="pd-payment-info">
               <p className="pd-payment-note">
                 <strong>No online payments</strong> — Orders confirmed directly with the owner
               </p>
             </div>
 
-            {/* Continue Shopping */}
+            {}
             <button
               className={`pd-buy-now-btn${isOutOfStock ? " disabled" : ""}`}
               onClick={handleContinueShopping}
@@ -632,7 +611,7 @@ export default function ProductDetail() {
             </button>
           </div>
 
-          {/* Badges row */}
+          {}
           <div className="pd-badges">
             <div className="pd-badge-item">
               <Truck size={18} />
@@ -651,14 +630,14 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* ── Col 3: Buy Box (Desktop) ──────────────────── */}
+        {}
         <div className="pd-buy-col">
           <div className="pd-buy-box pd-buy-box-desktop">
 
-            {/* Price */}
+            {}
             <div className="pd-buy-price">${product.price.toFixed(2)}</div>
 
-            {/* Processing Time */}
+            {}
             <div className="pd-processing">
               <Package size={15} color="#2a9d5c" />
               <div>
@@ -667,7 +646,7 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Stock */}
+            {}
             <div className={`pd-stock ${isOutOfStock ? "out" : stock <= 4 ? "low" : "ok"}`}>
               {isOutOfStock ? <AlertTriangle size={14} /> : <Package size={14} />}
               {isOutOfStock
@@ -679,7 +658,7 @@ export default function ProductDetail() {
 
             <hr className="pd-buy-divider" />
 
-            {/* Qty selector */}
+            {}
             <div className="pd-qty-row">
               <label htmlFor="qty-input">Quantity:</label>
               <div className="pd-qty-ctrl">
@@ -705,7 +684,7 @@ export default function ProductDetail() {
               </div>
             </div>
 
-            {/* Actions */}
+            {}
             <button
               className={`pd-add-btn ${added ? "added" : ""}${isOutOfStock || addingToCart ? " disabled" : ""}`}
               onClick={handleAddToCart}
@@ -729,21 +708,21 @@ export default function ProductDetail() {
               {isOutOfStock ? "Unavailable" : "Continue Shopping"}
             </button>
 
-            {/* Payment info */}
+            {}
             <div className="pd-payment-info">
               <p className="pd-payment-note">
                 <strong>No online payments</strong> — Orders confirmed directly with the owner
               </p>
             </div>
 
-            {/* Trust line */}
+            {}
             <p className="pd-trust">
               <Shield size={13} /> Secure & encrypted checkout
             </p>
           </div>
         </div>
 
-        {/* ── Mobile Sticky Bottom CTA Bar ──────────────── */}
+        {}
         <div className="pd-mobile-sticky-bar">
           <div className="pd-sticky-price">${product.price.toFixed(2)}</div>
           <button

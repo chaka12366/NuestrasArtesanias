@@ -1,9 +1,6 @@
 import { X } from "lucide-react";
 import "./TermsAndPrivacyModal.css";
 
-/**
- * TermsAndPrivacyModal - Combined modal for Terms of Service and Privacy Policy
- */
 export default function TermsAndPrivacyModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
@@ -18,7 +15,7 @@ export default function TermsAndPrivacyModal({ isOpen, onClose }) {
         </div>
 
         <div className="modal-body">
-          {/* ── TERMS OF SERVICE ── */}
+          {}
           <div className="policy-section">
             <h3 className="policy-title">Terms of Service</h3>
 
@@ -100,7 +97,7 @@ export default function TermsAndPrivacyModal({ isOpen, onClose }) {
             </section>
           </div>
 
-          {/* ── PRIVACY POLICY ── */}
+          {}
           <div className="policy-section">
             <h3 className="policy-title">Privacy Policy</h3>
 

@@ -3,9 +3,6 @@ import { sendOrderNotification, sendLowStockAlert, sendCustomerStatusEmail } fro
 
 const LOW_STOCK_THRESHOLD = 6
 
-// ──────────────────────────────────────────────────────────────
-//  HELPER: Normalize shipping method labels to schema values
-// ──────────────────────────────────────────────────────────────
 function normalizeShippingMethod(label) {
   const labelToCode = {
     'Standard delivery': 'standard',
@@ -15,9 +12,6 @@ function normalizeShippingMethod(label) {
   return labelToCode[label] || 'standard'
 }
 
-// ──────────────────────────────────────────────────────────────
-//  HELPER: Normalize payment method labels to schema values
-// ──────────────────────────────────────────────────────────────
 function normalizePaymentMethod(label) {
   const labelToCode = {
     'Cash on delivery': 'cash_on_delivery',
@@ -28,24 +22,9 @@ function normalizePaymentMethod(label) {
   return labelToCode[label] || 'cash_on_delivery'
 }
 
-// ──────────────────────────────────────────────────────────────
-//  ORDER SERVICE — Create, fetch, and manage orders
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Place a new order and insert its line items.
- *
- * SAFETY: Before inserting, validates that sufficient stock exists
- * for every cart item. After inserting, decrements product stock
- * and updates product status accordingly.
- *
- * @param {Object} orderData  - Order header fields
- * @param {Array}  cartItems  - Array of cart items { id, name, image, price, qty }
- * @returns {Promise<{ success: boolean, orderId?: string, error?: string, stockIssues?: Array }>}
- */
 export async function placeOrder(orderData, cartItems) {
   try {
-  // ── 0 — Pre-flight: Validate stock for ALL items ──────────
+
   const productIds = cartItems.map(item => item.id)
   const { data: products, error: stockCheckError } = await supabase
     .from('products')
@@ -53,7 +32,7 @@ export async function placeOrder(orderData, cartItems) {
     .in('id', productIds)
 
   if (stockCheckError) {
-    // Silently handle - error message returned to user
+
     return { success: false, error: 'Could not verify product availability. Please try again.' }
   }
 
@@ -80,7 +59,6 @@ export async function placeOrder(orderData, cartItems) {
     }
   }
 
-  // ── 1 — Insert the order row ──────────────────────────────
   const { data: order, error: orderError } = await supabase
     .from('orders')
     .insert({
@@ -106,11 +84,10 @@ export async function placeOrder(orderData, cartItems) {
     .single()
 
   if (orderError) {
-    // Silently handle - error message returned to user
+
     return { success: false, error: orderError.message }
   }
 
-  // ── 2 — Insert all order items (product info is snapshotted) ──
   const items = cartItems.map(item => ({
     order_id:      order.id,
     product_id:    item.id,
@@ -125,11 +102,10 @@ export async function placeOrder(orderData, cartItems) {
     .insert(items)
 
   if (itemsError) {
-    // Silently handle - error message returned to user
+
     return { success: false, error: itemsError.message }
   }
 
-  // ── 3 — Decrement stock & update product status ───────────
   for (const item of cartItems) {
     const info = stockMap.get(item.id)
     if (!info) continue
@@ -147,7 +123,6 @@ export async function placeOrder(orderData, cartItems) {
     }
   }
 
-  // ── 4 — Send email notification to business owner ─────────
   try {
     await sendOrderNotification({
       customer_name: orderData.deliveryName,
@@ -157,11 +132,9 @@ export async function placeOrder(orderData, cartItems) {
       total_price: orderData.total,
     })
   } catch (emailError) {
-    // Silently handle - order is already complete
+
   }
 
-  // ── 5 — Check inventory levels and send low stock alerts ──
-  // Reuse stockMap from preflight instead of N individual fetchProductById calls
   for (const item of cartItems) {
     try {
       const info = stockMap.get(item.id);
@@ -175,24 +148,17 @@ export async function placeOrder(orderData, cartItems) {
         });
       }
     } catch (emailError) {
-      // Silently handle - order is complete
+
     }
   }
 
   return { success: true, orderId: order.id }
   } catch (err) {
-    // Silently handle - error message returned to user
+
     return { success: false, error: 'An unexpected error occurred. Please try again.' }
   }
 }
 
-/**
- * Fetch all orders for the currently logged-in customer.
- * RLS automatically scopes to their customer_id.
- * Uses pagination and separate queries to avoid Content-Length errors.
- *
- * @returns {Promise<Array>}
- */
 export async function fetchMyOrders(pageSize = 20) {
   const { data: authData, error: authError } = await supabase.auth.getUser()
   if (authError || !authData?.user) {
@@ -200,7 +166,7 @@ export async function fetchMyOrders(pageSize = 20) {
   }
 
   try {
-    // Fetch orders with pagination to avoid large response bodies
+
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('id, customer_id, guest_name, guest_email, guest_phone, delivery_name, address_line1, address_line2, city, district, country, delivery_notes, shipping_method, shipping_cost, subtotal, total, payment_method, payment_status, status, created_at, updated_at')
@@ -217,7 +183,6 @@ export async function fetchMyOrders(pageSize = 20) {
       return []
     }
 
-    // Fetch order items in a separate query to avoid Content-Length issues
     const orderIds = orders.map(o => o.id)
     const { data: allItems, error: itemsError } = await supabase
       .from('order_items')
@@ -226,11 +191,10 @@ export async function fetchMyOrders(pageSize = 20) {
 
     if (itemsError) {
       console.warn('Error fetching order items:', itemsError)
-      // Return orders without items rather than failing completely
+
       return orders
     }
 
-    // Map items back to their orders
     const itemsMap = new Map()
     allItems.forEach(item => {
       if (!itemsMap.has(item.order_id)) {
@@ -249,14 +213,9 @@ export async function fetchMyOrders(pageSize = 20) {
   }
 }
 
-/**
- * Fetch a single order by ID (with its line items).
- * @param {string} orderId  e.g. "NA-1001"
- * @returns {Promise<Object|null>}
- */
 export async function fetchOrderById(orderId) {
   try {
-    // Fetch order without nested items to avoid Content-Length errors
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('id, customer_id, guest_name, guest_email, guest_phone, delivery_name, address_line1, address_line2, city, district, country, delivery_notes, shipping_method, shipping_cost, subtotal, total, payment_method, payment_status, status, created_at, updated_at')
@@ -272,7 +231,6 @@ export async function fetchOrderById(orderId) {
       return null
     }
 
-    // Fetch order items separately
     const { data: items, error: itemsError } = await supabase
       .from('order_items')
       .select('*')
@@ -280,7 +238,7 @@ export async function fetchOrderById(orderId) {
 
     if (itemsError) {
       console.warn('Error fetching order items:', itemsError)
-      // Return order without items rather than failing completely
+
       return order
     }
 
@@ -294,14 +252,8 @@ export async function fetchOrderById(orderId) {
   }
 }
 
-/**
- * Update the payment status of an order
- * @param {string} orderId 
- * @param {string} status 'paid' | 'unpaid'
- * @returns {Promise<boolean>}
- */
 export async function updatePaymentStatus(orderId, status) {
-  // Check previous status
+
   const { data: previousOrder } = await supabase
     .from('orders')
     .select('payment_status')
@@ -318,7 +270,6 @@ export async function updatePaymentStatus(orderId, status) {
     return false
   }
 
-  // Trigger email ONLY when status becomes "paid" and was previously NOT "paid"
   if (status === 'paid' && previousOrder?.payment_status !== 'paid') {
     try {
       const { data: fullOrder } = await supabase
@@ -339,10 +290,9 @@ export async function updatePaymentStatus(orderId, status) {
 
         if (customerEmail) {
           const items = fullOrder.order_items || [];
-          
-          // Helper to safely format price
+
           const formatPrice = (val) => val ? `$${Number(val).toFixed(2)} BZD` : '';
-          
+
           const orderData = {
             customer_name: customerName,
             customer_email: customerEmail,
@@ -350,28 +300,26 @@ export async function updatePaymentStatus(orderId, status) {
             order_date: new Date(fullOrder.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
             order_total: formatPrice(fullOrder.total),
             payment_method: fullOrder.payment_method || '',
-            transaction_id: fullOrder.transaction_id || '', // safely handled if missing
+            transaction_id: fullOrder.transaction_id || '',
             subtotal: formatPrice(fullOrder.subtotal),
-            tax: formatPrice(fullOrder.tax), // safely handled if missing
-            
-            // Map items dynamically, safely handling missing items up to 3
+            tax: formatPrice(fullOrder.tax),
+
             item_1_name: items[0]?.product_name || '',
             item_1_qty: items[0]?.quantity?.toString() || '',
             item_1_price: formatPrice(items[0]?.unit_price),
             item_1_total: items[0] ? formatPrice(items[0].unit_price * items[0].quantity) : '',
-            
+
             item_2_name: items[1]?.product_name || '',
             item_2_qty: items[1]?.quantity?.toString() || '',
             item_2_price: formatPrice(items[1]?.unit_price),
             item_2_total: items[1] ? formatPrice(items[1].unit_price * items[1].quantity) : '',
-            
+
             item_3_name: items[2]?.product_name || '',
             item_3_qty: items[2]?.quantity?.toString() || '',
             item_3_price: formatPrice(items[2]?.unit_price),
             item_3_total: items[2] ? formatPrice(items[2].unit_price * items[2].quantity) : '',
           };
 
-          // Async, non-blocking email call
           sendCustomerStatusEmail('paid', orderData).catch(err => {
             console.error("EmailJS Paid Email Error:", err);
           });

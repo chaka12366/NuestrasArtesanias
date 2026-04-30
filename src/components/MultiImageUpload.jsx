@@ -5,11 +5,11 @@ import './MultiImageUpload.css';
 const MAX_IMAGES = 5;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export default function MultiImageUpload({ 
-  value = [], 
+export default function MultiImageUpload({
+  value = [],
   onChange = () => {},
   maxImages = MAX_IMAGES,
-  disabled = false 
+  disabled = false
 }) {
   const [images, setImages] = useState(value);
   const [dragActive, setDragActive] = useState(false);
@@ -19,7 +19,7 @@ export default function MultiImageUpload({
   const handleFileSelect = (files) => {
     setError('');
     const fileArray = Array.from(files).filter(file => {
-      // Validate file type
+
       if (!ALLOWED_TYPES.includes(file.type)) {
         setError(`Invalid file type: ${file.name}. Only JPG, PNG, and WebP are allowed.`);
         return false;
@@ -29,13 +29,11 @@ export default function MultiImageUpload({
 
     if (fileArray.length === 0) return;
 
-    // Check if adding files would exceed max
     if (images.length + fileArray.length > maxImages) {
       setError(`Maximum ${maxImages} images allowed. You can add ${maxImages - images.length} more.`);
       return;
     }
 
-    // Process each file
     fileArray.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -69,7 +67,7 @@ export default function MultiImageUpload({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (disabled) return;
     handleFileSelect(e.dataTransfer.files);
   };
@@ -107,7 +105,7 @@ export default function MultiImageUpload({
         </span>
       </div>
 
-      {/* Upload Area */}
+      {}
       {!isFull && (
         <div
           className={`mui-upload-box ${dragActive ? 'drag-active' : ''} ${disabled ? 'disabled' : ''}`}
@@ -130,14 +128,14 @@ export default function MultiImageUpload({
             Drag & drop or click to select (JPG, PNG, WebP)
           </p>
           <p className="mui-upload-limit">
-            {remainingSlots === 1 
-              ? `1 slot remaining` 
+            {remainingSlots === 1
+              ? `1 slot remaining`
               : `${remainingSlots} slots remaining`}
           </p>
         </div>
       )}
 
-      {/* Error Message */}
+      {}
       {error && (
         <div className="mui-error-message">
           <AlertCircle size={16} />
@@ -145,17 +143,17 @@ export default function MultiImageUpload({
         </div>
       )}
 
-      {/* Images Grid */}
+      {}
       {images.length > 0 && (
         <div className="mui-grid">
           {images.map((image, index) => (
             <div key={image.id} className="mui-grid-item">
-              <img 
-                src={image.previewUrl} 
+              <img
+                src={image.previewUrl}
                 alt={`Preview ${index + 1}`}
                 className="mui-image"
               />
-              
+
               <button
                 type="button"
                 className="mui-delete-btn"
@@ -172,7 +170,7 @@ export default function MultiImageUpload({
         </div>
       )}
 
-      {/* Hidden File Input */}
+      {}
       <input
         ref={fileInputRef}
         type="file"
@@ -184,7 +182,7 @@ export default function MultiImageUpload({
         disabled={disabled}
       />
 
-      {/* Info Text */}
+      {}
       <p className="mui-info-text">
         📝 <strong>Tip:</strong> Upload multiple images at once. Primary image will be selected during checkout.
       </p>

@@ -1,22 +1,6 @@
-/**
- * Reusable Form Field Component with Validation UI
- * Provides consistent validation feedback across all forms
- */
+
 import { memo } from "react";
 
-/**
- * FormField Component
- * Handles visual feedback for form inputs with error and valid states
- * 
- * Props:
- * - label: Field label text
- * - error: Error message (if any)
- * - touched: Whether field has been touched
- * - value: Field value (for showing valid state)
- * - children: Input element
- * - required: Show required indicator
- * - hint: Helper text below label
- */
 export const FormField = memo(function FormField({
   label,
   error,

@@ -1,6 +1,5 @@
 import emailjs from '@emailjs/browser';
 
-// Initialize EmailJS with public key
 const initializeEmailJS = () => {
   const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
   if (!publicKey) {
@@ -10,15 +9,8 @@ const initializeEmailJS = () => {
   emailjs.init(publicKey);
 };
 
-// Initialize on module load
 initializeEmailJS();
 
-/**
- * Send email notifications for business operations
- * @param {string} type - Type of notification: "order" or "low_stock"
- * @param {object} data - Data object containing notification details
- * @returns {Promise<object>} - Response from EmailJS
- */
 export const sendEmailNotification = async (type, data) => {
   try {
     let serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
@@ -28,7 +20,7 @@ export const sendEmailNotification = async (type, data) => {
     let templateParams;
 
     if (type === 'order') {
-      // Validate order data
+
       if (!data.customerName || !data.productName || !data.quantity || !data.orderNumber) {
         throw new Error('Missing required order data: customerName, productName, quantity, orderNumber');
       }
@@ -44,7 +36,7 @@ export const sendEmailNotification = async (type, data) => {
         order_date: new Date().toLocaleDateString(),
       };
     } else if (type === 'low_stock') {
-      // Validate low stock data
+
       if (!data.itemName || data.remainingQuantity === undefined) {
         throw new Error('Missing required low stock data: itemName, remainingQuantity');
       }
@@ -177,7 +169,6 @@ export const sendEmailNotification = async (type, data) => {
         throw new Error('Missing required cancel data: customerName, customerEmail, orderNumber');
       }
 
-      // Auto-derive plural suffix from count
       const count = Number(data.cancelledItemCount) || 1;
       const plural = count > 1 ? 's' : '';
 
@@ -224,7 +215,6 @@ export const sendEmailNotification = async (type, data) => {
       throw new Error(`EmailJS template ID for ${type} is not set in environment variables`);
     }
 
-    // Send email via EmailJS
     const response = await emailjs.send(serviceId, templateId, templateParams, publicKey);
 
     console.log(`${type} email sent successfully:`, response);
@@ -235,11 +225,6 @@ export const sendEmailNotification = async (type, data) => {
   }
 };
 
-/**
- * Send order confirmation email to business owner
- * @param {object} orderData - Order information
- * @returns {Promise<object>}
- */
 export const sendOrderNotification = async (orderData) => {
   return sendEmailNotification('order', {
     customerName: orderData.customer_name,
@@ -250,11 +235,6 @@ export const sendOrderNotification = async (orderData) => {
   });
 };
 
-/**
- * Send low stock alert email to business owner
- * @param {object} inventoryData - Inventory information
- * @returns {Promise<object>}
- */
 export const sendLowStockAlert = async (inventoryData) => {
   return sendEmailNotification('low_stock', {
     itemName: inventoryData.product_name,
@@ -263,12 +243,6 @@ export const sendLowStockAlert = async (inventoryData) => {
   });
 };
 
-/**
- * Send status update email to customer
- * @param {string} status - One of: 'processing', 'ready', 'delivery'
- * @param {object} orderData - Customer and order information
- * @returns {Promise<object>}
- */
 export const sendCustomerStatusEmail = async (status, orderData) => {
   return sendEmailNotification(status, {
     customerName: orderData.customer_name,
@@ -300,17 +274,6 @@ export const sendCustomerStatusEmail = async (status, orderData) => {
   });
 };
 
-/**
- * Send partial cancellation email to customer
- * @param {object} cancelData - Cancellation and order information
- *   Required: customer_name, customer_email, order_id
- *   Cancelled item: cancelled_item_name, cancelled_item_qty, cancelled_item_price, cancelled_item_total
- *   Remaining items: item_1_name/qty/price/total, item_2_..., item_3_...
- *   Totals: new_order_total, cancelled_item_count
- *   Optional: cancel_reason, store_name, store_address, support_email
- *   Note: cancelled_item_count_plural is auto-derived — do not pass it.
- * @returns {Promise<object>}
- */
 export const sendCancelItemEmail = async (cancelData) => {
   return sendEmailNotification('cancel', {
     customerName: cancelData.customer_name,

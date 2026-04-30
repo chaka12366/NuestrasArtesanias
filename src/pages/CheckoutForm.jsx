@@ -31,43 +31,43 @@ const DISTRICTS = ["Belize", "Cayo", "Corozal", "Orange Walk", "Stann Creek", "T
 
 const CITIES_BY_DISTRICT = {
   "Corozal": [
-    "Corozal Town", "Buena Vista", "Calcutta", "Caledonia", "Carolina", "Chan Chen", 
-    "Chunox", "Concepcion", "Consejo", "Copper Bank", "Cristo Rey", "Estrella", 
-    "Libertad", "Little Belize", "Louisville", "Paraiso", "Patchacan", "Progresso", 
-    "Ranchito", "San Andres", "San Antonio", "San Joaquin", "San Narciso", "San Pedro", 
+    "Corozal Town", "Buena Vista", "Calcutta", "Caledonia", "Carolina", "Chan Chen",
+    "Chunox", "Concepcion", "Consejo", "Copper Bank", "Cristo Rey", "Estrella",
+    "Libertad", "Little Belize", "Louisville", "Paraiso", "Patchacan", "Progresso",
+    "Ranchito", "San Andres", "San Antonio", "San Joaquin", "San Narciso", "San Pedro",
     "San Roman", "San Victor", "Santa Clara", "Sarteneja", "Xaibe", "Yo Chen"
   ],
   "Orange Walk": [
-    "Orange Walk Town", "Guinea Grass", "August Pine Ridge", "Blue Creek", "Carmelita", 
-    "Chan Chich", "Chan Pine Ridge", "Douglas", "Fire Burn", "Honey Camp", "Indian Church", 
-    "Indian Creek", "Indian Hill Estate", "Nuevo San Juan", "Petville", "Richmond Hill", 
-    "San Antonio", "San Carlos", "San Estevan", "San Felipe", "San Jose", "San Jose Palmar", 
-    "San Lazaro", "San Lorenzo", "San Luis", "San Pablo", "San Roman", "Santa Cruz", 
-    "Santa Martha", "Shipyard", "Sylvestre Camp", "Tower Hill", "Tres Leguas", 
+    "Orange Walk Town", "Guinea Grass", "August Pine Ridge", "Blue Creek", "Carmelita",
+    "Chan Chich", "Chan Pine Ridge", "Douglas", "Fire Burn", "Honey Camp", "Indian Church",
+    "Indian Creek", "Indian Hill Estate", "Nuevo San Juan", "Petville", "Richmond Hill",
+    "San Antonio", "San Carlos", "San Estevan", "San Felipe", "San Jose", "San Jose Palmar",
+    "San Lazaro", "San Lorenzo", "San Luis", "San Pablo", "San Roman", "Santa Cruz",
+    "Santa Martha", "Shipyard", "Sylvestre Camp", "Tower Hill", "Tres Leguas",
     "Trial Farm", "Trinidad", "Yo Creek"
   ],
   "Belize": [
-    "Belize City", "Belmopan", "San Pedro", "Hattieville", "Ladyville", "Burrell Boom", 
-    "Crooked Tree", "Bermudian Landing", "Flowers Bank", "Churchyard", "Freetown Sibun", 
-    "Gales Point", "Gardenia", "Gracie Rock", "La Democracia", "Lemonal", "Maskall", 
+    "Belize City", "Belmopan", "San Pedro", "Hattieville", "Ladyville", "Burrell Boom",
+    "Crooked Tree", "Bermudian Landing", "Flowers Bank", "Churchyard", "Freetown Sibun",
+    "Gales Point", "Gardenia", "Gracie Rock", "La Democracia", "Lemonal", "Maskall",
     "Mussel Creek", "Rancho Dolores", "Rockstone Pond", "Sand Hill", "Santana", "Willows Bank"
   ],
   "Cayo": [
-    "San Ignacio", "Santa Elena", "Benque Viejo", "Bullet Tree Falls", "Cristo Rey", 
-    "Duck Run", "El Cayo", "Georgeville", "Esperanza", "Camalote", "Unitedville", 
-    "San Antonio", "San Jose Succotz", "San Luis", "Santa Familia", "Spanish Lookout", 
+    "San Ignacio", "Santa Elena", "Benque Viejo", "Bullet Tree Falls", "Cristo Rey",
+    "Duck Run", "El Cayo", "Georgeville", "Esperanza", "Camalote", "Unitedville",
+    "San Antonio", "San Jose Succotz", "San Luis", "Santa Familia", "Spanish Lookout",
     "Teakettle", "Valley of Peace", "Warrie Head", "Xaibe"
   ],
   "Stann Creek": [
-    "Dangriga", "Placencia", "Hopkins", "Independence", "Mango Creek", "Seine Bight", 
-    "Maya Beach", "Mullins River", "Kendal", "Pomona", "Sarawee", "Sittee River", 
+    "Dangriga", "Placencia", "Hopkins", "Independence", "Mango Creek", "Seine Bight",
+    "Maya Beach", "Mullins River", "Kendal", "Pomona", "Sarawee", "Sittee River",
     "Silk Grass", "Georgetown", "Riversdale"
   ],
   "Toledo": [
-    "Punta Gorda", "Barranco", "Big Falls", "Blue Creek", "Crique Sarco", "Dump", 
-    "Golden Stream", "Indian Creek", "Jalacte", "Laguna", "Mafredi", "Medina Bank", 
-    "Mopan", "Na Lum Ca", "Otoxha", "Pueblo Viejo", "San Antonio", "San Benito Poite", 
-    "San Felipe", "San Jose", "San Lucas", "San Marcos", "San Miguel", "San Pedro Columbia", 
+    "Punta Gorda", "Barranco", "Big Falls", "Blue Creek", "Crique Sarco", "Dump",
+    "Golden Stream", "Indian Creek", "Jalacte", "Laguna", "Mafredi", "Medina Bank",
+    "Mopan", "Na Lum Ca", "Otoxha", "Pueblo Viejo", "San Antonio", "San Benito Poite",
+    "San Felipe", "San Jose", "San Lucas", "San Marcos", "San Miguel", "San Pedro Columbia",
     "San Vicente", "Santa Ana", "Santa Cruz", "Santa Elena", "Silver Creek", "Sunday Wood", "Trio"
   ]
 };
@@ -78,7 +78,6 @@ function pwStrength(val) {
 const PW_COLORS = ["#e74c3c", "#e67e22", "#f1c40f", "#27ae60", "#1e8449"];
 const PW_LABELS = ["Too short", "Weak", "Fair", "Strong", "Very strong"];
 
-/* ── Reusable Field ── */
 function Field({ label, required, error, children, half }) {
   return (
     <div className={`cp-field${half ? " cp-field-half" : ""}`}>
@@ -93,7 +92,6 @@ function Field({ label, required, error, children, half }) {
   );
 }
 
-/* ── Step 1: Account ── */
 function StepAccount({ onNext, onGuest, user }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,7 +108,6 @@ function StepAccount({ onNext, onGuest, user }) {
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
-  // Real-time validation
   const validateField = (fieldName, value) => {
     switch (fieldName) {
       case "fn":
@@ -131,11 +128,10 @@ function StepAccount({ onNext, onGuest, user }) {
   const handleChange = (fieldName, value) => {
     set(fieldName, value);
     setTouched(t => ({ ...t, [fieldName]: true }));
-    
+
     const error = validateField(fieldName, value);
     setE(err => ({ ...err, [fieldName]: error || null }));
-    
-    // Update password strength
+
     if (fieldName === "pw") {
       setStr(value.length ? pwStrength(value) : -1);
     }
@@ -175,12 +171,12 @@ function StepAccount({ onNext, onGuest, user }) {
   }
 
   const handleNext = async () => {
-    // Mark all fields as touched
+
     setTouched({ fn: true, ln: true, email: true, phone: true, pw: true, terms: true });
-    
+
     const e = validate();
     setE(e);
-    
+
     if (Object.keys(e).length) {
       toast.error("Please correct the highlighted fields");
       return;
@@ -190,7 +186,7 @@ function StepAccount({ onNext, onGuest, user }) {
     setSignupError(null);
 
     try {
-      // 1 — Create the auth user via Supabase
+
       const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
         email: form.email,
         password: form.pw,
@@ -211,7 +207,6 @@ function StepAccount({ onNext, onGuest, user }) {
         return;
       }
 
-      // 2 — Explicitly insert the profiles row (safe if trigger already created it)
       const newUserId = signUpData.user?.id;
       if (newUserId) {
         await supabase.from("profiles").upsert({
@@ -225,17 +220,15 @@ function StepAccount({ onNext, onGuest, user }) {
         }, { onConflict: "id" });
       }
 
-      // 3 — Proceed to delivery step
       setSigningUp(false);
       onNext({ ...form, isNewAccount: true });
 
     } catch (err) {
-      // Silently handle - error message already set for user
+
       setSigningUp(false);
     }
   };
 
-  // If user is already logged in, skip to delivery
   if (user) {
     return (
       <div className="cp-card" style={{ "--delay": "0ms" }}>
@@ -439,7 +432,6 @@ function StepAccount({ onNext, onGuest, user }) {
   );
 }
 
-/* ── Step 2: Delivery ── */
 function StepDelivery({ onNext, onBack, user }) {
   const [form, setForm] = useState(() => ({
     name: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : "",
@@ -471,11 +463,10 @@ function StepDelivery({ onNext, onBack, user }) {
   const handleChange = (fieldName, value) => {
     set(fieldName, value);
     setTouched(t => ({ ...t, [fieldName]: true }));
-    
+
     const error = validateField(fieldName, value);
     setE(err => ({ ...err, [fieldName]: error || null }));
-    
-    // Reset city if district changes
+
     if (fieldName === "district") {
       set("city", "");
       setTouched(t => ({ ...t, city: false }));
@@ -577,7 +568,7 @@ function StepDelivery({ onNext, onBack, user }) {
         />
       </Field>
 
-      {/* Shipping options */}
+      {}
       <div className="cp-ship-section">
         <p className="cp-ship-heading">Delivery option</p>
         {SHIPS.map(s => (
@@ -608,7 +599,6 @@ function StepDelivery({ onNext, onBack, user }) {
   );
 }
 
-/* ── Step 3: Review ── */
 function StepReview({ account, delivery, cartItems, cartTotal, onBack, onPlace, placing, orderError }) {
   const [pay, setPay] = useState("Cash on delivery");
   const ship = delivery.ship;
@@ -625,7 +615,7 @@ function StepReview({ account, delivery, cartItems, cartTotal, onBack, onPlace, 
       <h2 className="cp-card-title">Review your order</h2>
       <p className="cp-card-sub">Confirm everything looks right before placing</p>
 
-      {/* ── Cart items preview ── */}
+      {}
       <div className="cp-items-preview">
         <p className="cp-info-heading"><ShoppingBag size={13} style={{ display: 'inline', marginRight: 5, verticalAlign: '-2px' }} />Your items ({cartItems.length})</p>
         {cartItems.map((item, i) => (
@@ -678,7 +668,7 @@ function StepReview({ account, delivery, cartItems, cartTotal, onBack, onPlace, 
 
       <div className="cp-payment-methods">
         <p className="cp-info-heading">Payment Method</p>
-        
+
         <div className={`cp-payment-opt ${pay === "Cash on delivery" ? "active" : ""}`} onClick={() => setPay("Cash on delivery")}>
           <div className="cp-payment-icon">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="6" width="20" height="12" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></svg>
@@ -743,7 +733,6 @@ function StepReview({ account, delivery, cartItems, cartTotal, onBack, onPlace, 
   );
 }
 
-/* ── Step 4: Success ── */
 function StepSuccess({ orderId, onShopMore }) {
   return (
     <div className="cp-card cp-success-card" style={{ "--delay": "0ms" }}>
@@ -767,7 +756,6 @@ function StepSuccess({ orderId, onShopMore }) {
   );
 }
 
-/* ── ROOT PAGE ── */
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, total, clearCart, validateCartStock } = useCart();
@@ -780,7 +768,6 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [orderError, setOrderError] = useState(null);
 
-  // Redirect to cart if checkout is accessed with an empty cart
   useEffect(() => {
     if (items.length === 0 && step < 4) {
       toast.warning("Your cart is empty. Add items before checking out.");
@@ -788,21 +775,17 @@ export default function CheckoutPage() {
     }
   }, [items.length, step, navigate]);
 
-  // Don't render checkout if cart is empty (redirect will happen via useEffect)
   if (items.length === 0 && step < 4) {
     return null;
   }
 
-  // Calculate cart total
   const cartTotal = total || 0;
 
-  // ── Place the order in Supabase ──
   async function handlePlaceOrder({ pay, total: grandTotal }) {
     setPlacing(true);
     setOrderError(null);
     const toastId = toast.loading("Verifying stock & placing order…");
 
-    // ── CRITICAL: Validate stock before placing ──
     try {
       const { valid, issues, networkError } = await validateCartStock();
       if (!valid) {
@@ -823,14 +806,13 @@ export default function CheckoutPage() {
         return;
       }
     } catch (err) {
-      // Silently handle - error message shown to user via toast
+
       toast.update(toastId, { render: "Could not verify stock. Please try again.", type: "error", isLoading: false, autoClose: 3000 });
       setOrderError("Could not verify product availability. Please try again.");
       setPlacing(false);
       return;
     }
 
-    // Determine guest vs authenticated customer info
     const isGuest = !user;
     const isNewAccount = account && !account.isExisting;
 
@@ -852,7 +834,6 @@ export default function CheckoutPage() {
       paymentMethod: pay || 'Cash on delivery',
     };
 
-    // Map cart items to the shape placeOrder expects
     const cartItems = items.map(item => ({
       id: item.id,
       name: item.name,
@@ -878,12 +859,12 @@ export default function CheckoutPage() {
 
   return (
     <div className="cp-root">
-      {/* Background orbs */}
+      {}
       <div className="cp-orb cp-orb-1" />
       <div className="cp-orb cp-orb-2" />
 
       <div className="cp-inner">
-        {/* Header */}
+        {}
         <div className="cp-header">
           <button className="cp-back-home" onClick={() => navigate("/cart")}>
             ← Back to cart
@@ -894,7 +875,7 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Title area */}
+        {}
         {step < 4 && (
           <div className="cp-title-area">
             <h1 className="cp-page-title">Checkout</h1>
@@ -903,15 +884,15 @@ export default function CheckoutPage() {
               {step === 2 && "Enter your delivery details"}
               {step === 3 && "Review and place your order"}
             </p>
-            <CheckoutProgress 
-              currentStep={step} 
-              totalSteps={3} 
+            <CheckoutProgress
+              currentStep={step}
+              totalSteps={3}
               steps={["Account", "Delivery", "Review"]}
             />
           </div>
         )}
 
-        {/* Step panels */}
+        {}
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div

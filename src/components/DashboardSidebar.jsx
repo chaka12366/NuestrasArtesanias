@@ -9,7 +9,6 @@ export default function DashboardSidebar({ isOpen, onClose }) {
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  // Lock body scroll when sidebar is open on mobile
   useEffect(() => {
     if (isOpen && window.innerWidth <= 768) {
       document.body.style.overflow = "hidden";
@@ -43,16 +42,16 @@ export default function DashboardSidebar({ isOpen, onClose }) {
 
   return (
     <>
-      {/* Mobile overlay backdrop */}
+      {}
       <div
         className={`sidebar-overlay ${isOpen ? "visible" : ""}`}
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Sidebar - FIXED position */}
+      {}
       <aside className={`dashboard-sidebar ${isOpen ? "open" : ""}`} role="navigation">
-        {/* Header */}
+        {}
         <div className="sidebar-header">
           <h3>Dashboard</h3>
           <button
@@ -65,7 +64,7 @@ export default function DashboardSidebar({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Navigation Items */}
+        {}
         <nav className="sidebar-nav" role="menu">
           {navItems.map((item) => (
             <button
@@ -84,7 +83,7 @@ export default function DashboardSidebar({ isOpen, onClose }) {
           ))}
         </nav>
 
-        {/* Logout Button */}
+        {}
         <div className="sidebar-footer">
           <button className="sidebar-logout" onClick={handleLogout} title="Logout">
             🚪 Logout

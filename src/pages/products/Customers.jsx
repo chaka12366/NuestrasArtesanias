@@ -11,11 +11,10 @@ export default function Customers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState(null);
-  const [sortBy, setSortBy] = useState("orders"); // "orders" or "spent"
+  const [sortBy, setSortBy] = useState("orders");
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // Fetch all customers with their order statistics
   useEffect(() => {
     setLoading(true);
     fetchCustomers();
@@ -23,7 +22,7 @@ export default function Customers() {
 
   async function fetchCustomers() {
     try {
-      // Get all profiles that are customers (role = 'customer')
+
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("id, email, first_name, last_name, phone, created_at")
@@ -32,27 +31,24 @@ export default function Customers() {
 
       if (profilesError) throw profilesError;
 
-      // Get all orders to aggregate stats per customer and get address info
       const { data: orders, error: ordersError } = await supabase
         .from("orders")
         .select("id, total, customer_id, city, district");
 
       if (ordersError) throw ordersError;
 
-      // Create maps for quick lookup
       const orderStats = {};
       const customerLocation = {};
       (orders || []).forEach((order) => {
         const customerId = order.customer_id;
         if (!customerId) return;
-        
+
         if (!orderStats[customerId]) {
           orderStats[customerId] = { count: 0, total: 0 };
         }
         orderStats[customerId].count += 1;
         orderStats[customerId].total += Number(order.total) || 0;
-        
-        // Store the location from the most recent order
+
         if (!customerLocation[customerId]) {
           customerLocation[customerId] = {
             city: order.city,
@@ -61,7 +57,6 @@ export default function Customers() {
         }
       });
 
-      // Combine customer data with order stats and location info
       const enrichedCustomers = (profiles || []).map((profile) => {
         const stats = orderStats[profile.id] || { count: 0, total: 0 };
         const location = customerLocation[profile.id];
@@ -91,21 +86,17 @@ export default function Customers() {
     }
   }
 
-  // Filter customers by search
   const filteredCustomers = customers.filter((c) =>
     c.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
     c.email.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
-  // Sort customers
   const sortedCustomers = [...filteredCustomers].sort((a, b) => {
     if (sortBy === "spent") {
       return b.spent - a.spent;
     }
     return b.orders - a.orders;
   });
-
-
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -122,7 +113,7 @@ export default function Customers() {
 
   return (
     <div className="ap-root">
-      {/* Header */}
+      {}
       <div className="ap-page-header">
         <div>
           <h1 className="ap-page-title">Customers</h1>
@@ -130,7 +121,7 @@ export default function Customers() {
         </div>
       </div>
 
-      {/* Filters/Controls */}
+      {}
       <div className="ap-filters">
         <div className="ap-search-wrapper">
           <Search className="ap-search-icon" size={16} />
@@ -158,7 +149,7 @@ export default function Customers() {
         </div>
       </div>
 
-      {/* Customers List */}
+      {}
       <div className="ap-customers-list">
         {sortedCustomers.length === 0 ? (
           <EmptyState
@@ -207,7 +198,7 @@ export default function Customers() {
                 </button>
               </div>
 
-              {/* Expanded details */}
+              {}
               {expanded === customer.id && (
                 <div className="ap-customer-details">
                   <div className="ap-detail-row">
@@ -267,14 +258,12 @@ export default function Customers() {
                     </span>
                   </div>
 
-
                 </div>
               )}
             </div>
           ))
         )}
       </div>
-
 
     </div>
   );

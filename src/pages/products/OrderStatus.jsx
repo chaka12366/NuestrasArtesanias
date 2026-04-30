@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Clock, Truck, CheckCircle2, Lock } from "lucide-react";
 import "./OrderStatus.css";
 
-/* ── Status Configuration ── */
 const STATUS_CONFIG = {
   pending: {
     label: "Pending",
@@ -34,19 +33,8 @@ const STATUS_CONFIG = {
   },
 };
 
-/* ── Status Flow (for progression) ── */
 const STATUS_FLOW = ["pending", "in-progress", "ready", "delivered"];
 
-/**
- * Reusable OrderStatus Component
- * 
- * Props:
- * - currentStatus: string (pending, in-progress, ready, delivered)
- * - orderId: string (for identifying which order to update)
- * - onStatusChange: function(orderId, newStatus)
- * - paymentStatus: string ('paid' | 'unpaid') — gates delivery
- * - isCompact: boolean (optional, for mobile view)
- */
 export default function OrderStatus({ currentStatus, orderId, onStatusChange, paymentStatus = 'unpaid', isCompact = false }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,14 +69,11 @@ export default function OrderStatus({ currentStatus, orderId, onStatusChange, pa
   );
 }
 
-/**
- * Horizontal status controls (Desktop view)
- */
 function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoading, paymentStatus }) {
   const currentStatusIndex = STATUS_FLOW.indexOf(currentStatus);
   const nextStatusIndex = currentStatusIndex + 1;
   const isUnpaid = paymentStatus !== 'paid';
-  
+
   return (
     <div className="order-status-container">
       <div className="order-status-group">
@@ -99,8 +84,7 @@ function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoadi
           const isPast = STATUS_FLOW.indexOf(status) < currentStatusIndex;
           const isNext = STATUS_FLOW.indexOf(status) === nextStatusIndex;
           const isFuture = STATUS_FLOW.indexOf(status) > currentStatusIndex;
-          
-          // Block "Delivered" if unpaid
+
           const isDeliveryBlocked = status === 'delivered' && isUnpaid && isNext;
           const isDisabled = isLoading || isDeliveryBlocked || (!isActive && !isNext);
 
@@ -142,9 +126,6 @@ function OrderStatusHorizontal({ currentStatus, orderId, onStatusChange, isLoadi
   );
 }
 
-/**
- * Compact status controls (Mobile view / Dropdown)
- */
 function OrderStatusCompact({ currentStatus, orderId, onStatusChange, isLoading, paymentStatus }) {
   const [isOpen, setIsOpen] = useState(false);
   const currentConfig = STATUS_CONFIG[currentStatus];

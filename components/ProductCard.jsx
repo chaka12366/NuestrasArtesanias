@@ -9,7 +9,6 @@ const ProductCard = memo(function ProductCard({ product, category }) {
   const isLowStock = stock > 0 && stock <= 5;
   const isInStock = stock > 5;
 
-  // Determine stock status badge
   const getStockStatus = () => {
     if (isOutOfStock) return "Out of Stock";
     if (isLowStock) return `Low Stock (${stock})`;
@@ -22,20 +21,18 @@ const ProductCard = memo(function ProductCard({ product, category }) {
     return "pcard-stock-badge in";
   };
 
-  // Use first image from product_images if available, otherwise use single image
   const displayImage = product.images && product.images.length > 0
     ? product.images.find(img => img.is_primary)?.image_url || product.images[0].image_url
     : (product.image || product.image_url);
 
-  // Debug: Ensure product ID exists and is correct
   console.log("Product ID:", product.id);
 
   return (
     <Link to={`/product/${product.id}`} className="pcard-link">
       <div className={`pcard${isOutOfStock ? " pcard-oos" : ""}`}>
         {product.tag && <span className="pcard-tag">{product.tag}</span>}
-        
-        {/* Stock Status Badge */}
+
+        {}
         <span className={getStockBadgeClass()}>
           {getStockStatus()}
         </span>
@@ -46,7 +43,7 @@ const ProductCard = memo(function ProductCard({ product, category }) {
             <span>Out of Stock</span>
           </div>
         )}
-        
+
         <div className="pcard-img-wrap">
           <img
             src={(displayImage?.startsWith('data:') || displayImage?.startsWith('http')) ? displayImage : `/${displayImage}`}
@@ -58,7 +55,7 @@ const ProductCard = memo(function ProductCard({ product, category }) {
             <span className="pcard-img-badge">{product.images.length} images</span>
           )}
         </div>
-        
+
         <div className="pcard-body">
           <h3 className="pcard-name">{product.name}</h3>
           {isLowStock && (

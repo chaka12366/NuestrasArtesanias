@@ -22,14 +22,12 @@ export default function Navbar() {
 
   const [store, setStore] = useState(() => getStoreSettingsSync());
 
-  // Close menu on route change - side effect of navigation
   useEffect(() => {
     setMenuOpen(false);
     setDropOpen(false);
     if (dropTimeout) clearTimeout(dropTimeout);
   }, [location]);
 
-  // Fetch store settings and categories
   useEffect(() => {
     getStoreSettings()
       .then(data => {
@@ -46,21 +44,18 @@ export default function Navbar() {
       .catch(err => console.error("Failed to fetch categories:", err));
   }, []);
 
-  // Add shadow on scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (dropTimeout) clearTimeout(dropTimeout);
     };
   }, [dropTimeout]);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     if (menuOpen && window.innerWidth <= 768) {
       document.body.style.overflow = "hidden";
@@ -102,7 +97,6 @@ export default function Navbar() {
     <>
       <header className={`navbar-header ${scrolled ? "scrolled" : ""}`}>
 
-      {/* Top bar */}
       <div className="navbar-topbar">
         <span>
           <Sparkles size={16} style={{display:'inline',marginRight:4,verticalAlign:'text-top'}} /> Welcome to {store.name} — {store.tagline}
@@ -111,7 +105,6 @@ export default function Navbar() {
 
       <nav className="navbar-nav">
 
-        {/* Hamburger Menu - LEFT SIDE */}
         <button
           className={`hamburger ${menuOpen ? "open" : ""}`}
           onClick={() => setMenuOpen(!menuOpen)}
@@ -124,9 +117,6 @@ export default function Navbar() {
           <span />
         </button>
 
-
-
-        {/* Logo - CENTER */}
         <Link to="/" className="navbar-logo">
           <div className="navbar-logo-circle">
             <img src={logo} alt={store.name} />
@@ -134,7 +124,6 @@ export default function Navbar() {
           <span className="navbar-brand-text">{store.name}</span>
         </Link>
 
-        {/* Desktop Nav links - CENTER */}
         <ul className="navbar-links">
 
           <li>
@@ -156,7 +145,7 @@ export default function Navbar() {
               Products <span className="chevron" style={{fontSize: '1.0em', marginLeft: '3px'}}>{dropOpen ? "▲" : "▼"}</span>
             </button>
 
-            <div 
+            <div
               className={`dropdown-menu ${dropOpen ? "open" : ""}`}
             >
               {productLinks.map(l => (
@@ -186,9 +175,7 @@ export default function Navbar() {
 
         </ul>
 
-        {/* Right controls */}
         <div className="navbar-right">
-          {/* Cart button */}
           <button
             className="auth-icon-btn cart-icon"
             onClick={() => navigate("/cart")}
@@ -201,20 +188,19 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Auth Button - Desktop Only */}
           {user ? (
-            <button 
-              className="auth-icon-btn profile-icon" 
-              onClick={() => navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard')} 
+            <button
+              className="auth-icon-btn profile-icon"
+              onClick={() => navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard')}
               aria-label="Dashboard"
               title={`Dashboard (${user.email})`}
             >
               <User size={20} />
             </button>
           ) : (
-            <button 
-              className="auth-icon-btn login-icon" 
-              onClick={handleLogin} 
+            <button
+              className="auth-icon-btn login-icon"
+              onClick={handleLogin}
               aria-label="Login"
               title="Login"
             >
@@ -225,12 +211,9 @@ export default function Navbar() {
 
       </nav>
 
-    </header>
-
-      {/* Left Sidebar Navigation */}
       {menuOpen && (
-        <div 
-          className="nav-overlay" 
+        <div
+          className="nav-overlay"
           onClick={() => setMenuOpen(false)}
           role="presentation"
           aria-hidden="true"
@@ -238,8 +221,8 @@ export default function Navbar() {
       )}
       <div className={`sidebar-nav ${menuOpen ? "open" : ""}`}>
         <div className="sidebar-nav-header">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="sidebar-nav-logo"
             onClick={() => setMenuOpen(false)}
           >
@@ -259,8 +242,8 @@ export default function Navbar() {
         </div>
 
         <nav className="sidebar-nav-links" role="navigation">
-          <NavLink 
-            to="/" 
+          <NavLink
+            to="/"
             className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
             onClick={() => setMenuOpen(false)}
           >
@@ -281,16 +264,16 @@ export default function Navbar() {
             ))}
           </div>
 
-          <NavLink 
-            to="/about" 
+          <NavLink
+            to="/about"
             className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
             onClick={() => setMenuOpen(false)}
           >
             About Us
           </NavLink>
 
-          <NavLink 
-            to="/contact" 
+          <NavLink
+            to="/contact"
             className={({ isActive }) => `sidebar-nav-link ${isActive ? "active" : ""}`}
             onClick={() => setMenuOpen(false)}
           >
@@ -300,7 +283,7 @@ export default function Navbar() {
 
         <div className="sidebar-nav-footer">
           {user ? (
-            <button 
+            <button
               className="sidebar-nav-auth-btn profile-btn"
               onClick={() => {
                 navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard');
@@ -312,7 +295,7 @@ export default function Navbar() {
               <span>Dashboard</span>
             </button>
           ) : (
-            <button 
+            <button
               className="sidebar-nav-auth-btn login-btn"
               onClick={handleLogin}
               title="Login"
@@ -324,8 +307,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Floating Mobile Cart Button */}
-      <button 
+      <button
         className="mobile-fab-cart"
         onClick={() => {
           navigate("/cart");

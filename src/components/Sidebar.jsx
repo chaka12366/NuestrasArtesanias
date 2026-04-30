@@ -3,21 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { LogOut, Menu, X, ShoppingBag } from "lucide-react";
 import "./Sidebar.css";
 
-/**
- * Unified Sidebar Component
- * Used by both Customer and Admin Dashboards
- * 
- * Props:
- * - variant: "customer" | "admin" (affects styling and content)
- * - items: array of { id, icon: ReactComponent, label }
- * - activeItem: currently active item id
- * - onItemClick: callback when nav item clicked
- * - userEmail: user email for profile
- * - onLogout: logout callback
- * - onReturnShopping: callback to return to shopping (customer variant)
- * - badgeCount: optional badge count for first item
- * - showBranding: show "Nuestras Artesanías" branding (admin)
- */
 export default function Sidebar({
   variant = "customer",
   items = [],
@@ -32,7 +17,6 @@ export default function Sidebar({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Lock body scroll when sidebar is open on mobile
   useEffect(() => {
     if (isOpen && window.innerWidth <= 768) {
       document.body.style.overflow = "hidden";
@@ -58,19 +42,19 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobile overlay */}
+      {}
       <div
         className={`sidebar-overlay ${isOpen ? "visible" : ""}`}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
-      {/* Sidebar */}
+      {}
       <aside
         className={`sidebar sidebar--${variant} ${isOpen ? "open" : ""}`}
         role="navigation"
       >
-        {/* Header */}
+        {}
         <div className="sidebar__header">
           {variant === "customer" || showBranding ? (
             <>
@@ -95,7 +79,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        {/* User Profile (Customer + Admin with branding) */}
+        {}
         {(variant === "customer" || showBranding) && (
           <div className="sidebar__profile">
             <div className="sidebar__avatar">{userInitial}</div>
@@ -106,7 +90,7 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Navigation */}
+        {}
         <nav className="sidebar__nav" role="menu">
           {items.map(({ id, icon: Icon, label }) => {
             const isActive = activeItem === id;
@@ -129,7 +113,7 @@ export default function Sidebar({
           })}
         </nav>
 
-        {/* Logout Button */}
+        {}
         <div className="sidebar__footer">
           {variant === "customer" && (
             <button
@@ -162,7 +146,7 @@ export default function Sidebar({
         </div>
       </aside>
 
-      {/* Mobile Menu Toggle (only show on mobile, hide when sidebar is open) */}
+      {}
       {!isOpen && (
         <button
           className="sidebar__toggle"

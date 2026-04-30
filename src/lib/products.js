@@ -3,18 +3,6 @@ import { sendLowStockAlert } from './emailNotification.js'
 
 const LOW_STOCK_THRESHOLD = 6
 
-// ──────────────────────────────────────────────────────────────
-//  PRODUCT SERVICE — All product-related Supabase queries
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all active products for a given category slug.
- * Returns an array shaped like the old static data so the
- * existing UI components work without changes.
- *
- * @param {string} categorySlug  e.g. 'bracklets', 'anklets'
- * @returns {Promise<Array>}
- */
 export async function fetchProductsByCategory(categorySlug) {
   const { data, error } = await supabase
     .from('products')
@@ -42,10 +30,6 @@ export async function fetchProductsByCategory(categorySlug) {
   }))
 }
 
-/**
- * Fetch all active categories sorted by sort_order.
- * @returns {Promise<Array>}
- */
 export async function fetchCategories() {
   const { data, error } = await supabase
     .from('categories')
@@ -60,13 +44,6 @@ export async function fetchCategories() {
   return data
 }
 
-/**
- * Fetch a single product by its database ID with all images.
- * Used on the ProductDetail page.
- *
- * @param {number} productId
- * @returns {Promise<Object|null>}
- */
 export async function fetchProductById(productId) {
   const { data, error } = await supabase
     .from('products')
@@ -79,7 +56,6 @@ export async function fetchProductById(productId) {
     return null
   }
 
-  // Fetch product images if they exist
   const images = await fetchProductImages(productId)
 
   return {
@@ -93,15 +69,10 @@ export async function fetchProductById(productId) {
     description:  data.description,
     category:     data.categories?.slug,
     categoryName: data.categories?.name,
-    images:       images || [],  // Array of image objects
+    images:       images || [],
   }
 }
 
-/**
- * Fetch featured products (those with a tag) for the homepage slider.
- * @param {number} limit  Number of products to return (default 5)
- * @returns {Promise<Array>}
- */
 export async function fetchFeaturedProducts(limit = 5) {
   const { data, error } = await supabase
     .from('products')
@@ -124,11 +95,6 @@ export async function fetchFeaturedProducts(limit = 5) {
   }))
 }
 
-/**
- * Search products by name (case-insensitive partial match).
- * @param {string} query
- * @returns {Promise<Array>}
- */
 export async function searchProducts(query) {
   const { data, error } = await supabase
     .from('products')
@@ -154,17 +120,6 @@ export async function searchProducts(query) {
   }))
 }
 
-// ──────────────────────────────────────────────────────────────
-//  STOCK VALIDATION
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch current stock levels for a list of product IDs.
- * Used for cart and checkout validation to prevent overselling.
- *
- * @param {number[]} productIds  Array of product IDs to check
- * @returns {Promise<Map<number, { stock: number, name: string, status: string }>>}
- */
 export async function checkStockForProducts(productIds) {
   if (!productIds.length) return new Map()
 
@@ -189,14 +144,6 @@ export async function checkStockForProducts(productIds) {
   return stockMap
 }
 
-// ──────────────────────────────────────────────────────────────
-//  ADMIN CRUD OPERATIONS
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all products for admin dashboard (including inactive).
- * @returns {Promise<Array>}
- */
 export async function fetchAllProducts() {
   const { data, error } = await supabase
     .from('products')
@@ -225,11 +172,6 @@ export async function fetchAllProducts() {
   }))
 }
 
-/**
- * Create a new product.
- * @param {Object} productData  { name, category_id, price, stock, description, image_url, tag }
- * @returns {Promise<{success: boolean, productId?: number, error?: string}>}
- */
 export async function createProduct(productData) {
   const { data, error } = await supabase
     .from('products')
@@ -255,12 +197,6 @@ export async function createProduct(productData) {
   return { success: true, productId: data.id }
 }
 
-/**
- * Update an existing product.
- * @param {number} productId
- * @param {Object} updates  { name?, price?, stock?, description?, tag?, image_url? }
- * @returns {Promise<boolean>}
- */
 export async function updateProduct(productId, updates) {
   const updateData = {}
   let stockUpdated = false
@@ -270,7 +206,7 @@ export async function updateProduct(productId, updates) {
   if (updates.stock !== undefined) {
     updateData.stock = Number(updates.stock)
     stockUpdated = true
-    // Auto-update status based on stock
+
     updateData.status = Number(updates.stock) === 0 ? 'out' : Number(updates.stock) <= LOW_STOCK_THRESHOLD ? 'low' : 'active'
   }
   if (updates.description !== undefined) updateData.description = updates.description
@@ -288,7 +224,6 @@ export async function updateProduct(productId, updates) {
     return false
   }
 
-  // Check and alert if stock is low
   if (stockUpdated && updateData.stock <= LOW_STOCK_THRESHOLD) {
     try {
       const product = await fetchProductById(productId)
@@ -307,11 +242,6 @@ export async function updateProduct(productId, updates) {
   return true
 }
 
-/**
- * Delete a product (soft delete - set active to false).
- * @param {number} productId
- * @returns {Promise<boolean>}
- */
 export async function deleteProduct(productId) {
   const { error } = await supabase
     .from('products')
@@ -326,12 +256,6 @@ export async function deleteProduct(productId) {
   return true
 }
 
-/**
- * Upload a product image to Supabase storage.
- * @param {File} file  The image file to upload
- * @param {string} fileName  Optional custom filename
- * @returns {Promise<{success: boolean, url?: string, error?: string}>}
- */
 export async function uploadProductImage(file, fileName) {
   if (!file) {
     return { success: false, error: 'No file provided' }
@@ -351,7 +275,6 @@ export async function uploadProductImage(file, fileName) {
     return { success: false, error: error.message }
   }
 
-  // Get public URL
   const { data: publicUrl } = supabase.storage
     .from('product-images')
     .getPublicUrl(filePath)
@@ -359,15 +282,6 @@ export async function uploadProductImage(file, fileName) {
   return { success: true, url: publicUrl.publicUrl }
 }
 
-// ──────────────────────────────────────────────────────────────
-//  MULTIPLE PRODUCT IMAGES MANAGEMENT
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all images for a product
- * @param {number} productId
- * @returns {Promise<Array>}
- */
 export async function fetchProductImages(productId) {
   const { data, error } = await supabase
     .from('product_images')
@@ -383,11 +297,6 @@ export async function fetchProductImages(productId) {
   return data || []
 }
 
-/**
- * Batch fetch images for multiple products (avoids N+1 queries)
- * @param {number[]} productIds Array of product IDs
- * @returns {Promise<Object>} Object with keys: { productId: [images] }
- */
 export async function fetchProductImagesBatch(productIds) {
   if (!productIds || productIds.length === 0) return {}
 
@@ -402,7 +311,6 @@ export async function fetchProductImagesBatch(productIds) {
     return {}
   }
 
-  // Group images by product_id
   const result = {}
   ;(data || []).forEach(img => {
     if (!result[img.product_id]) result[img.product_id] = []
@@ -412,15 +320,8 @@ export async function fetchProductImagesBatch(productIds) {
   return result
 }
 
-/**
- * Add a new image to a product
- * @param {number} productId
- * @param {string} imageUrl
- * @param {boolean} isPrimary  Whether to set as primary/thumbnail
- * @returns {Promise<{success: boolean, imageId?: number, error?: string}>}
- */
 export async function addProductImage(productId, imageUrl, isPrimary = false) {
-  // If this is the primary, unset other primary images
+
   if (isPrimary) {
     await supabase
       .from('product_images')
@@ -428,7 +329,6 @@ export async function addProductImage(productId, imageUrl, isPrimary = false) {
       .eq('product_id', productId)
   }
 
-  // Get the next display order
   const { data: existingImages } = await supabase
     .from('product_images')
     .select('display_order')
@@ -454,7 +354,6 @@ export async function addProductImage(productId, imageUrl, isPrimary = false) {
     return { success: false, error: error.message }
   }
 
-  // Update primary image_url in products table if this is primary
   if (isPrimary) {
     await supabase
       .from('products')
@@ -465,11 +364,6 @@ export async function addProductImage(productId, imageUrl, isPrimary = false) {
   return { success: true, imageId: data.id }
 }
 
-/**
- * Delete a product image
- * @param {number} imageId
- * @returns {Promise<boolean>}
- */
 export async function deleteProductImage(imageId) {
   const { error } = await supabase
     .from('product_images')
@@ -484,12 +378,6 @@ export async function deleteProductImage(imageId) {
   return true
 }
 
-/**
- * Reorder product images (drag-and-drop)
- * @param {number} productId
- * @param {Array} imageIds  Array of image IDs in new order
- * @returns {Promise<boolean>}
- */
 export async function reorderProductImages(productId, imageIds) {
   const updates = imageIds.map((id, index) => ({
     id,
@@ -509,20 +397,13 @@ export async function reorderProductImages(productId, imageIds) {
   return true
 }
 
-/**
- * Set an image as primary (thumbnail)
- * @param {number} productId
- * @param {number} imageId
- * @returns {Promise<boolean>}
- */
 export async function setImageAsPrimary(productId, imageId) {
-  // Unset other primary images
+
   await supabase
     .from('product_images')
     .update({ is_primary: false })
     .eq('product_id', productId)
 
-  // Set the new primary
   const { data, error } = await supabase
     .from('product_images')
     .update({ is_primary: true })
@@ -535,7 +416,6 @@ export async function setImageAsPrimary(productId, imageId) {
     return false
   }
 
-  // Update the primary image in products table
   await supabase
     .from('products')
     .update({ image_url: data.image_url })
@@ -544,14 +424,8 @@ export async function setImageAsPrimary(productId, imageId) {
   return true
 }
 
-/**
- * Sync product images (replaces all existing images for a product)
- * @param {number} productId 
- * @param {string[]} imageUrls 
- * @returns {Promise<boolean>}
- */
 export async function syncProductImages(productId, imageUrls) {
-  // Delete all existing images
+
   await supabase
     .from('product_images')
     .delete()
@@ -559,7 +433,6 @@ export async function syncProductImages(productId, imageUrls) {
 
   if (!imageUrls || imageUrls.length === 0) return true;
 
-  // Insert new images
   const inserts = imageUrls.map((url, i) => ({
     product_id: productId,
     image_url: url,
@@ -579,19 +452,6 @@ export async function syncProductImages(productId, imageUrls) {
   return true;
 }
 
-// ──────────────────────────────────────────────────────────────
-//  BATCH IMAGE UPLOAD FOR MULTI-IMAGE UPLOAD COMPONENT
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Upload multiple image files for a product (from MultiImageUpload component)
- * 
- * @param {number} productId  Product ID to attach images to
- * @param {File[]} files  Array of File objects from input
- * @param {Function} onProgress  Optional callback for progress tracking
- *                               Receives: { current: number, total: number, fileName: string }
- * @returns {Promise<{success: boolean, urls?: string[], errors?: string[]}>}
- */
 export async function uploadProductImageFiles(productId, files, onProgress = null) {
   const uploadedUrls = []
   const errors = []
@@ -599,8 +459,7 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
   try {
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
-      
-      // Notify progress
+
       if (onProgress) {
         onProgress({
           current: i + 1,
@@ -609,14 +468,12 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
         })
       }
 
-      // Generate unique filename
       const timestamp = Date.now()
       const random = Math.random().toString(36).substring(2, 8)
       const ext = file.name.split('.').pop()
       const filename = `product_${productId}_${timestamp}_${random}.${ext}`
       const filePath = `product-images/${productId}/${filename}`
 
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('product-images')
         .upload(filePath, file)
@@ -627,14 +484,13 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
         continue
       }
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath)
 
       uploadedUrls.push(publicUrl)
 
-      const isPrimary = i === 0 // First image is primary
+      const isPrimary = i === 0
       const { error: dbError } = await supabase
         .from('product_images')
         .insert([{
@@ -650,7 +506,6 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
         continue
       }
 
-      // Update product thumbnail if this is first image
       if (isPrimary) {
         await supabase
           .from('products')
@@ -675,15 +530,9 @@ export async function uploadProductImageFiles(productId, files, onProgress = nul
   }
 }
 
-/**
- * Delete a product image from Supabase storage (cleanup)
- * @param {string} storagePath  Path in storage (e.g., 'product-images/123/file.jpg')
- * @param {number} imageId  Image record ID in database
- * @returns {Promise<boolean>}
- */
 export async function deleteProductImageFile(storagePath, imageId) {
   try {
-    // Delete from storage
+
     if (storagePath) {
       const { error: storageError } = await supabase.storage
         .from('product-images')
@@ -694,7 +543,6 @@ export async function deleteProductImageFile(storagePath, imageId) {
       }
     }
 
-    // Delete from database
     return await deleteProductImage(imageId)
 
   } catch (error) {

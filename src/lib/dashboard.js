@@ -1,16 +1,5 @@
 import { supabase } from './supabase.js'
 
-// ──────────────────────────────────────────────────────────────
-//  DASHBOARD SERVICE — Queries for the owner admin dashboard
-//  These call the SQL views defined in supabase.sql
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all dashboard statistics in a single batch.
- * Runs 5 queries in parallel for speed.
- *
- * @returns {Promise<Object>}
- */
 export async function fetchDashboardStats() {
   try {
     const [revenue, statusSummary, topProducts, customerStats, lowStock] =
@@ -41,10 +30,6 @@ export async function fetchDashboardStats() {
   }
 }
 
-/**
- * Fetch revenue broken down by category.
- * @returns {Promise<Array>}
- */
 export async function fetchRevenueByCategory() {
   const { data, error } = await supabase
     .from('revenue_by_category')
@@ -57,10 +42,6 @@ export async function fetchRevenueByCategory() {
   return data
 }
 
-/**
- * Fetch all orders with customer info (owner view).
- * @returns {Promise<Array>}
- */
 export async function fetchAllOrders() {
   const { data, error } = await supabase
     .from('orders')
@@ -74,18 +55,9 @@ export async function fetchAllOrders() {
   return data
 }
 
-/**
- * Update an order's status (owner only).
- * 
- * SAFETY: Blocks transition to 'delivered' if payment_status !== 'paid'.
- * 
- * @param {string} orderId   e.g. "NA-1001"
- * @param {string} newStatus 'pending' | 'in-progress' | 'ready' | 'delivered' | 'cancelled'
- * @returns {Promise<boolean|{blocked:boolean, message:string}>}
- */
 export async function updateOrderStatus(orderId, newStatus) {
   try {
-    // Backend guard: prevent delivery of unpaid orders
+
     if (newStatus === 'delivered') {
       const { data: order, error: fetchError } = await supabase
         .from('orders')
@@ -119,12 +91,6 @@ export async function updateOrderStatus(orderId, newStatus) {
   }
 }
 
-/**
- * Update an order's payment status (owner only).
- * @param {string} orderId
- * @param {string} newStatus 'unpaid' | 'paid' | 'refunded'
- * @returns {Promise<boolean>}
- */
 export async function updatePaymentStatus(orderId, newStatus) {
   const { error } = await supabase
     .from('orders')
@@ -138,18 +104,9 @@ export async function updatePaymentStatus(orderId, newStatus) {
   return true
 }
 
-/**
- * Restore product stock when an order is cancelled.
- * Fetches all items from the order and adds their quantities back to products.
- *
- * SAFETY: Only restores if order is not already cancelled (idempotent).
- *
- * @param {string} orderId  e.g. "NA-1001"
- * @returns {Promise<{ success: boolean, message: string, restoredCount?: number }>}
- */
 export async function restoreStock(orderId) {
   try {
-    // Fetch the order to check current status
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('status')
@@ -161,13 +118,10 @@ export async function restoreStock(orderId) {
       return { success: false, message: 'Could not fetch order' }
     }
 
-    // If already cancelled, don't restore stock again (idempotent)
     if (order.status === 'cancelled') {
       return { success: true, message: 'Order already cancelled. Stock restore skipped.', restoredCount: 0 }
     }
 
-    // Fetch only ACTIVE items in this order (skip already-cancelled ones
-    // whose stock was already restored by cancelOrderItem)
     const { data: orderItems, error: itemsError } = await supabase
       .from('order_items')
       .select('product_id, quantity, status')
@@ -183,12 +137,11 @@ export async function restoreStock(orderId) {
       return { success: true, message: 'No items to restore', restoredCount: 0 }
     }
 
-    // Restore stock for each product
     let restoredCount = 0
     const errors = []
 
     for (const item of orderItems) {
-      // Fetch current product stock
+
       const { data: product, error: prodError } = await supabase
         .from('products')
         .select('stock')
@@ -204,7 +157,6 @@ export async function restoreStock(orderId) {
       const newStock = (Number(product.stock) || 0) + item.quantity
       const newStatus = newStock === 0 ? 'out' : newStock <= 6 ? 'low' : 'active'
 
-      // Update product stock and status
       const { error: updateError } = await supabase
         .from('products')
         .update({ stock: newStock, status: newStatus })
@@ -219,7 +171,6 @@ export async function restoreStock(orderId) {
       restoredCount++
     }
 
-    // If all items restored successfully
     if (errors.length === 0) {
       return {
         success: true,
@@ -228,7 +179,6 @@ export async function restoreStock(orderId) {
       }
     }
 
-    // Partial success
     return {
       success: false,
       message: `Partial restore: ${restoredCount} products restored, ${errors.length} failed. ${errors.join('; ')}`,
@@ -240,21 +190,9 @@ export async function restoreStock(orderId) {
   }
 }
 
-/**
- * Cancel an order and restore its product stock.
- *
- * FLOW:
- * 1. Check if order is already cancelled (prevent double-cancellation)
- * 2. Restore all product stock from order items
- * 3. Update order status to 'cancelled'
- * 4. Return success/error details
- *
- * @param {string} orderId  e.g. "NA-1001"
- * @returns {Promise<{ success: boolean, message: string, orderCancelled?: boolean, stockRestored?: boolean }>}
- */
 export async function cancelOrder(orderId) {
   try {
-    // Check current order status
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('status')
@@ -266,7 +204,6 @@ export async function cancelOrder(orderId) {
       return { success: false, message: 'Could not fetch order', orderCancelled: false }
     }
 
-    // Prevent double-cancellation
     if (order.status === 'cancelled') {
       return {
         success: false,
@@ -276,14 +213,12 @@ export async function cancelOrder(orderId) {
       }
     }
 
-    // Restore stock first
     const stockResult = await restoreStock(orderId)
     if (!stockResult.success) {
       console.warn('Stock restore had issues:', stockResult.message)
-      // Continue anyway, as we still want to mark order as cancelled
+
     }
 
-    // Update order status to cancelled
     const { error: cancelError } = await supabase
       .from('orders')
       .update({ status: 'cancelled' })
@@ -317,22 +252,9 @@ export async function cancelOrder(orderId) {
   }
 }
 
-/**
- * Cancel a SINGLE item inside an order and restore its stock.
- *
- * FLOW:
- * 1. Check if item is already cancelled (prevent double-cancel)
- * 2. Set order_items.status = 'cancelled'
- * 3. Restore product stock for that item's quantity
- *
- * @param {number} itemId      - order_items.id
- * @param {number} productId   - products.id
- * @param {number} quantity    - quantity to restore
- * @returns {Promise<{ success: boolean, message: string }>}
- */
 export async function cancelOrderItem(itemId, productId, quantityToCancel) {
   try {
-    // 1. Fetch current item info
+
     const { data: item, error: itemError } = await supabase
       .from('order_items')
       .select('*')
@@ -358,7 +280,7 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
     let updatedActiveItem = null;
 
     if (quantityToCancel === item.quantity) {
-      // Cancel the entire row
+
       const { data, error: updateError } = await supabase
         .from('order_items')
         .update({ status: 'cancelled' })
@@ -371,11 +293,10 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
       }
       newCancelledItem = data;
     } else {
-      // Partial cancellation:
-      // 1. Reduce quantity of existing item
+
       const newActiveQuantity = item.quantity - quantityToCancel;
       const newActiveSubtotal = item.unit_price * newActiveQuantity;
-      
+
       const { data: updatedItem, error: updateError } = await supabase
         .from('order_items')
         .update({ quantity: newActiveQuantity, subtotal: newActiveSubtotal })
@@ -388,7 +309,6 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
       }
       updatedActiveItem = updatedItem;
 
-      // 2. Insert a new cancelled item row for the cancelled portion
       const { data: insertedItem, error: insertError } = await supabase
         .from('order_items')
         .insert({
@@ -411,7 +331,6 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
       }
     }
 
-    // Update parent order total
     const { data: orderData } = await supabase
       .from('orders')
       .select('total')
@@ -426,7 +345,6 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
         .eq('id', item.order_id);
     }
 
-    // 3. Restore stock for this product
     if (productId) {
       const { data: product, error: prodError } = await supabase
         .from('products')
@@ -445,7 +363,6 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
       }
     }
 
-    // 4. Check if ALL items in the order are now cancelled → auto-cancel order
     const { data: siblingItems, error: siblingsError } = await supabase
       .from('order_items')
       .select('id, status')
@@ -461,9 +378,9 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
       }
     }
 
-    return { 
-      success: true, 
-      message: 'Item cancelled and stock restored', 
+    return {
+      success: true,
+      message: 'Item cancelled and stock restored',
       allCancelled,
       updatedActiveItem,
       newCancelledItem
@@ -474,15 +391,6 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
   }
 }
 
-// ──────────────────────────────────────────────────────────────
-//  NOTIFICATIONS
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch recent notifications for the owner.
- * @param {number} limit
- * @returns {Promise<Array>}
- */
 export async function fetchNotifications(limit = 20) {
   const { data, error } = await supabase
     .from('notifications')
@@ -497,10 +405,6 @@ export async function fetchNotifications(limit = 20) {
   return data
 }
 
-/**
- * Get the count of unread notifications.
- * @returns {Promise<number>}
- */
 export async function getUnreadCount() {
   const { count, error } = await supabase
     .from('notifications')
@@ -514,10 +418,6 @@ export async function getUnreadCount() {
   return count || 0
 }
 
-/**
- * Mark a single notification as read.
- * @param {number} notificationId
- */
 export async function markNotificationRead(notificationId) {
   const { error } = await supabase
     .from('notifications')
@@ -527,9 +427,6 @@ export async function markNotificationRead(notificationId) {
   if (error) console.error('Error marking notification read:', error)
 }
 
-/**
- * Mark all notifications as read.
- */
 export async function markAllNotificationsRead() {
   const { error } = await supabase
     .from('notifications')
@@ -539,14 +436,6 @@ export async function markAllNotificationsRead() {
   if (error) console.error('Error marking all read:', error)
 }
 
-// ──────────────────────────────────────────────────────────────
-//  INVENTORY MANAGEMENT
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all inventory items (raw materials / supplies).
- * @returns {Promise<Array>}
- */
 export async function fetchInventory() {
   const { data, error } = await supabase
     .from('inventory_items')
@@ -560,11 +449,6 @@ export async function fetchInventory() {
   return data
 }
 
-/**
- * Add a new inventory item.
- * @param {Object} item
- * @returns {Promise<Object|null>}
- */
 export async function addInventoryItem(item) {
   const { data, error } = await supabase
     .from('inventory_items')
@@ -579,12 +463,6 @@ export async function addInventoryItem(item) {
   return data
 }
 
-/**
- * Update an inventory item's quantity or details.
- * @param {number} itemId
- * @param {Object} updates
- * @returns {Promise<boolean>}
- */
 export async function updateInventoryItem(itemId, updates) {
   const { error } = await supabase
     .from('inventory_items')
@@ -598,14 +476,6 @@ export async function updateInventoryItem(itemId, updates) {
   return true
 }
 
-// ──────────────────────────────────────────────────────────────
-//  PRODUCT MANAGEMENT (owner CRUD)
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch ALL products including inactive (owner view).
- * @returns {Promise<Array>}
- */
 export async function fetchAllProducts() {
   const { data, error } = await supabase
     .from('products')
@@ -620,11 +490,6 @@ export async function fetchAllProducts() {
   return data
 }
 
-/**
- * Add a new product.
- * @param {Object} product
- * @returns {Promise<Object|null>}
- */
 export async function addProduct(product) {
   const { data, error } = await supabase
     .from('products')
@@ -639,12 +504,6 @@ export async function addProduct(product) {
   return data
 }
 
-/**
- * Update a product.
- * @param {number} productId
- * @param {Object} updates
- * @returns {Promise<boolean>}
- */
 export async function updateProduct(productId, updates) {
   const { error } = await supabase
     .from('products')
@@ -658,15 +517,6 @@ export async function updateProduct(productId, updates) {
   return true
 }
 
-// ──────────────────────────────────────────────────────────────
-//  STORE SETTINGS
-// ──────────────────────────────────────────────────────────────
-
-/**
- * Fetch all store settings.
- * Returns settings parsed from the key-value store.
- * @returns {Promise<Object|null>}
- */
 export async function fetchStoreSettings() {
   const { data, error } = await supabase
     .from('store_settings')
@@ -697,18 +547,12 @@ export async function fetchStoreSettings() {
   data.forEach(row => {
     settings[row.key] = row.value;
   });
-  
+
   return settings;
 }
 
-/**
- * Update all store settings.
- * Upserts key-value pairs into the store_settings table.
- * @param {Object} settings - All settings fields
- * @returns {Promise<{ success: boolean, error?: string }>}
- */
 export async function updateStoreSettings(settings) {
-  // Convert object to array of { key, value }
+
   const rows = Object.entries(settings).map(([key, value]) => ({
     key,
     value: value?.toString() || ""

@@ -39,11 +39,10 @@ export default function Orders() {
   const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [updatingPaymentId, setUpdatingPaymentId] = useState(null);
 
-  // Fetch real orders from Supabase on component mount
   useEffect(() => {
     setLoading(true);
     fetchAllOrders().then(data => {
-      // Transform Supabase data to match UI format
+
       const transformedOrders = data.map(order => {
         const customerName = order.profiles
           ? `${order.profiles.first_name || ''} ${order.profiles.last_name || ''}`.trim()
@@ -93,12 +92,10 @@ export default function Orders() {
     });
   }, []);
 
-  /* ── Status Update Handler ── */
   const handleStatusChange = async (orderId, newStatus) => {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Prevent status regression (only forward movement)
     const currentStatusIndex = STATUS_FLOW.indexOf(order.status);
     const newStatusIndex = STATUS_FLOW.indexOf(newStatus);
     if (newStatusIndex <= currentStatusIndex) {
@@ -111,7 +108,6 @@ export default function Orders() {
       return;
     }
 
-    // Frontend guard: block delivery if unpaid
     if (newStatus === 'delivered' && order.paymentStatus !== 'paid') {
       toast.error('⚠ Order must be paid before delivery.');
       return;
@@ -121,7 +117,6 @@ export default function Orders() {
     try {
       const result = await updateOrderStatus(orderId, newStatus);
 
-      // Backend may return { blocked: true, message } for unpaid delivery
       if (result && result.blocked) {
         toast.error(`⚠ ${result.message}`);
         return;
@@ -131,7 +126,7 @@ export default function Orders() {
         setOrders(os => os.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
         const labels = { 'in-progress': 'In Progress', ready: 'Ready', delivered: 'Delivered', pending: 'Pending' };
         toast.success(`✓ Order marked as ${labels[newStatus] || newStatus}`);
-        
+
         if (newStatus === "in-progress" || newStatus === "ready" || newStatus === "delivered") {
           const orderToUpdate = orders.find(o => o.id === orderId);
           if (orderToUpdate && orderToUpdate.email) {
@@ -168,7 +163,6 @@ export default function Orders() {
     const order = orders.find(o => o.id === orderId);
     if (!order) return;
 
-    // Prevent reverting paid → unpaid
     if (order.paymentStatus === 'paid' && newStatus === 'unpaid') {
       toast.error('⚠ Paid orders cannot be reverted to unpaid.');
       return;
@@ -191,14 +185,13 @@ export default function Orders() {
     }
   };
 
-  /* ── Cancel Order Handler ── */
   const handleCancelOrder = async (orderId) => {
     setCancelling(true);
     const result = await cancelOrder(orderId);
     setCancelling(false);
 
     if (result.success) {
-      // Update orders list
+
       setOrders(os => os.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
       setCancelConfirm(null);
       toast.success(`✓ Order ${orderId} cancelled. Stock restored for ${result.restoredItems || 0} product(s).`);
@@ -207,10 +200,9 @@ export default function Orders() {
     }
   };
 
-  /* ── Cancel Single Item Handler ── */
   const showCancelItemConfirm = (orderId, ri) => {
     setCancelItemConfirm({ orderId, item: ri });
-    setCancelItemQuantity(ri.quantity); // Default to full quantity
+    setCancelItemQuantity(ri.quantity);
   };
 
   const handleCancelItem = async () => {
@@ -230,27 +222,25 @@ export default function Orders() {
     if (result.success) {
       setOrders(os => os.map(o => {
         if (o.id !== orderId) return o;
-        
+
         let updatedRawItems = [...o.rawItems];
 
         if (qtyToCancel === item.quantity) {
-           // Full cancellation
+
            updatedRawItems = updatedRawItems.map(ri => ri.id === item.id ? { ...ri, status: 'cancelled' } : ri);
         } else {
-           // Partial cancellation
+
            updatedRawItems = updatedRawItems.map(ri => ri.id === item.id ? { ...ri, quantity: item.quantity - qtyToCancel } : ri);
            if (result.newCancelledItem) {
              updatedRawItems.push(result.newCancelledItem);
            }
         }
-        
-        // Recalculate summary fields for consistent UI
+
         const activeItems = updatedRawItems.filter(ri => ri.status !== 'cancelled');
         const itemsQty = activeItems.reduce((sum, ri) => sum + ri.quantity, 0) || 0;
         const allItemsStr = activeItems.map(i => i.product_name).join(", ") || (updatedRawItems.length > 0 ? 'Cancelled Items' : 'Order');
         const itemsDetailStr = activeItems.map(i => `${i.product_name} ×${i.quantity}`).join(", ") || '';
-        
-        // Subtract subtotal from total
+
         const subToSubtract = Number(item.unit_price) * qtyToCancel;
         const newTotal = Math.max(0, (Number(o.total) || 0) - subToSubtract);
 
@@ -267,15 +257,14 @@ export default function Orders() {
       setCancelItemConfirm(null);
       toast.success(`✓ Cancelled ${qtyToCancel}x "${item.product_name}". Stock restored.`);
 
-      // Send cancellation email to customer (non-blocking)
       const order = orders.find(o => o.id === orderId);
       if (order && order.email) {
         try {
           const formatPrice = (val) => `$${Number(val).toFixed(2)} BZD`;
-          // Get remaining active items after this cancellation
+
           const updatedOrder = orders.find(o => o.id === orderId);
           const remainingRaw = (updatedOrder?.rawItems || []).filter(ri => ri.id !== item.id && ri.status !== 'cancelled');
-          // If partial cancel, the original item is still active with reduced qty
+
           if (qtyToCancel < item.quantity) {
             remainingRaw.unshift({ ...item, quantity: item.quantity - qtyToCancel });
           }
@@ -340,8 +329,6 @@ export default function Orders() {
   const delivered = orders.filter(o => o.status === "delivered").length;
   const cancelled = orders.filter(o => o.status === "cancelled").length;
 
-
-
   return (
     <div className="ap-root">
       <div className="ap-page-header">
@@ -351,7 +338,7 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Order KPIs */}
+      {}
       <div className="ap-kpi-row ap-order-kpi-row">
         {[
           { Icon: Clock, label: "Pending", val: pending, color: "#f39c12" },
@@ -369,7 +356,7 @@ export default function Orders() {
         ))}
       </div>
 
-      {/* Filters */}
+      {}
       <div className="ap-filters">
         <div className="ap-search-wrapper">
           <Search className="ap-search-icon" size={16} />
@@ -386,7 +373,7 @@ export default function Orders() {
         </div>
       </div>
 
-      {/* Orders list */}
+      {}
       <div className="ap-orders-list">
         {loading ? (
           [1, 2, 3, 4].map(i => (
@@ -425,7 +412,7 @@ export default function Orders() {
             {expanded === o.id && (
               <div className="ap-order-detail">
                 <div className="ap-order-detail-grid">
-                  {/* Left Column: Info & Details */}
+                  {}
                   <div className="ap-order-section">
                     <h4 className="ap-section-title">Customer Info</h4>
                     <div className="ap-info-row">
@@ -530,11 +517,11 @@ export default function Orders() {
                   </div>
                 </div>
 
-                  {/* Right Column: Actions */}
+                  {}
                   <div className="ap-order-section">
                     <h4 className="ap-section-title">Payment Status</h4>
                     <div className="ap-payment-toggle">
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); handlePaymentStatusChange(o.id, 'paid'); }}
                         className={`ap-pay-btn ${o.paymentStatus === 'paid' ? 'active-paid' : ''}`}
                         disabled={updatingPaymentId === o.id || o.paymentStatus === 'paid'}
@@ -542,7 +529,7 @@ export default function Orders() {
                       >
                         Paid
                       </button>
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); handlePaymentStatusChange(o.id, 'unpaid'); }}
                         className={`ap-pay-btn ${o.paymentStatus === 'unpaid' ? 'active-unpaid' : ''}`}
                         disabled={updatingPaymentId === o.id || o.paymentStatus === 'paid'}
@@ -600,7 +587,7 @@ export default function Orders() {
         )}
       </div>
 
-      {/* ── CANCEL CONFIRMATION MODAL ── */}
+      {}
       {cancelConfirm && (
         <div style={{
           position: 'fixed',
@@ -628,7 +615,7 @@ export default function Orders() {
                 Cancel Order?
               </h3>
             </div>
-            
+
             <p style={{ fontSize: 14, color: '#6b4423', marginBottom: 16, lineHeight: 1.5 }}>
               This will cancel the order <strong>{cancelConfirm}</strong> and restore all product stock. This action cannot be undone.
             </p>
@@ -677,9 +664,7 @@ export default function Orders() {
         </div>
       )}
 
-
-
-      {/* ── CANCEL ITEM CONFIRMATION MODAL ── */}
+      {}
       {cancelItemConfirm && (
         <div style={{
           position: 'fixed',
@@ -707,7 +692,7 @@ export default function Orders() {
                 Cancel Item?
               </h3>
             </div>
-            
+
             <p style={{ fontSize: 14, color: '#6b4423', marginBottom: 16, lineHeight: 1.5 }}>
               How many <strong>{cancelItemConfirm.item.product_name}</strong> do you want to cancel and restore to stock?
             </p>
@@ -715,11 +700,11 @@ export default function Orders() {
             {cancelItemConfirm.item.quantity > 1 && (
               <div style={{ marginBottom: 20 }}>
                 <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#4a3018', marginBottom: 6 }}>Quantity to Cancel (Max: {cancelItemConfirm.item.quantity})</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  max={cancelItemConfirm.item.quantity} 
-                  value={cancelItemQuantity} 
+                <input
+                  type="number"
+                  min="1"
+                  max={cancelItemConfirm.item.quantity}
+                  value={cancelItemQuantity}
                   onChange={(e) => setCancelItemQuantity(Number(e.target.value))}
                   style={{
                     width: '100%',

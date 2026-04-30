@@ -10,7 +10,6 @@ export default function ProductImageUpload({ productId }) {
   const [uploading, setUploading] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false);
 
-  // Load existing images
   useEffect(() => {
     loadImages();
   }, [productId]);
@@ -31,7 +30,7 @@ export default function ProductImageUpload({ productId }) {
 
     setUploading(true);
     const result = await addProductImage(productId, imageUrl, isPrimary);
-    
+
     if (result.success) {
       setImageUrl('');
       setIsPrimary(false);
@@ -59,7 +58,7 @@ export default function ProductImageUpload({ productId }) {
     <div className="piu-container">
       <h3>Product Images</h3>
 
-      {/* Add New Image Form */}
+      {}
       <form onSubmit={handleAddImage} className="piu-form">
         <div className="piu-form-group">
           <label htmlFor="image-url">Image URL</label>
@@ -85,8 +84,8 @@ export default function ProductImageUpload({ productId }) {
           </label>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={uploading}
           className="piu-btn-add"
         >
@@ -95,10 +94,10 @@ export default function ProductImageUpload({ productId }) {
         </button>
       </form>
 
-      {/* Images List */}
+      {}
       <div className="piu-images-section">
         <h4>Current Images ({images.length})</h4>
-        
+
         {loadingImages ? (
           <p className="piu-loading">Loading images...</p>
         ) : images.length === 0 ? (
@@ -108,7 +107,7 @@ export default function ProductImageUpload({ productId }) {
             {images.map((img) => (
               <div key={img.id} className="piu-image-card">
                 <div className="piu-image-wrapper">
-                  <img 
+                  <img
                     src={(img.image_url?.startsWith('http')) ? img.image_url : `/${img.image_url}`}
                     alt="Product"
                     onError={e => { e.target.src = '/logo.png'; }}
@@ -117,7 +116,7 @@ export default function ProductImageUpload({ productId }) {
                     <span className="piu-badge-primary">Primary</span>
                   )}
                 </div>
-                
+
                 <div className="piu-image-info">
                   <small>Order: {img.display_order}</small>
                 </div>

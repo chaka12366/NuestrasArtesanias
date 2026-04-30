@@ -16,7 +16,6 @@ function ProductThumb({ img, name }) {
   return <div className="ap-prod-thumb ap-prod-thumb-placeholder">{initials}</div>;
 }
 
-
 export default function Products() {
   const [products, setProducts]     = useState([]);
   const [categories, setCategories] = useState([]);
@@ -35,7 +34,6 @@ export default function Products() {
   const editFileRef = useRef(null);
   const rowFileRefs = useRef({});
 
-  // Fetch products and categories on mount
   useEffect(() => {
     setLoading(true);
     Promise.all([fetchAllProducts(), fetchCategories()]).then(([prods, cats]) => {
@@ -74,7 +72,6 @@ export default function Products() {
     const fileArray = Array.from(files).filter(f => f && f.type.startsWith("image/"));
     if (fileArray.length === 0) return;
 
-    // Check max limit
     const currentImages = isEdit ? (editModalP?.images || []) : (newP.images || []);
     const slotsRemaining = MAX_IMAGES - currentImages.length;
     if (slotsRemaining <= 0) {
@@ -99,7 +96,6 @@ export default function Products() {
       }
     }
 
-    // Debug: confirm multiple images stored
     console.log(`[MultiUpload] ${isEdit ? 'Edit' : 'Add'} modal images after upload:`,
       isEdit ? editModalP?.images : newP.images, `(+${filesToProcess.length} new)`);
   };
@@ -125,28 +121,28 @@ export default function Products() {
     const result = await uploadProductImage(file, `product-${id}-${Date.now()}`);
     if (result.success) {
       await updateProduct(id, { image_url: result.url });
-      
+
       const p = products.find(prod => prod.id === id);
       let newImages = [result.url];
       if (p && p.images && p.images.length > 1) {
          newImages = [result.url, ...p.images.slice(1)];
       }
       await syncProductImages(id, newImages);
-      
+
       setProducts(ps => ps.map(p => p.id===id ? {...p, image: result.url, images: newImages} : p));
       setImgEditId(null);
     } else {
       console.warn("Storage upload failed, falling back to base64:", result.error);
       const base64 = await readFile(file);
       await updateProduct(id, { image_url: base64 });
-      
+
       const p = products.find(prod => prod.id === id);
       let newImages = [base64];
       if (p && p.images && p.images.length > 1) {
          newImages = [base64, ...p.images.slice(1)];
       }
       await syncProductImages(id, newImages);
-      
+
       setProducts(ps => ps.map(p => p.id===id ? {...p, image: base64, images: newImages} : p));
       setImgEditId(null);
     }
@@ -156,13 +152,13 @@ export default function Products() {
     if (!editing) return;
     const field = editing.field;
     const val = ["price","stock"].includes(field) ? Number(editing.val) : editing.val;
-    
+
     const updateData = {};
     if (field === "price") updateData.price = val;
     if (field === "stock") updateData.stock = val;
     if (field === "name") updateData.name = val;
     if (field === "tag") updateData.tag = val || null;
-    
+
     const success = await updateProduct(editing.id, updateData);
     if (success) {
       setProducts(ps => ps.map(p => p.id===editing.id
@@ -175,9 +171,9 @@ export default function Products() {
 
   const saveEditedProduct = async () => {
     if (!editModalP.name || !editModalP.price || !editModalP.categoryId) return;
-    
+
     const primaryImage = editModalP.images?.length > 0 ? editModalP.images[0] : null;
-    
+
     const success = await updateProduct(editModalP.id, {
       name: editModalP.name,
       category_id: editModalP.categoryId,
@@ -187,7 +183,7 @@ export default function Products() {
       image_url: primaryImage,
       tag: editModalP.tag || null,
     });
-    
+
     if (success) {
       await syncProductImages(editModalP.id, editModalP.images || []);
       const updated = await fetchAllProducts();
@@ -201,10 +197,9 @@ export default function Products() {
 
   const addProduct = async () => {
     if (!newP.name || !newP.price || !newP.categoryId) return;
-    
-    // Use first image as primary, or null if no images
+
     const primaryImage = newP.images?.length > 0 ? newP.images[0] : null;
-    
+
     const result = await createProduct({
       name: newP.name,
       category_id: newP.categoryId,
@@ -214,16 +209,14 @@ export default function Products() {
       image_url: primaryImage,
       tag: newP.tag || null,
     });
-    
+
     if (result.success) {
       const productId = result.productId;
-      
-      // Add all images to product_images table
+
       if (newP.images && newP.images.length > 0) {
         await syncProductImages(productId, newP.images);
       }
-      
-      // Refresh products list
+
       const updated = await fetchAllProducts();
       setProducts(updated);
       setNewP(EMPTY_NEW);
@@ -245,18 +238,17 @@ export default function Products() {
   };
 
   const handleEditClick = async (p) => {
-    // Show a loading state if possible, or just fetch directly (usually very fast)
+
     const imagesData = await fetchProductImages(p.id);
-    const images = imagesData && imagesData.length > 0 
-      ? imagesData.sort((a,b) => a.display_order - b.display_order).map(img => img.image_url) 
+    const images = imagesData && imagesData.length > 0
+      ? imagesData.sort((a,b) => a.display_order - b.display_order).map(img => img.image_url)
       : (p.image ? [p.image] : []);
-    
-    // Ensure ALL fields are present and properly initialized
+
     setEditModalP({
-      ...EMPTY_EDIT,  // Start with empty template
-      ...p,           // Spread product data (overrides empties)
-      images,         // Ensure images array is set
-      id: p.id,       // Ensure id is set
+      ...EMPTY_EDIT,
+      ...p,
+      images,
+      id: p.id,
       name: p.name || "",
       price: p.price || 0,
       stock: p.stock || 0,
@@ -303,7 +295,7 @@ export default function Products() {
         ))}
       </div>
 
-      {/* PRODUCT LISTING */}
+      {}
       {loading ? (
         <div className="ap-pgrid">
           {showLoading ? [1,2,3,4].map(i => (
@@ -331,7 +323,7 @@ export default function Products() {
         />
       ) : (
         <div className="ap-ptable-wrap">
-          {/* Desktop table header */}
+          {}
           <div className="ap-ptable-header">
             <span>IMG</span>
             <span>PRODUCT</span>
@@ -345,30 +337,27 @@ export default function Products() {
           <div className="ap-pgrid">
             {filtered.map((p, i) => (
               <div key={p.id} className="ap-pcard" style={{"--i": i}}>
-                {/* Col 1: Image */}
+                {}
                 <div className="ap-pcard-img">
                   <div className="ap-pcard-thumb"
                     onClick={() => { setImgEditId(p.id); setTimeout(() => rowFileRefs.current[p.id]?.click(), 10); }}>
                     <ProductThumb img={p.image} name={p.name} />
                     <span className="ap-pcard-cam">📷</span>
                   </div>
-                  <input type="file" accept="image/*" className="ap-file-hidden"
-                    ref={el => rowFileRefs.current[p.id] = el}
-                    onChange={e => handleRowImg(p.id, e.target.files[0])} />
-                </div>
-
-                {/* Col 2: Product name + tag */}
+                  <input type="file" accept="image
+}
+}
                 <div className="ap-pcard-product">
                   <span className="ap-pcard-name">{p.name}</span>
                   {p.tag && <span className="ap-pcard-tag">{p.tag}</span>}
                 </div>
 
-                {/* Col 3: Category */}
+                {}
                 <div className="ap-pcard-category">
                   <span className="ap-pcard-cat">{p.categoryName}</span>
                 </div>
 
-                {/* Col 4: Price */}
+                {}
                 <div className="ap-pcard-price">
                   <span className="ap-pcard-stat-label">Price</span>
                   {editing?.id === p.id && editing.field === "price" ? (
@@ -382,7 +371,7 @@ export default function Products() {
                   )}
                 </div>
 
-                {/* Col 5: Stock */}
+                {}
                 <div className="ap-pcard-stock">
                   <span className="ap-pcard-stat-label">Stock</span>
                   {editing?.id === p.id && editing.field === "stock" ? (
@@ -397,7 +386,7 @@ export default function Products() {
                   )}
                 </div>
 
-                {/* Col 6: Status */}
+                {}
                 <div className="ap-pcard-statuswrap">
                   <button className={`ap-pcard-status st-${p.status}`}
                     onClick={async () => {
@@ -409,7 +398,7 @@ export default function Products() {
                   </button>
                 </div>
 
-                {/* Col 7: Actions */}
+                {}
                 <div className="ap-pcard-actions">
                   <button className="ap-pcard-btn ap-pcard-btn-edit" onClick={() => handleEditClick(p)} title="Edit Product">
                     <Edit size={14} /> <span className="ap-pcard-btn-label">Edit</span>
@@ -424,13 +413,13 @@ export default function Products() {
         </div>
       )}
 
-      {/* ADD MODAL */}
+      {}
       {showAdd && (
         <div className="ap-modal-overlay" onClick={()=>{setShowAdd(false);setNewP(EMPTY_NEW);}}>
           <div className="ap-modal ap-modal-wide" onClick={e=>e.stopPropagation()}>
             <h3 className="ap-modal-title">Add New Product</h3>
 
-            {/* Image upload zone */}
+            {}
             {(newP.images?.length || 0) < MAX_IMAGES && (
               <div
                 className={`ap-img-upload-zone ${dragOver?"drag-over":""}`}
@@ -445,13 +434,9 @@ export default function Products() {
                   <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (newP.images?.length || 0)} slot(s) remaining</p>
                 </div>
-                <input ref={addFileRef} type="file" accept="image/*" multiple
-                  className="ap-file-hidden"
-                  onChange={e=>{handleNewImgMulti(e.target.files, false); e.target.value='';}} />
-              </div>
-            )}
-
-            {/* Display uploaded images grid */}
+                <input ref={addFileRef} type="file" accept="image
+}
+}
             {newP.images && newP.images.length > 0 && (
               <div className="ap-images-grid">
                 <h4 className="ap-images-title">Images ({newP.images.length}/{MAX_IMAGES})</h4>
@@ -521,13 +506,13 @@ export default function Products() {
         </div>
       )}
 
-      {/* EDIT MODAL */}
+      {}
       {editModalP && (
         <div className="ap-modal-overlay" onClick={()=>setEditModalP(null)}>
           <div className="ap-modal ap-modal-wide" onClick={e=>e.stopPropagation()}>
             <h3 className="ap-modal-title">Edit Product</h3>
 
-            {/* Image upload zone */}
+            {}
             {(editModalP.images?.length || 0) < MAX_IMAGES && (
               <div
                 className={`ap-img-upload-zone ${dragOver?"drag-over":""}`}
@@ -542,13 +527,9 @@ export default function Products() {
                   <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (editModalP.images?.length || 0)} slot(s) remaining</p>
                 </div>
-                <input ref={editFileRef} type="file" accept="image/*" multiple
-                  className="ap-file-hidden"
-                  onChange={e=>{handleNewImgMulti(e.target.files, true); e.target.value='';}} />
-              </div>
-            )}
-
-            {/* Display uploaded images grid */}
+                <input ref={editFileRef} type="file" accept="image
+}
+}
             {editModalP.images && editModalP.images.length > 0 && (
               <div className="ap-images-grid">
                 <h4 className="ap-images-title">Images ({editModalP.images.length}/{MAX_IMAGES})</h4>
@@ -618,7 +599,7 @@ export default function Products() {
         </div>
       )}
 
-      {/* DELETE CONFIRMATION MODAL */}
+      {}
       {deleteModalId && (
         <div className="ap-modal-overlay" onClick={()=>setDeleteModalId(null)}>
           <div className="ap-modal" style={{ maxWidth: "400px" }} onClick={e=>e.stopPropagation()}>
