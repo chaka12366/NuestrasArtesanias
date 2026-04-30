@@ -344,9 +344,14 @@ export default function Products() {
                     <ProductThumb img={p.image} name={p.name} />
                     <span className="ap-pcard-cam">📷</span>
                   </div>
-                  <input type="file" accept="image
-}
-}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={(el) => { rowFileRefs.current[p.id] = el; }}
+                    onChange={(e) => handleImageUpload(e, p.id)}
+                    style={{ display: "none" }}
+                  />
+                </div>
                 <div className="ap-pcard-product">
                   <span className="ap-pcard-name">{p.name}</span>
                   {p.tag && <span className="ap-pcard-tag">{p.tag}</span>}
@@ -434,9 +439,17 @@ export default function Products() {
                   <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (newP.images?.length || 0)} slot(s) remaining</p>
                 </div>
-                <input ref={addFileRef} type="file" accept="image
-}
-}
+                <input
+                  ref={addFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleAddImages}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
+
             {newP.images && newP.images.length > 0 && (
               <div className="ap-images-grid">
                 <h4 className="ap-images-title">Images ({newP.images.length}/{MAX_IMAGES})</h4>
@@ -527,9 +540,17 @@ export default function Products() {
                   <p className="ap-upload-hint">or drag & drop · JPG, PNG, WebP</p>
                   <p className="ap-upload-slots">{MAX_IMAGES - (editModalP.images?.length || 0)} slot(s) remaining</p>
                 </div>
-                <input ref={editFileRef} type="file" accept="image
-}
-}
+                <input
+                  ref={editFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleEditImages}
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
+
             {editModalP.images && editModalP.images.length > 0 && (
               <div className="ap-images-grid">
                 <h4 className="ap-images-title">Images ({editModalP.images.length}/{MAX_IMAGES})</h4>

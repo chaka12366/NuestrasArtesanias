@@ -321,6 +321,7 @@ export default function Navbar() {
           <span className="mobile-fab-badge">{itemCount > 99 ? "99+" : itemCount}</span>
         )}
       </button>
+      </header>
     </>
   );
 }
