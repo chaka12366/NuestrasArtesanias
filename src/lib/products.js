@@ -1,123 +1,152 @@
 import { supabase } from './supabase.js'
 import { sendLowStockAlert } from './emailNotification.js'
+import { queryCache, CACHE_TTL } from './cache.middlware.js'
+import { rateLimiter, RATE_LIMITS } from './ratellimit.middleware.js'
 
 const LOW_STOCK_THRESHOLD = 6
 
 export async function fetchProductsByCategory(categorySlug) {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, categories!inner(slug, name)')
-    .eq('categories.slug', categorySlug)
-    .eq('active', true)
-    .order('sort_order')
-    .order('created_at', { ascending: false })
+  const cacheKey = queryCache.key('products_by_cat', categorySlug)
 
-  if (error) {
-    console.error('Error fetching products:', error)
-    return []
-  }
+  return queryCache.get(cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, categories!inner(slug, name)')
+      .eq('categories.slug', categorySlug)
+      .eq('active', true)
+      .order('sort_order')
+      .order('created_at', { ascending: false })
 
-  return data.map(p => ({
-    id:       p.id,
-    name:     p.name,
-    price:    Number(p.price),
-    image:    p.image_url,
-    tag:      p.tag || undefined,
-    stock:    p.stock,
-    status:   p.status,
-    description: p.description || '',
-    category: categorySlug,
-  }))
+    if (error) {
+      console.error('Error fetching products:', error)
+      return []
+    }
+
+    return data.map(p => ({
+      id:       p.id,
+      name:     p.name,
+      price:    Number(p.price),
+      image:    p.image_url,
+      tag:      p.tag || undefined,
+      stock:    p.stock,
+      status:   p.status,
+      description: p.description || '',
+      category: categorySlug,
+    }))
+  }, { ttl: CACHE_TTL.PRODUCTS_BY_CAT })
 }
 
 export async function fetchCategories() {
-  const { data, error } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('active', true)
-    .order('sort_order')
+  return queryCache.get('categories', async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('active', true)
+      .order('sort_order')
 
-  if (error) {
-    console.error('Error fetching categories:', error)
-    return []
-  }
-  return data
+    if (error) {
+      console.error('Error fetching categories:', error)
+      return []
+    }
+    return data
+  }, { ttl: CACHE_TTL.CATEGORIES })
 }
 
 export async function fetchProductById(productId) {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, categories(slug, name)')
-    .eq('id', productId)
-    .single()
+  const cacheKey = queryCache.key('product', productId)
 
-  if (error) {
-    console.error('Error fetching product:', error)
-    return null
-  }
+  return queryCache.get(cacheKey, async () => {
+    // Fetch product data and images in parallel for faster load
+    const [productResult, images] = await Promise.all([
+      supabase
+        .from('products')
+        .select('*, categories(slug, name)')
+        .eq('id', productId)
+        .single(),
+      fetchProductImages(productId),
+    ])
 
-  const images = await fetchProductImages(productId)
+    const { data, error } = productResult
 
-  return {
-    id:           data.id,
-    name:         data.name,
-    price:        Number(data.price),
-    image:        data.image_url,
-    tag:          data.tag || undefined,
-    stock:        data.stock,
-    status:       data.status,
-    description:  data.description,
-    category:     data.categories?.slug,
-    categoryName: data.categories?.name,
-    images:       images || [],
-  }
+    if (error) {
+      console.error('Error fetching product:', error)
+      return null
+    }
+
+    return {
+      id:           data.id,
+      name:         data.name,
+      price:        Number(data.price),
+      image:        data.image_url,
+      tag:          data.tag || undefined,
+      stock:        data.stock,
+      status:       data.status,
+      description:  data.description,
+      category:     data.categories?.slug,
+      categoryName: data.categories?.name,
+      images:       images || [],
+    }
+  }, { ttl: CACHE_TTL.PRODUCT_DETAIL })
 }
 
 export async function fetchFeaturedProducts(limit = 5) {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, categories(slug, name)')
-    .eq('active', true)
-    .not('tag', 'is', null)
-    .limit(limit)
+  const cacheKey = queryCache.key('featured', limit)
 
-  if (error) {
-    console.error('Error fetching featured products:', error)
-    return []
-  }
+  return queryCache.get(cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, categories(slug, name)')
+      .eq('active', true)
+      .not('tag', 'is', null)
+      .limit(limit)
 
-  return data.map(p => ({
-    id:       p.id,
-    image:    p.image_url,
-    name:     p.name,
-    price:    Number(p.price),
-    category: p.categories?.slug,
-  }))
+    if (error) {
+      console.error('Error fetching featured products:', error)
+      return []
+    }
+
+    return data.map(p => ({
+      id:       p.id,
+      image:    p.image_url,
+      name:     p.name,
+      price:    Number(p.price),
+      category: p.categories?.slug,
+    }))
+  }, { ttl: CACHE_TTL.FEATURED })
 }
 
 export async function searchProducts(query) {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, categories(slug, name)')
-    .eq('active', true)
-    .ilike('name', `%${query}%`)
-    .order('sort_order')
-    .limit(20)
-
-  if (error) {
-    console.error('Error searching products:', error)
+  if (!rateLimiter.allow('search', RATE_LIMITS.SEARCH)) {
+    console.warn('Search rate limited — please wait')
     return []
   }
 
-  return data.map(p => ({
-    id:       p.id,
-    name:     p.name,
-    price:    Number(p.price),
-    image:    p.image_url,
-    tag:      p.tag || undefined,
-    stock:    p.stock,
-    category: p.categories?.slug,
-  }))
+  const cacheKey = queryCache.key('search', query.toLowerCase().trim())
+
+  return queryCache.get(cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, categories(slug, name)')
+      .eq('active', true)
+      .ilike('name', `%${query}%`)
+      .order('sort_order')
+      .limit(20)
+
+    if (error) {
+      console.error('Error searching products:', error)
+      return []
+    }
+
+    return data.map(p => ({
+      id:       p.id,
+      name:     p.name,
+      price:    Number(p.price),
+      image:    p.image_url,
+      tag:      p.tag || undefined,
+      stock:    p.stock,
+      category: p.categories?.slug,
+    }))
+  }, { ttl: CACHE_TTL.SEARCH })
 }
 
 export async function checkStockForProducts(productIds) {
@@ -194,6 +223,11 @@ export async function createProduct(productData) {
     return { success: false, error: error.message }
   }
 
+  // Invalidate relevant caches so new product appears immediately
+  queryCache.invalidatePrefix('products_by_cat')
+  queryCache.invalidatePrefix('featured')
+  queryCache.invalidate('categories')
+
   return { success: true, productId: data.id }
 }
 
@@ -223,6 +257,12 @@ export async function updateProduct(productId, updates) {
     console.error('Error updating product:', error)
     return false
   }
+
+  // Invalidate caches for updated product
+  queryCache.invalidate(queryCache.key('product', productId))
+  queryCache.invalidatePrefix('products_by_cat')
+  queryCache.invalidatePrefix('featured')
+  queryCache.invalidatePrefix('product_images:' + JSON.stringify(productId))
 
   if (stockUpdated && updateData.stock <= LOW_STOCK_THRESHOLD) {
     try {
@@ -283,18 +323,22 @@ export async function uploadProductImage(file, fileName) {
 }
 
 export async function fetchProductImages(productId) {
-  const { data, error } = await supabase
-    .from('product_images')
-    .select('*')
-    .eq('product_id', productId)
-    .order('display_order', { ascending: true })
+  const cacheKey = queryCache.key('product_images', productId)
 
-  if (error) {
-    console.error('Error fetching product images:', error)
-    return []
-  }
+  return queryCache.get(cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('product_images')
+      .select('*')
+      .eq('product_id', productId)
+      .order('display_order', { ascending: true })
 
-  return data || []
+    if (error) {
+      console.error('Error fetching product images:', error)
+      return []
+    }
+
+    return data || []
+  }, { ttl: CACHE_TTL.PRODUCT_IMAGES })
 }
 
 export async function fetchProductImagesBatch(productIds) {

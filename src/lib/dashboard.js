@@ -1,58 +1,74 @@
 import { supabase } from './supabase.js'
+import { queryCache } from './cache.middlware.js'
+
+// Dashboard-specific cache TTLs
+const DASH_TTL = {
+  STATS:       2 * 60 * 1000,  // 2 min — aggregated views
+  ORDERS:      1 * 60 * 1000,  // 1 min — needs to be relatively fresh
+  REVENUE_CAT: 3 * 60 * 1000,  // 3 min — slow to change
+  NOTIFY:      1 * 60 * 1000,  // 1 min
+  PRODUCTS:    2 * 60 * 1000,  // 2 min
+}
 
 export async function fetchDashboardStats() {
-  try {
-    const [revenue, statusSummary, topProducts, customerStats, lowStock] =
-      await Promise.all([
-        supabase.from('monthly_revenue').select('*'),
-        supabase.from('order_status_summary').select('*'),
-        supabase.from('top_products').select('*').limit(10),
-        supabase.from('customer_stats').select('*').single(),
-        supabase.from('low_stock_alerts').select('*'),
-      ])
+  return queryCache.get('dashboard_stats', async () => {
+    try {
+      const [revenue, statusSummary, topProducts, customerStats, lowStock] =
+        await Promise.all([
+          supabase.from('monthly_revenue').select('*'),
+          supabase.from('order_status_summary').select('*'),
+          supabase.from('top_products').select('*').limit(10),
+          supabase.from('customer_stats').select('*').single(),
+          supabase.from('low_stock_alerts').select('*'),
+        ])
 
-    return {
-      monthlyRevenue: revenue.data || [],
-      orderStatus:    statusSummary.data || [],
-      topProducts:    topProducts.data || [],
-      customerStats:  customerStats.data || { total_customers: 0, new_this_month: 0 },
-      lowStockAlerts: lowStock.data || [],
+      return {
+        monthlyRevenue: revenue.data || [],
+        orderStatus:    statusSummary.data || [],
+        topProducts:    topProducts.data || [],
+        customerStats:  customerStats.data || { total_customers: 0, new_this_month: 0 },
+        lowStockAlerts: lowStock.data || [],
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard stats:', err)
+      return {
+        monthlyRevenue: [],
+        orderStatus:    [],
+        topProducts:    [],
+        customerStats:  { total_customers: 0, new_this_month: 0 },
+        lowStockAlerts: [],
+      }
     }
-  } catch (err) {
-    console.error('Error fetching dashboard stats:', err)
-    return {
-      monthlyRevenue: [],
-      orderStatus:    [],
-      topProducts:    [],
-      customerStats:  { total_customers: 0, new_this_month: 0 },
-      lowStockAlerts: [],
-    }
-  }
+  }, { ttl: DASH_TTL.STATS })
 }
 
 export async function fetchRevenueByCategory() {
-  const { data, error } = await supabase
-    .from('revenue_by_category')
-    .select('*')
+  return queryCache.get('revenue_by_category', async () => {
+    const { data, error } = await supabase
+      .from('revenue_by_category')
+      .select('*')
 
-  if (error) {
-    console.error('Error fetching revenue by category:', error)
-    return []
-  }
-  return data
+    if (error) {
+      console.error('Error fetching revenue by category:', error)
+      return []
+    }
+    return data
+  }, { ttl: DASH_TTL.REVENUE_CAT })
 }
 
 export async function fetchAllOrders() {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*, order_items(*), profiles(first_name, last_name, email, phone)')
-    .order('created_at', { ascending: false })
+  return queryCache.get('all_orders', async () => {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, order_items(*), profiles(first_name, last_name, email, phone)')
+      .order('created_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching all orders:', error)
-    return []
-  }
-  return data
+    if (error) {
+      console.error('Error fetching all orders:', error)
+      return []
+    }
+    return data
+  }, { ttl: DASH_TTL.ORDERS })
 }
 
 export async function updateOrderStatus(orderId, newStatus) {
@@ -84,6 +100,9 @@ export async function updateOrderStatus(orderId, newStatus) {
       console.error('Error updating order status:', error)
       return false
     }
+    // Invalidate order-related caches
+    queryCache.invalidate('all_orders')
+    queryCache.invalidate('dashboard_stats')
     return true
   } catch (err) {
     console.error('Error in updateOrderStatus:', err)
@@ -101,6 +120,8 @@ export async function updatePaymentStatus(orderId, newStatus) {
     console.error('Error updating payment status:', error)
     return false
   }
+  queryCache.invalidate('all_orders')
+  queryCache.invalidate('dashboard_stats')
   return true
 }
 
@@ -249,6 +270,11 @@ export async function cancelOrder(orderId) {
       orderCancelled: false,
       stockRestored: false,
     }
+  } finally {
+    // Always invalidate caches after cancel attempt
+    queryCache.invalidate('all_orders')
+    queryCache.invalidate('dashboard_stats')
+    queryCache.invalidatePrefix('products_by_cat')
   }
 }
 
@@ -392,17 +418,20 @@ export async function cancelOrderItem(itemId, productId, quantityToCancel) {
 }
 
 export async function fetchNotifications(limit = 20) {
-  const { data, error } = await supabase
-    .from('notifications')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(limit)
+  const cacheKey = queryCache.key('notifications', limit)
+  return queryCache.get(cacheKey, async () => {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit)
 
-  if (error) {
-    console.error('Error fetching notifications:', error)
-    return []
-  }
-  return data
+    if (error) {
+      console.error('Error fetching notifications:', error)
+      return []
+    }
+    return data
+  }, { ttl: DASH_TTL.NOTIFY })
 }
 
 export async function getUnreadCount() {
@@ -477,17 +506,19 @@ export async function updateInventoryItem(itemId, updates) {
 }
 
 export async function fetchAllProducts() {
-  const { data, error } = await supabase
-    .from('products')
-    .select('*, categories(slug, name)')
-    .order('category_id')
-    .order('sort_order')
+  return queryCache.get('admin_all_products', async () => {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, categories(slug, name)')
+      .order('category_id')
+      .order('sort_order')
 
-  if (error) {
-    console.error('Error fetching all products:', error)
-    return []
-  }
-  return data
+    if (error) {
+      console.error('Error fetching all products:', error)
+      return []
+    }
+    return data
+  }, { ttl: DASH_TTL.PRODUCTS })
 }
 
 export async function addProduct(product) {

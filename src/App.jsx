@@ -7,6 +7,8 @@ import { useAuth } from "./contexts/auth.js";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getStoreSettings } from "./utils/storeSettingsCache.js";
+import { queryCache, CACHE_TTL } from "./lib/cache.middlware.js";
+import { fetchCategories, fetchFeaturedProducts } from "./lib/products.js";
 import Home from "./pages/Home.jsx";
 const Login = lazy(() => import("./pages/login.jsx"));
 const CreateAccount = lazy(() => import("./pages/CreateAccount.jsx"));
@@ -154,6 +156,12 @@ export default function App() {
   const { loading } = useAuth();
 
   useEffect(() => {
+    // Warm the cache: pre-fetch critical data in parallel for instant page loads
+    queryCache.warmup([
+      { key: 'categories', fetcher: fetchCategories, ttl: CACHE_TTL.CATEGORIES },
+      { key: queryCache.key('featured', 5), fetcher: () => fetchFeaturedProducts(5), ttl: CACHE_TTL.FEATURED },
+    ]);
+
     getStoreSettings().then(settings => {
       if (settings) {
         const doc = document.documentElement;
