@@ -130,6 +130,7 @@
   left: 0;
   width: var(--sidebar-w);
   height: 100%;
+  height: 100dvh;
   background: #fff;
   z-index: 1005;
   transform: translateX(-100%);
@@ -138,6 +139,7 @@
   display: flex;
   flex-direction: column;
   will-change: transform;
+  overflow: hidden;
 }
 
 .sidebar-nav.open { transform: translateX(0); }

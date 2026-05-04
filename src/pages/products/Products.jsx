@@ -238,11 +238,15 @@ export default function Products() {
   };
 
   const handleEditClick = async (p) => {
-
-    const imagesData = await fetchProductImages(p.id);
-    const images = imagesData && imagesData.length > 0
-      ? imagesData.sort((a,b) => a.display_order - b.display_order).map(img => img.image_url)
-      : (p.image ? [p.image] : []);
+    let images = p.image ? [p.image] : [];
+    try {
+      const imagesData = await fetchProductImages(p.id);
+      if (imagesData && imagesData.length > 0) {
+        images = imagesData.sort((a,b) => a.display_order - b.display_order).map(img => img.image_url);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch product images, using fallback:', err);
+    }
 
     setEditModalP({
       ...EMPTY_EDIT,
@@ -348,7 +352,7 @@ export default function Products() {
                     type="file"
                     accept="image/*"
                     ref={(el) => { rowFileRefs.current[p.id] = el; }}
-                    onChange={(e) => handleImageUpload(e, p.id)}
+                    onChange={(e) => { if (e.target.files?.[0]) handleRowImg(p.id, e.target.files[0]); }}
                     style={{ display: "none" }}
                   />
                 </div>
@@ -444,7 +448,7 @@ export default function Products() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={handleAddImages}
+                  onChange={(e) => { if (e.target.files?.length) handleNewImgMulti(e.target.files, false); }}
                   style={{ display: "none" }}
                 />
               </div>
@@ -545,7 +549,7 @@ export default function Products() {
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={handleEditImages}
+                  onChange={(e) => { if (e.target.files?.length) handleNewImgMulti(e.target.files, true); }}
                   style={{ display: "none" }}
                 />
               </div>
