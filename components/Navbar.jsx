@@ -6,7 +6,7 @@ import { getStoreSettings, getStoreSettingsSync } from "../src/utils/storeSettin
 import { fetchCategories } from "../src/lib/products.js";
 import "./Navbar.css";
 import logo from "../src/assets/logo.png";
-import { User, Key, Sparkles, ShoppingCart, Menu, X } from "lucide-react";
+import { User, Key, Sparkles, ShoppingCart, Menu, X, LogOut } from "lucide-react";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -284,17 +284,27 @@ export default function Navbar() {
 
         <div className="sidebar-nav-footer">
           {user ? (
-            <button
-              className="sidebar-nav-auth-btn profile-btn"
-              onClick={() => {
-                navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard');
-                setMenuOpen(false);
-              }}
-              title={`Dashboard (${user.email})`}
-            >
-              <User size={18} />
-              <span>Dashboard</span>
-            </button>
+            <>
+              <button
+                className="sidebar-nav-auth-btn profile-btn"
+                onClick={() => {
+                  navigate(user.role === 'owner' ? '/dashboard' : '/customer-dashboard');
+                  setMenuOpen(false);
+                }}
+                title={`Dashboard (${user.email})`}
+              >
+                <User size={18} />
+                <span>Dashboard</span>
+              </button>
+              <button
+                className="sidebar-nav-auth-btn logout-btn"
+                onClick={handleLogout}
+                title="Sign Out"
+              >
+                <LogOut size={18} />
+                <span>Sign Out</span>
+              </button>
+            </>
           ) : (
             <button
               className="sidebar-nav-auth-btn login-btn"

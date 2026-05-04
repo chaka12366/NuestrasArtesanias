@@ -254,6 +254,9 @@
   padding: 16px 20px;
   border-top: 1px solid var(--border);
   background: #fafbfc;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .sidebar-nav-auth-btn {
@@ -272,13 +275,15 @@
   font-family: "DM Sans", sans-serif;
 }
 
-.sidebar-nav-auth-btn.login-btn {
+.sidebar-nav-auth-btn.login-btn,
+.sidebar-nav-auth-btn.profile-btn {
   background: linear-gradient(135deg, var(--primary-mid) 0%, var(--primary-light) 100%);
   color: #fff;
   box-shadow: 0 4px 12px rgba(139,69,19,0.2);
 }
 
-.sidebar-nav-auth-btn.login-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139,69,19,0.3); }
+.sidebar-nav-auth-btn.login-btn:hover,
+.sidebar-nav-auth-btn.profile-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(139,69,19,0.3); }
 
 .sidebar-nav-auth-btn.logout-btn {
   background: #fff;
