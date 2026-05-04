@@ -210,6 +210,7 @@ export default function Navbar() {
         </div>
 
       </nav>
+      </header>
 
       {menuOpen && (
         <div
@@ -321,7 +322,6 @@ export default function Navbar() {
           <span className="mobile-fab-badge">{itemCount > 99 ? "99+" : itemCount}</span>
         )}
       </button>
-      </header>
     </>
   );
 }
